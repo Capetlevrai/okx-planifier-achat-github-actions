@@ -12,7 +12,7 @@
 import {
   PLAN_FILE, HISTORY_FILE, readJson, writeJson,
   requireCredentials, availableBalance, lastPrice, marketBuy, orderFill,
-  quoteCurrency, baseCurrency, makeClOrdId, log, resolveDryRun, DEMO,
+  quoteCurrency, baseCurrency, makeClOrdId, log, configure, isDemo, isDryRun, modeLabel,
 } from './okx.mjs';
 
 requireCredentials();
@@ -23,13 +23,15 @@ if (!plan) {
   process.exit(1);
 }
 
-const DRY_RUN = resolveDryRun(plan);
+configure(plan);
+const DRY_RUN = isDryRun();
+const DEMO = isDemo();
 
 const history = readJson(HISTORY_FILE, { purchases: [] });
 const now = Date.now();
 const due = plan.entries.filter((e) => e.status === 'pending' && new Date(e.dueAt).getTime() <= now);
 
-log(`Mode ${DEMO ? 'DÉMO' : 'RÉEL'}${DRY_RUN ? ' — DRY RUN' : ''}`);
+log(`Mode : ${modeLabel()}`);
 log(`${due.length} achat(s) dû(s) sur ${plan.entries.filter((e) => e.status === 'pending').length} en attente.`);
 
 if (due.length === 0) {
@@ -52,7 +54,7 @@ for (const entry of due) {
     const price = await lastPrice(entry.instId);
     log(`Prix ${entry.instId} : ${price} — solde ${quote} : ${balance}`);
 
-    const result = await marketBuy(entry.instId, entry.amount, makeClOrdId(), DRY_RUN);
+    const result = await marketBuy(entry.instId, entry.amount, makeClOrdId());
 
     if (result.dryRun) {
       log('DRY RUN — ordre non transmis :', JSON.stringify(result.order));

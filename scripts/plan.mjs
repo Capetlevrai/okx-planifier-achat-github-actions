@@ -24,12 +24,14 @@
  *   --start <date>  première échéance, AAAA-MM-JJ                    (défaut aujourd'hui)
  *   --hour <n>      heure d'exécution UTC, 0-23                      (défaut 9)
  *   --check         vérifie auprès d'OKX que chaque paire existe
+ *   --account <x>   "demo" (défaut, argent fictif) ou "reel" (argent réel)
+ *   --site <x>      eea (défaut, Europe) | global | us | tr
  *   --live          arme le plan : les ordres partiront réellement
  *                   (sans ce drapeau, tout est simulé)
  *   --force         écrase un planning existant
  */
 
-import { PLAN_FILE, readJson, writeJson, log, quoteCurrency, assertSpotInstrument, requireCredentials } from './okx.mjs';
+import { PLAN_FILE, readJson, writeJson, log, quoteCurrency, assertSpotInstrument, requireCredentials, configure, SITES, modeLabel } from './okx.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -80,8 +82,16 @@ if (perAsset <= 0) throw new Error('Le montant par actif est nul — vérifiez -
 const count = args.count ? Number(args.count) : Math.floor((months * 30) / every);
 if (!Number.isFinite(count) || count < 1) throw new Error('Le planning calculé est vide — vérifiez --every / --months.');
 
+const site = String(args.site ?? 'eea').toLowerCase();
+if (!SITES[site]) throw new Error(`--site inconnu : "${site}". Valeurs : ${Object.keys(SITES).join(', ')}.`);
+
+const account = String(args.account ?? 'demo').toLowerCase();
+if (!['demo', 'reel', 'real'].includes(account)) throw new Error('--account doit valoir "demo" ou "reel".');
+const isDemoAccount = account === 'demo';
+
 if (args.check) {
   requireCredentials();
+  configure({ demo: isDemoAccount, site, live: false });
   for (const id of instIds) {
     const inst = await assertSpotInstrument(id);
     log(`✓ ${id} — lot minimum ${inst.minSz} ${inst.baseCcy}`);
@@ -117,8 +127,12 @@ const perCycle = perAsset * instIds.length;
 
 const plan = {
   createdAt: new Date().toISOString(),
-  // false = simulation, aucun ordre transmis. C'est le défaut, volontairement.
-  live: Boolean(args.live),
+  // Les trois réglages qui pilotent l'exécution, tous à leur valeur prudente
+  // par défaut. Ils sont relus par configure() dans scripts/okx.mjs.
+  live: Boolean(args.live),   // false = simulation, aucun ordre transmis
+  demo: isDemoAccount,        // true  = argent fictif
+  site,                       // région du compte
+  baseUrl: SITES[site].baseUrl,
   strategy: {
     label: `${perAsset} ${quote} par actif tous les ${every} jours`,
     instIds,
@@ -138,7 +152,8 @@ log(`Actifs : ${instIds.join(', ')}`);
 log(`${perAsset} ${quote} par actif et par échéance, soit ${perCycle} ${quote} par cycle`);
 log(`Du ${entries[0].dueAt.slice(0, 10)} au ${entries.at(-1).dueAt.slice(0, 10)} à ${hour}h UTC`);
 log(`Total engagé : ${perCycle * count} ${quote}`);
-log(plan.live
-  ? '⚠️  Mode RÉEL : les ordres seront transmis à OKX aux échéances.'
-  : 'Mode SIMULATION : aucun ordre ne sera transmis (relancez avec --live pour armer).');
+configure(plan);
+log(`Mode : ${modeLabel()}`);
+if (!plan.live) log('Relancez avec --live pour armer les achats.');
+else if (!plan.demo) log('⚠️  ARGENT RÉEL : les ordres partiront pour de vrai aux échéances.');
 log(`Fichier : ${PLAN_FILE}`);

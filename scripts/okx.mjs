@@ -17,24 +17,50 @@ const API_KEY = process.env.OKX_API_KEY;
 const SECRET_KEY = process.env.OKX_SECRET_KEY;
 const PASSPHRASE = process.env.OKX_PASSPHRASE;
 
-/** Compte démo (simulated trading) sauf si OKX_DEMO=0. */
-export const DEMO = (process.env.OKX_DEMO ?? '1') !== '0';
-/** my.okx.com = entité EEA. www.okx.com = global. */
-export const BASE_URL = process.env.OKX_BASE_URL ?? 'https://my.okx.com';
+/** Régions OKX : le domaine dépend de l'entité qui détient le compte. */
+export const SITES = {
+  eea: { label: 'Europe (EEA)', baseUrl: 'https://my.okx.com' },
+  global: { label: 'International', baseUrl: 'https://www.okx.com' },
+  us: { label: 'États-Unis', baseUrl: 'https://us.okx.com' },
+  tr: { label: 'Turquie', baseUrl: 'https://tr.okx.com' },
+};
+
+// État courant, fixé par configure(). Valeurs de repli les plus prudentes :
+// compte démo, Europe, et surtout aucune transmission d'ordre.
+let demo = true;
+let baseUrl = SITES.eea.baseUrl;
+let dryRun = true;
+
+const envSet = (name) => process.env[name] !== undefined && process.env[name] !== '';
 
 /**
- * Garde-fou. Deux sources, dans cet ordre :
- *   1. la variable d'environnement DRY_RUN, si elle est explicitement fournie
- *      (saisie manuelle, variable de dépôt) — elle l'emporte toujours ;
- *   2. sinon le champ "live" du planning, réglé depuis le formulaire de
- *      configuration.
- * En l'absence des deux, on simule. Ne jamais acheter par défaut.
+ * Détermine le mode d'exécution. Pour chacun des trois réglages, la variable
+ * d'environnement l'emporte si elle est fournie ; sinon c'est le planning qui
+ * décide ; sinon on retombe sur la valeur la plus prudente.
+ *
+ * À appeler une fois au démarrage, avant tout appel réseau.
  */
-export function resolveDryRun(plan) {
-  const env = process.env.DRY_RUN;
-  if (env !== undefined && env !== '') return env !== '0';
-  return plan?.live !== true;
+export function configure(plan) {
+  demo = envSet('OKX_DEMO') ? process.env.OKX_DEMO !== '0' : plan?.demo !== false;
+
+  baseUrl = envSet('OKX_BASE_URL')
+    ? process.env.OKX_BASE_URL
+    : plan?.baseUrl || SITES[plan?.site]?.baseUrl || SITES.eea.baseUrl;
+
+  dryRun = envSet('DRY_RUN') ? process.env.DRY_RUN !== '0' : plan?.live !== true;
+
+  return { demo, baseUrl, dryRun };
 }
+
+export const isDemo = () => demo;
+export const isDryRun = () => dryRun;
+export const currentBaseUrl = () => baseUrl;
+
+/** Résumé lisible du mode courant, à afficher en tête de chaque exécution. */
+export const modeLabel = () =>
+  `compte ${demo ? 'DÉMO (argent fictif)' : 'RÉEL (argent réel)'} · ` +
+  `${dryRun ? 'SIMULATION, aucun ordre transmis' : 'ACHATS RÉELS, les ordres partent'} · ` +
+  baseUrl.replace('https://', '');
 
 export function requireCredentials() {
   const missing = ['OKX_API_KEY', 'OKX_SECRET_KEY', 'OKX_PASSPHRASE'].filter((k) => !process.env[k]);
@@ -66,9 +92,10 @@ export async function okx(method, requestPath, payload) {
     'OK-ACCESS-PASSPHRASE': PASSPHRASE,
     'Content-Type': 'application/json',
   };
-  if (DEMO) headers['x-simulated-trading'] = '1';
+  // Cet en-tête est la seule différence entre le compte démo et le compte réel.
+  if (demo) headers['x-simulated-trading'] = '1';
 
-  const res = await fetch(BASE_URL + requestPath, { method, headers, body: body || undefined });
+  const res = await fetch(baseUrl + requestPath, { method, headers, body: body || undefined });
   const json = await res.json();
 
   if (json.code !== '0') {
@@ -95,7 +122,7 @@ export async function availableBalance(ccy) {
  * Achat au marché d'un montant exprimé dans la devise de cotation.
  * tgtCcy=quote_ccy => sz est en EUR/USDC, pas en BTC.
  */
-export async function marketBuy(instId, amount, clOrdId, dryRun) {
+export async function marketBuy(instId, amount, clOrdId) {
   const order = {
     instId,
     tdMode: 'cash',

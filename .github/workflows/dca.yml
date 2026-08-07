@@ -39,9 +39,11 @@ jobs:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
-          # '1' = compte démo (simulated trading). Mettre '0' pour le compte réel.
-          OKX_DEMO: ${{ vars.OKX_DEMO || '1' }}
-          OKX_BASE_URL: ${{ vars.OKX_BASE_URL || 'https://my.okx.com' }}
+          # Laissés vides par défaut : compte, région et armement viennent tous
+          # de data/plan.json, réglé depuis le formulaire de configuration.
+          # Une variable de dépôt, si elle existe, reste prioritaire.
+          OKX_DEMO: ${{ vars.OKX_DEMO }}
+          OKX_BASE_URL: ${{ vars.OKX_BASE_URL }}
           # ATTENTION : ne pas écrire ${{ inputs.dry_run || vars.DRY_RUN }}.
           # Les expressions GitHub castent les chaînes numériques en nombres,
           # donc '0' est FAUX et l'opérateur || l'écraserait silencieusement —

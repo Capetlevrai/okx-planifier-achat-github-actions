@@ -9,11 +9,16 @@
 import {
   HISTORY_FILE, readJson, writeJson,
   requireCredentials, availableBalance, lastPrice, marketBuy, orderFill,
-  quoteCurrency, baseCurrency, makeClOrdId, log, resolveDryRun, DEMO,
+  quoteCurrency, baseCurrency, makeClOrdId, log, configure, isDemo, isDryRun, modeLabel,
+  PLAN_FILE, readJson,
 } from './okx.mjs';
 
-// Achat hors planning : seule la variable d'environnement fait foi.
-const DRY_RUN = resolveDryRun(null);
+// Achat hors planning : on reprend le compte et la région du planning, mais
+// jamais son armement — un achat manuel s'arme explicitement via DRY_RUN.
+const planForContext = readJson(PLAN_FILE, null);
+configure({ ...(planForContext ?? {}), live: false });
+const DRY_RUN = isDryRun();
+const DEMO = isDemo();
 
 const args = process.argv.slice(2);
 const arg = (name, fallback) => {
@@ -30,7 +35,8 @@ if (!Number.isFinite(amount) || amount <= 0) throw new Error('--amount doit êtr
 
 requireCredentials();
 
-log(`Achat ponctuel : ${amount} ${quote} sur ${instId} — mode ${DEMO ? 'DÉMO' : 'RÉEL'}${DRY_RUN ? ' — DRY RUN' : ''}`);
+log(`Achat ponctuel : ${amount} ${quote} sur ${instId}`);
+log(`Mode : ${modeLabel()}`);
 
 const balance = await availableBalance(quote);
 const price = await lastPrice(instId);
@@ -43,7 +49,7 @@ if (balance < amount) {
 
 log(`Estimation : ~${(amount / price).toFixed(8)} ${base} pour ${amount} ${quote}`);
 
-const result = await marketBuy(instId, amount, makeClOrdId('now'), DRY_RUN);
+const result = await marketBuy(instId, amount, makeClOrdId('now'));
 
 if (result.dryRun) {
   log('DRY RUN — ordre qui serait transmis :');

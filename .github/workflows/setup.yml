@@ -1,7 +1,7 @@
 name: 1. Configurer mon plan
 
-# Tout se fait depuis le navigateur : Actions > ce workflow > "Run workflow".
-# Aucune installation, aucune ligne de commande.
+# Tout se règle ici : Actions > ce workflow > "Run workflow".
+# Aucune installation, aucune page de réglages à visiter.
 
 on:
   workflow_dispatch:
@@ -9,9 +9,9 @@ on:
       paires:
         description: "Que voulez-vous acheter ? (ex. BTC-EUR — plusieurs séparées par des virgules, même devise)"
         required: true
-        default: 'BTC-EUR'
+        default: 'BTC-USDC'
       montant:
-        description: "Montant par actif et par achat (ex. 50)"
+        description: "Montant par actif et par achat"
         required: true
         default: '50'
       intervalle:
@@ -22,18 +22,32 @@ on:
         description: "Pendant combien de mois ?"
         required: true
         default: '3'
-      heure:
-        description: "Heure d'exécution, en UTC (9 = 11h à Paris l'été)"
+      compte:
+        description: "Quel compte OKX ?"
         required: true
-        default: '9'
-      mode:
-        description: "Passer les ordres pour de vrai ?"
+        default: 'demo'
+        type: choice
+        options:
+          - demo
+          - reel
+      region:
+        description: "Où est votre compte ?"
+        required: true
+        default: 'eea'
+        type: choice
+        options:
+          - eea
+          - global
+          - us
+          - tr
+      execution:
+        description: "Transmettre les ordres ?"
         required: true
         default: 'simulation'
         type: choice
         options:
           - simulation
-          - reel
+          - acheter
 
 permissions:
   contents: write
@@ -53,21 +67,19 @@ jobs:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
-          OKX_DEMO: ${{ vars.OKX_DEMO || '1' }}
-          OKX_BASE_URL: ${{ vars.OKX_BASE_URL || 'https://my.okx.com' }}
         run: |
-          # --check valide les paires auprès d'OKX, mais seulement si les
-          # secrets sont déjà en place. Sinon on génère quand même le plan.
+          # --check valide les paires auprès d'OKX, si les secrets sont déjà là.
           CHECK=""
           if [ -n "$OKX_API_KEY" ]; then CHECK="--check"; fi
           LIVE=""
-          if [ "${{ inputs.mode }}" = "reel" ]; then LIVE="--live"; fi
+          if [ "${{ inputs.execution }}" = "acheter" ]; then LIVE="--live"; fi
           node scripts/plan.mjs \
-            --instId "${{ inputs.paires }}" \
-            --amount "${{ inputs.montant }}" \
-            --every  "${{ inputs.intervalle }}" \
-            --months "${{ inputs.duree }}" \
-            --hour   "${{ inputs.heure }}" \
+            --instId  "${{ inputs.paires }}" \
+            --amount  "${{ inputs.montant }}" \
+            --every   "${{ inputs.intervalle }}" \
+            --months  "${{ inputs.duree }}" \
+            --account "${{ inputs.compte }}" \
+            --site    "${{ inputs.region }}" \
             $CHECK $LIVE --force
 
       - name: Repartir de zéro côté historique
@@ -98,21 +110,21 @@ jobs:
               console.log(`- **Actifs** : ${s.instIds.join(", ")}`);
               console.log(`- **Montant** : ${s.amountPerAsset} ${s.quoteCcy} par actif et par échéance`);
               console.log(`- **Rythme** : tous les ${s.everyDays} jours, ${s.cycles} fois, à ${s.hourUtc}h00 UTC`);
-              console.log(`- **Premier achat** : ${p.entries[0].dueAt.slice(0, 10)}`);
-              console.log(`- **Dernier achat** : ${p.entries.at(-1).dueAt.slice(0, 10)}`);
+              console.log(`- **Période** : du ${p.entries[0].dueAt.slice(0,10)} au ${p.entries.at(-1).dueAt.slice(0,10)}`);
               console.log(`- **Total engagé** : ${total} ${s.quoteCcy}`);
-              console.log(`- **Mode** : ${p.live ? "RÉEL — les ordres partiront" : "simulation — aucun ordre"}`);
+              console.log(`- **Compte** : ${p.demo ? "démo (argent fictif)" : "RÉEL (argent réel)"} — ${p.baseUrl}`);
+              console.log(`- **Exécution** : ${p.live ? "les ordres partiront" : "simulation, aucun ordre"}`);
             '
             echo ""
-            if [ "${{ inputs.mode }}" = "reel" ]; then
+            if [ "${{ inputs.execution }}" = "acheter" ]; then
               echo "### 🚀 C'est armé"
               echo ""
               echo "Les achats partiront automatiquement à chaque échéance, ordinateur éteint compris."
-              echo "Pour revenir en simulation : relancez ce workflow avec le mode \`simulation\`."
+              echo "Pour arrêter : relancez ce workflow avec \`simulation\`."
             else
               echo "### 🧪 Mode simulation"
               echo ""
               echo "Le système tourne et détecte les échéances, mais **ne transmet aucun ordre**."
-              echo "Quand vous êtes prêt, relancez ce workflow avec le mode \`reel\`."
+              echo "Quand vous êtes prêt, relancez ce workflow avec \`acheter\`."
             fi
           } >> "$GITHUB_STEP_SUMMARY"

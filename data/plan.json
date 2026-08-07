@@ -1,6 +1,9 @@
 {
-  "createdAt": "2026-08-07T15:50:49.814Z",
+  "createdAt": "2026-08-07T15:59:45.272Z",
   "live": false,
+  "demo": true,
+  "site": "eea",
+  "baseUrl": "https://my.okx.com",
   "strategy": {
     "label": "25 USDC par actif tous les 15 jours",
     "instIds": [
