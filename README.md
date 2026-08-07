@@ -73,17 +73,26 @@ GitHub les chiffre. Ils ne sont jamais visibles, ni dans le code, ni dans les lo
 
 ### 4. Décrivez votre plan
 
-Onglet **Actions** → **1. Configurer mon plan** → bouton **Run workflow**.
+Onglet **Actions** → **1. Configurer mon plan** → bouton **Run workflow** (à
+droite) → remplissez le formulaire → bouton vert **Run workflow**.
 
-Un formulaire s'ouvre : que voulez-vous acheter, combien, tous les combien de
-jours, pendant combien de mois, et **simulation ou réel**. Validez.
+Sept champs, tous avec une valeur par défaut :
 
-C'est ce dernier champ qui arme le système — il n'y a rien d'autre à régler
-ailleurs. Il vaut `simulation` par défaut : tout tourne, mais aucun ordre ne
-part. Repassez le formulaire en `reel` quand vous êtes prêt.
+| Champ | Ce que ça règle |
+|---|---|
+| `paires` | ce que vous achetez — `BTC-EUR`, `ETH-USDC`, plusieurs séparées par des virgules |
+| `montant` | combien à chaque achat |
+| `intervalle` | tous les combien de jours |
+| `duree` | pendant combien de mois |
+| `compte` | `demo` (argent fictif) ou `reel` (votre vrai argent) |
+| `region` | `eea` Europe · `global` · `us` · `tr` |
+| `execution` | `simulation` (rien ne part) ou `acheter` (les ordres partent) |
 
-À partir de là, plus rien à faire. GitHub achète tout seul, à chaque échéance,
-même ordinateur éteint, même si vous oubliez le projet pendant trois mois.
+`compte` et `execution` sont **indépendants**. On teste d'abord en `demo` +
+`simulation`, puis `demo` + `acheter` pour voir un vrai ordre sans risque, et on
+ne passe en `reel` qu'ensuite.
+
+Vous pouvez relancer ce formulaire quand vous voulez pour tout changer.
 
 ### 5. Affichez votre tableau de bord
 
@@ -91,7 +100,27 @@ même ordinateur éteint, même si vous oubliez le projet pendant trois mois.
 
 Votre interface est en ligne sur `https://VOTRE-PSEUDO.github.io/VOTRE-DEPOT/`.
 
-> Pour tout arrêter : Actions → **2. Acheter** → menu `···` → *Disable workflow*.
+### 6. Les achats
+
+Une fois `execution` sur `acheter`, **il n'y a plus rien à faire** : GitHub
+vérifie chaque jour à 9h UTC s'il y a une échéance et achète tout seul, votre
+ordinateur éteint.
+
+**Pour ne pas attendre demain**, déclenchez un achat tout de suite :
+Actions → **2. Acheter — routine automatique** → **Run workflow** → menu
+déroulant sur **`0`** → bouton vert **Run workflow**.
+
+> `0` = les ordres partent · `1` = simulation. Ce menu ne vaut que pour ce
+> lancement-là, il ne modifie pas votre plan.
+
+**Pour tout arrêter :** Actions → **2. Acheter** → menu `···` → *Disable workflow*.
+Ou relancez le formulaire de configuration avec `execution = simulation`.
+
+---
+
+**Vous n'avez ouvert aucun terminal.** Les trois sections qui suivent
+(agent IA, prompt détaillé, installation locale) sont des alternatives, pas des
+étapes supplémentaires.
 
 ---
 

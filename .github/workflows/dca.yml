@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "1 = simulation (aucun ordre), 0 = passer les ordres réellement"
+        description: "Choisissez 0 pour acheter maintenant · 1 pour seulement simuler"
         required: true
         default: '1'
         type: choice
