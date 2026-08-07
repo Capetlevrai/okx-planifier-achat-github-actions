@@ -103,6 +103,14 @@ tbody tr:hover{background:rgb(var(--surface-2))}
 
 .note{margin-top:14px;font-size:.8125rem;color:rgb(var(--muted));display:flex;gap:9px;align-items:flex-start}
 .note b{color:rgb(var(--ink));font-weight:600}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid rgb(var(--line));border-radius:999px;padding:7px 10px;background:rgb(var(--surface));font-size:.75rem;color:rgb(var(--muted))}
+.badge strong{color:rgb(var(--ink));font-weight:600}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:640px){.controls{grid-template-columns:1fr}}
+.input{border:1px solid rgb(var(--line));border-radius:10px;background:rgb(var(--surface));color:rgb(var(--ink));padding:10px 12px;font:inherit;font-size:.875rem}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pill{border:1px solid rgb(var(--line));border-radius:999px;padding:6px 9px;background:rgb(var(--surface));font-size:.75rem;color:rgb(var(--muted))}
 
 /* ---------- pied de page ---------- */
 footer{margin-top:80px;border-top:1px solid rgb(var(--line))}
@@ -144,6 +152,7 @@ footer{margin-top:80px;border-top:1px solid rgb(var(--line))}
   <div class="hero rise">
     <h1>Vos achats crypto, exécutés sans votre ordinateur</h1>
     <p>La routine d'achats tourne sur GitHub. Chaque échéance déclenche un ordre au marché sur OKX.</p>
+    <div class="badges" id="mode-badges"></div>
   </div>
 
   <div class="kpis">
@@ -160,6 +169,20 @@ footer{margin-top:80px;border-top:1px solid rgb(var(--line))}
     </div>
     <div class="meter"><i id="p-bar" style="width:0%"></i></div>
   </div>
+
+  <section id="instruments-section">
+    <div class="shead">
+      <h2>Cryptos OKX disponibles</h2>
+      <span class="count" id="c-inst"></span>
+    </div>
+    <div class="controls">
+      <input class="input" id="inst-search" placeholder="Chercher : BTC, ETH, SOL, PEPE…" aria-label="Chercher une crypto">
+      <input class="input" id="quote-filter" placeholder="Devise : USDC, EUR, USD…" aria-label="Filtrer par devise de cotation" value="USDC">
+    </div>
+    <div class="tablewrap" id="inst-wrap"></div>
+    <div class="pills" id="quote-pills"></div>
+    <p class="note"><b>Mode démo —</b><span>Sur OKX Europe, l'USDT peut être restreint. Pour tester, privilégiez les paires <code style="font-family:var(--font-mono),monospace">*-USDC</code>.</span></p>
+  </section>
 
   <section id="positions-section" hidden>
     <div class="shead">
@@ -296,14 +319,17 @@ async function loadJson(name, fallback) {
   return fallback;
 }
 
-const [plan, history] = await Promise.all([
+const [plan, history, instruments] = await Promise.all([
   loadJson('plan.json', null),
   loadJson('history.json', { purchases: [] }),
+  loadJson('instruments.json', { instruments: [], byQuote: {} }),
 ]);
 
 /* Lien « code source » déduit de l'URL GitHub Pages. */
 const host = location.hostname.match(/^(.+)\.github\.io$/);
 $('repo-link').href = host ? `https://github.com/${host[1]}${location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : ''}` : 'https://github.com/';
+
+renderInstruments(instruments);
 
 if (!plan) {
   $('done-wrap').innerHTML = emptyState('data/plan.json est introuvable', 'Générez-le avec <code>node scripts/plan.mjs</code>, puis rechargez la page. En local, servez le dossier via <code>npx serve</code> — un simple double-clic sur le fichier bloque la lecture des JSON.');
@@ -324,12 +350,59 @@ function normalize(strategy) {
   };
 }
 
+
+function renderInstruments(data) {
+  const list = data?.instruments || [];
+  const wrap = $('inst-wrap');
+  const search = $('inst-search');
+  const quoteInput = $('quote-filter');
+  const pills = $('quote-pills');
+  const count = $('c-inst');
+
+  const topQuotes = Object.entries(data?.byQuote || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  pills.innerHTML = topQuotes.map(([q, n]) => `<button class="pill" type="button" data-q="${esc(q)}">${esc(q)} · ${n}</button>`).join('');
+  pills.addEventListener('click', (e) => {
+    const q = e.target?.dataset?.q;
+    if (q) { quoteInput.value = q; draw(); }
+  });
+
+  function draw() {
+    const q = quoteInput.value.trim().toUpperCase();
+    const term = search.value.trim().toUpperCase();
+    const rows = list
+      .filter((x) => !q || x.quoteCcy === q)
+      .filter((x) => !term || x.instId.includes(term) || x.baseCcy.includes(term))
+      .slice(0, 150);
+    count.textContent = `${rows.length} affichée${rows.length > 1 ? 's' : ''} sur ${list.length}`;
+    wrap.innerHTML = rows.length ? `<table>
+      <thead><tr><th>Paire</th><th>Actif</th><th>Devise</th><th class="num">Min</th><th class="num">Lot</th></tr></thead>
+      <tbody>${rows.map((x) => `<tr>
+        <td><strong>${esc(x.instId)}</strong></td>
+        <td>${esc(x.baseCcy)}</td>
+        <td>${esc(x.quoteCcy)}</td>
+        <td class="num tnum">${esc(x.minSz)}</td>
+        <td class="num tnum">${esc(x.lotSz)}</td>
+      </tr>`).join('')}</tbody>
+    </table>` : emptyState('Aucune paire trouvée', 'Essayez USDC, EUR, BTC, ETH ou videz les filtres.');
+  }
+
+  search.addEventListener('input', draw);
+  quoteInput.addEventListener('input', draw);
+  draw();
+}
+
 function render(plan, history) {
   const s = normalize(plan.strategy);
   const ccy = s.quoteCcy;
   const purchases = [...history.purchases].sort((a, b) => new Date(b.executedAt) - new Date(a.executedAt));
   const demo = purchases.length ? purchases[0].demo !== false : true;
   const base = (p) => p.baseCcy || p.instId.split('-')[0];
+  $('mode-badges').innerHTML = `
+    <span class="badge"><strong>${plan.demo === false ? 'RÉEL' : 'DÉMO'}</strong>${plan.demo === false ? 'argent réel' : 'argent fictif'}</span>
+    <span class="badge"><strong>${plan.live === true ? 'ARMÉ' : 'SIMULATION'}</strong>${plan.live === true ? 'ordres autorisés' : 'aucun ordre transmis'}</span>
+    <span class="badge"><strong>${esc(plan.site || 'eea').toUpperCase()}</strong>${esc((plan.baseUrl || '').replace('https://', ''))}</span>`;
 
   /* ----- tuiles ----- */
   const invested = purchases.reduce((n, p) => n + p.amount, 0);

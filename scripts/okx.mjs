@@ -14,7 +14,7 @@ export const PLAN_FILE = path.join(DATA_DIR, 'plan.json');
 export const HISTORY_FILE = path.join(DATA_DIR, 'history.json');
 
 const API_KEY = process.env.OKX_API_KEY;
-const SECRET_KEY = process.env.OKX_SECRET_KEY;
+const SECRET_KEY = process.env.OKX_SECRET_KEY || process.env.OKX_API_SECRET;
 const PASSPHRASE = process.env.OKX_PASSPHRASE;
 
 /** Régions OKX : le domaine dépend de l'entité qui détient le compte. */
@@ -63,7 +63,10 @@ export const modeLabel = () =>
   baseUrl.replace('https://', '');
 
 export function requireCredentials() {
-  const missing = ['OKX_API_KEY', 'OKX_SECRET_KEY', 'OKX_PASSPHRASE'].filter((k) => !process.env[k]);
+  const missing = [];
+  if (!process.env.OKX_API_KEY) missing.push('OKX_API_KEY');
+  if (!process.env.OKX_SECRET_KEY && !process.env.OKX_API_SECRET) missing.push('OKX_SECRET_KEY ou OKX_API_SECRET');
+  if (!process.env.OKX_PASSPHRASE) missing.push('OKX_PASSPHRASE');
   if (missing.length) {
     throw new Error(
       `Identifiants manquants : ${missing.join(', ')}.\n` +

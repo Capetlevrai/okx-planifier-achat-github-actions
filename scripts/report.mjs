@@ -19,6 +19,7 @@ if (!plan) {
   process.exit(1);
 }
 const history = readJson(HISTORY_FILE, { purchases: [] });
+const instruments = readJson(path.join(ROOT, 'data', 'instruments.json'), { instruments: [], byQuote: {} });
 
 const s = plan.strategy;
 const ccy = s.quoteCcy;
@@ -126,7 +127,7 @@ fs.writeFileSync(path.join(ROOT, 'RAPPORT.md'), markdown);
  * pas de serveur, pas de terminal, et le dépôt peut rester privé.
  */
 const template = fs.readFileSync(path.join(ROOT, 'site', 'index.html'), 'utf8');
-const payload = JSON.stringify({ plan, history })
+const payload = JSON.stringify({ plan, history, instruments })
   // Empêche une valeur contenant "</script>" de refermer la balise.
   .replace(/</g, '\\u003c');
 

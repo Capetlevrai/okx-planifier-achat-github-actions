@@ -272,3 +272,25 @@ Donne à l'utilisateur, en clair :
 Le garde-fou est dans `resolveDryRun()` (`scripts/okx.mjs`) : la variable
 d'environnement `DRY_RUN` l'emporte si elle est fournie, sinon c'est `live` du
 planning qui décide, et en l'absence des deux **on simule**.
+
+
+## Accès GitHub depuis un agent
+
+Si l'utilisateur est sur téléphone et veut que tu fasses les modifications toi-même, demande un **fine-grained personal access token** limité au dépôt cible. Permissions minimales :
+
+- Contents: Read and write
+- Workflows: Read and write
+- Secrets: Read and write si tu dois ajouter les secrets OKX
+- Metadata: Read-only
+
+Teste l'accès avec l'API GitHub avant de pousser. Révoque/recommande de révoquer le token une fois terminé.
+
+## Interface locale hébergée par l'agent
+
+Pour montrer l'interface à l'utilisateur sans GitHub Pages, lance :
+
+```bash
+npm run site -- -l tcp://0.0.0.0:4173
+```
+
+Puis donne l'URL réseau/Tailscale de la machine : `http://<ip>:4173/site/` et `http://<ip>:4173/tableau-de-bord.html`.

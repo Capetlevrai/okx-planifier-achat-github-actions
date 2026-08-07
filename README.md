@@ -11,6 +11,11 @@ interface web affiche l'ensemble : achats effectués, montants, dates, achats à
 
 Gratuit, open source, sans serveur à louer et sans abonnement.
 
+> **Important : GitHub Actions fonctionne aussi en dépôt privé.** Vous n’êtes
+> pas obligé de rendre votre dépôt public pour automatiser vos achats. Le dépôt
+> public sert ici de modèle et de tutoriel. Pour garder votre historique privé,
+> créez votre copie en **Private**.
+
 **▶️ [Voir l'interface en démo](https://capetlevrai.github.io/okx-planifier-achat-github-actions/)**
 
 > 🎓 Nouveau sur le sujet ? Commencez par le tutoriel
@@ -20,7 +25,7 @@ Gratuit, open source, sans serveur à louer et sans abonnement.
 
 ## 🤖 La façon la plus simple : donnez cette URL à votre agent
 
-Ouvrez **Claude Code**, **Cursor**, **Codex** ou **ChatGPT**, et envoyez ceci :
+Ouvrez **Grok**, **OpenCode**, **Claude Code**, **Cursor**, **Codex**, **ChatGPT** ou **Gemini**, et envoyez ceci :
 
 ```text
 Installe ce projet pour moi : https://github.com/Capetlevrai/okx-planifier-achat-github-actions
@@ -36,6 +41,21 @@ test à blanc devant vous. **Il vous demandera confirmation avant tout achat
 réel** — c'est écrit noir sur blanc dans le protocole.
 
 Vous ne tapez aucune commande et n'allez sur aucune page de réglages.
+
+### Si l’agent vous demande un token GitHub
+
+Créez un **fine-grained personal access token** limité à votre dépôt cible :
+
+- `Repository access` : `Only selected repositories`
+- `Contents` : `Read and write`
+- `Workflows` : `Read and write`
+- `Secrets` : `Read and write`
+- `Metadata` : `Read-only`
+
+Ce token permet à l’agent de pousser les fichiers et d’ajouter les secrets
+GitHub Actions sans voir ensuite leur valeur. Révoquez-le après configuration.
+
+Prompts prêts à copier : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 
 ---
 
@@ -66,7 +86,7 @@ Trois secrets à créer, un par un :
 | Nom | Valeur |
 |---|---|
 | `OKX_API_KEY` | votre clé |
-| `OKX_SECRET_KEY` | votre secret |
+| `OKX_SECRET_KEY` ou `OKX_API_SECRET` | votre secret |
 | `OKX_PASSPHRASE` | votre passphrase |
 
 GitHub les chiffre. Ils ne sont jamais visibles, ni dans le code, ni dans les logs.
@@ -315,7 +335,7 @@ gh repo create okx-planifier-achat-github-actions --private --source=. --push
 gh secret set OKX_API_KEY
 ```
 
-Trois secrets à créer : `OKX_API_KEY`, `OKX_SECRET_KEY`, `OKX_PASSPHRASE`.
+Trois secrets à créer : `OKX_API_KEY`, `OKX_SECRET_KEY` (ou `OKX_API_SECRET`) et `OKX_PASSPHRASE`.
 
 **7. Publiez l'interface** — `Settings → Pages → Source : GitHub Actions`.
 Elle sera servie sur `https://VOTRE-PSEUDO.github.io/okx-planifier-achat-github-actions/`.
@@ -360,8 +380,10 @@ Ajoutez `DRY_RUN=0` devant la commande pour transmettre réellement l'ordre.
 Prévisualiser l'interface en local :
 
 ```bash
-npx serve .
+npm run site -- -l tcp://0.0.0.0:4173
 ```
+
+L'agent peut ensuite vous donner une URL du type `http://IP-DE-LA-MACHINE:4173/site/` ou `http://IP-DE-LA-MACHINE:4173/tableau-de-bord.html`.
 
 ---
 
