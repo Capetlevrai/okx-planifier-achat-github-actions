@@ -11,6 +11,8 @@ interface web affiche l'ensemble : achats effectués, montants, dates, achats à
 
 Gratuit, open source, sans serveur à louer et sans abonnement.
 
+**▶️ [Voir l'interface en démo](https://capetlevrai.github.io/okx-planifier-achat-github-actions/)**
+
 > 🎓 Nouveau sur le sujet ? Commencez par le tutoriel
 > [Trader sur OKX avec une IA — OKX Agent Trade Kit](https://coinacademy.fr/academie/okx-agent-trade-kit-trader-sur-okx-avec-une-ia/)
 
