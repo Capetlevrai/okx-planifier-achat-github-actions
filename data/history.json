@@ -1,3 +1,20 @@
 {
-  "purchases": []
+  "purchases": [
+    {
+      "id": "dca-1-BTC-USDC",
+      "executedAt": "2026-08-07T21:41:40.756Z",
+      "instId": "BTC-USDC",
+      "baseCcy": "BTC",
+      "quoteCcy": "USDC",
+      "amount": 50,
+      "filledQty": 0.00077525,
+      "avgPrice": 64495.11099645276,
+      "fee": -7.7525e-7,
+      "feeCcy": "BTC",
+      "ordId": "3813008182231564288",
+      "demo": true,
+      "source": "schedule"
+    }
+  ],
+  "updatedAt": "2026-08-07T21:43:33.592Z"
 }

@@ -1,524 +1,90 @@
 <!doctype html>
-<html lang="fr" class="light">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Achats programmés · OKX · GitHub Actions</title>
-<meta name="description" content="Tableau de bord des achats crypto programmés sur OKX via GitHub Actions — n'importe quelle paire au comptant.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>OKX DCA Démo — BTC & HYPE</title>
+<meta name="description" content="Suivi minimal d'un plan d'achat OKX démo : BTC et HYPE en USDC via GitHub Actions.">
 <style>
-/*
- * OKX DCA Planner — design tokens repris de OKX Europe Explorer.
- * Terminal de marché éditorial : papier chaud, encre presque noire,
- * un seul azur électrique, chiffres monospace tabulaires.
- */
-:root{
-  --bg:250 250 249; --surface:255 255 255; --surface-2:246 246 244;
-  --ink:13 13 15; --muted:104 105 112; --line:228 228 224;
-  --accent:34 71 224; --accent-fg:255 255 255;
-  --up:21 128 61; --down:200 30 40;
-  --font-sans:'Inter'; --font-display:'Space Grotesk'; --font-mono:'JetBrains Mono';
-  --max:1180px;
-}
-.dark{
-  --bg:8 9 12; --surface:18 20 26; --surface-2:24 27 34;
-  --ink:236 237 241; --muted:150 152 161; --line:32 35 43;
-  --accent:122 134 255; --accent-fg:10 11 14;
-  --up:74 222 128; --down:248 113 113;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:rgb(var(--bg)); color:rgb(var(--ink));
-  font-family:var(--font-sans),ui-sans-serif,system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-  line-height:1.5;
-}
-h1,h2,h3{font-family:var(--font-display),var(--font-sans),sans-serif;letter-spacing:-0.02em;font-weight:600}
-a{color:inherit}
-*:focus-visible{outline:2px solid rgb(var(--accent));outline-offset:2px;border-radius:4px}
-::selection{background:rgb(var(--accent)/0.22)}
-
-.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-.tnum{font-family:var(--font-mono),ui-monospace,monospace;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
-.eyebrow{font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--muted))}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.rise{animation:rise .5s cubic-bezier(.22,1,.36,1) both}
-
-/* ---------- en-tête ---------- */
-header{border-bottom:1px solid rgb(var(--line));position:sticky;top:0;z-index:10;background:rgb(var(--bg)/.88);backdrop-filter:blur(10px)}
-.head{display:flex;align-items:center;gap:14px;height:60px}
-.mark{display:flex;height:26px;width:26px;align-items:center;justify-content:center;border-radius:5px;background:rgb(var(--ink));color:rgb(var(--bg));font-family:var(--font-display);font-size:10px;font-weight:700;flex:none}
-.brand{font-size:.9375rem;font-weight:600}
-@media(max-width:520px){.brand{font-size:.8125rem}}
-.spacer{flex:1}
-.iconbtn{display:flex;height:32px;width:32px;align-items:center;justify-content:center;border-radius:8px;border:1px solid rgb(var(--line));background:transparent;color:rgb(var(--muted));cursor:pointer;transition:.15s}
-.iconbtn:hover{border-color:rgb(var(--accent));color:rgb(var(--ink))}
-
-/* ---------- intro ---------- */
-.hero{padding:44px 0 8px}
-.hero h1{font-size:clamp(1.6rem,3.4vw,2.3rem);margin-top:10px}
-.hero p{color:rgb(var(--muted));margin-top:12px;max-width:62ch;font-size:.9375rem}
-
-/* ---------- tuiles de synthèse ---------- */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px}
-@media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:460px){.kpis{grid-template-columns:1fr}}
-.kpi{border:1px solid rgb(var(--line));border-radius:12px;background:rgb(var(--surface));padding:16px 18px}
-.kpi .v{font-size:1.5rem;font-weight:600;margin-top:8px;letter-spacing:-0.02em;display:block}
-.kpi .s{font-size:.75rem;color:rgb(var(--muted));margin-top:5px}
-
-/* ---------- jauge d'avancement ---------- */
-.progress{margin-top:26px;border:1px solid rgb(var(--line));border-radius:12px;background:rgb(var(--surface));padding:16px 18px}
-.progress .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.meter{height:6px;border-radius:3px;background:rgb(var(--surface-2));margin-top:12px;overflow:hidden;border:1px solid rgb(var(--line))}
-.meter i{display:block;height:100%;border-radius:3px;background:rgb(var(--accent));transition:width .6s cubic-bezier(.22,1,.36,1)}
-
-/* ---------- tableaux ---------- */
-section{margin-top:44px}
-.shead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:14px}
-.shead h2{font-size:1.0625rem}
-.count{font-size:.75rem;color:rgb(var(--muted))}
-.tablewrap{border:1px solid rgb(var(--line));border-radius:12px;background:rgb(var(--surface));overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.875rem;min-width:640px}
-th{text-align:left;font-size:.6875rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--muted));padding:12px 16px;border-bottom:1px solid rgb(var(--line));white-space:nowrap;background:rgb(var(--surface-2))}
-td{padding:13px 16px;border-bottom:1px solid rgb(var(--line));white-space:nowrap}
-tbody tr:last-child td{border-bottom:0}
-tbody tr{transition:background .12s}
-tbody tr:hover{background:rgb(var(--surface-2))}
-.num{text-align:right}
-.sub{color:rgb(var(--muted));font-size:.75rem}
-
-/* Statuts : pastille + libellé, jamais la couleur seule. */
-.st{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:500}
-.st::before{content:'';height:6px;width:6px;border-radius:50%;background:currentColor;flex:none}
-.st.done{color:rgb(var(--up))}
-.st.pending{color:rgb(var(--muted))}
-.st.failed{color:rgb(var(--down))}
-.st.next{color:rgb(var(--accent))}
-
-.empty{padding:44px 20px;text-align:center;color:rgb(var(--muted));font-size:.875rem}
-.empty code{font-family:var(--font-mono),monospace;font-size:.8125rem;background:rgb(var(--surface-2));border:1px solid rgb(var(--line));padding:2px 6px;border-radius:5px;color:rgb(var(--ink))}
-
-.note{margin-top:14px;font-size:.8125rem;color:rgb(var(--muted));display:flex;gap:9px;align-items:flex-start}
-.note b{color:rgb(var(--ink));font-weight:600}
-.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid rgb(var(--line));border-radius:999px;padding:7px 10px;background:rgb(var(--surface));font-size:.75rem;color:rgb(var(--muted))}
-.badge strong{color:rgb(var(--ink));font-weight:600}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-@media(max-width:640px){.controls{grid-template-columns:1fr}}
-.input{border:1px solid rgb(var(--line));border-radius:10px;background:rgb(var(--surface));color:rgb(var(--ink));padding:10px 12px;font:inherit;font-size:.875rem}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.pill{border:1px solid rgb(var(--line));border-radius:999px;padding:6px 9px;background:rgb(var(--surface));font-size:.75rem;color:rgb(var(--muted))}
-
-/* ---------- pied de page ---------- */
-footer{margin-top:80px;border-top:1px solid rgb(var(--line))}
-.fgrid{display:grid;gap:40px;grid-template-columns:repeat(4,1fr);padding:48px 0}
-@media(max-width:860px){.fgrid{grid-template-columns:repeat(2,1fr);gap:32px}}
-@media(max-width:460px){.fgrid{grid-template-columns:1fr}}
-.fgrid h3{margin-bottom:16px}
-.fgrid ul{list-style:none;display:flex;flex-direction:column;gap:10px}
-.fgrid a{font-size:.875rem;color:rgb(var(--muted));text-decoration:none;transition:color .15s}
-.fgrid a:hover{color:rgb(var(--ink))}
-.about p{font-size:.875rem;color:rgb(var(--muted));margin-top:12px;max-width:34ch}
-.socials{display:flex;gap:8px;margin-top:16px}
-.socials a{display:flex;height:32px;width:32px;align-items:center;justify-content:center;border-radius:8px;border:1px solid rgb(var(--line));color:rgb(var(--muted));transition:.15s}
-.socials a:hover{border-color:rgb(var(--accent));color:rgb(var(--ink))}
-.socials svg{height:16px;width:16px}
-.legal{border-top:1px solid rgb(var(--line));padding:22px 0;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:.75rem;color:rgb(var(--muted))}
-.hl{color:rgb(var(--accent));text-decoration:none;font-weight:500}
-.hl:hover{text-decoration:underline}
+:root{--bg:#f7f7f4;--card:#fff;--text:#111;--muted:#6b6b70;--line:#e5e2dc;--accent:#214cff;--ok:#16803d;--warn:#b45309;--bad:#c0262d}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45} .wrap{max-width:920px;margin:0 auto;padding:24px} header{padding:34px 0 20px} h1{font-size:clamp(28px,5vw,46px);line-height:1;margin:0 0 12px;letter-spacing:-.04em} h2{font-size:18px;margin:0 0 14px}.lead{color:var(--muted);max-width:680px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:18px}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}.value{display:block;font-size:28px;font-weight:750;letter-spacing:-.03em;margin-top:8px}.sub{font-size:13px;color:var(--muted);margin-top:6px}.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 11px;font-size:13px}.pill b{color:var(--accent)}.bar{height:10px;background:#ece9e2;border-radius:999px;overflow:hidden;margin-top:14px}.bar i{display:block;height:100%;background:var(--accent);border-radius:999px}.section{margin-top:18px}.asset{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asset strong{font-size:24px}.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.table{width:100%;border-collapse:collapse;font-size:14px}.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid var(--line)}.right{text-align:right}.status{font-weight:700}.done{color:var(--ok)}.pending{color:var(--muted)}.failed{color:var(--bad)}.next{color:var(--accent)}.notice{border-left:4px solid var(--accent);background:#eef2ff;padding:14px 16px;border-radius:12px;margin-top:18px;color:#1e2a55}.small{font-size:13px;color:var(--muted)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
-
+<div class="wrap">
 <header>
-  <div class="wrap head">
-    <span class="mark">OK</span>
-    <span class="brand">Achats programmés · OKX · GitHub Actions</span>
-    <span class="spacer"></span>
-    <button class="iconbtn" id="theme" aria-label="Changer de thème" title="Changer de thème">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="4"></circle>
-        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
-      </svg>
-    </button>
-  </div>
+  <h1>Plan d’achat OKX démo</h1>
+  <p class="lead">Suivi minimal : BTC + HYPE, 50 $ par actif, automatisés par GitHub Actions. Pas de VPS, ordinateur éteint possible.</p>
+  <div class="pillrow" id="mode"></div>
 </header>
 
-<main class="wrap">
+<div class="grid">
+  <div class="card"><div class="label">Investi</div><span class="value mono" id="invested">—</span><div class="sub" id="planned">—</div></div>
+  <div class="card"><div class="label">Achats faits</div><span class="value mono" id="done-count">—</span><div class="sub" id="remaining">—</div></div>
+  <div class="card"><div class="label">Prochain achat</div><span class="value mono" id="next-date">—</span><div class="sub" id="next-sub">—</div></div>
+</div>
 
-  <div class="hero rise">
-    <h1>Vos achats crypto, exécutés sans votre ordinateur</h1>
-    <p>La routine d'achats tourne sur GitHub. Chaque échéance déclenche un ordre au marché sur OKX.</p>
-    <div class="badges" id="mode-badges"></div>
-  </div>
+<div class="card section">
+  <h2>Progression</h2>
+  <div class="small mono" id="progress-label">—</div>
+  <div class="bar"><i id="progress-bar" style="width:0%"></i></div>
+</div>
 
-  <div class="kpis">
-    <div class="kpi"><p class="eyebrow">Total investi</p><span class="v tnum" id="k-invested">—</span><p class="s" id="k-invested-sub">—</p></div>
-    <div class="kpi"><p class="eyebrow">Achats effectués</p><span class="v tnum" id="k-count">—</span><p class="s" id="k-count-sub">—</p></div>
-    <div class="kpi"><p class="eyebrow">Actifs suivis</p><span class="v tnum" id="k-assets">—</span><p class="s" id="k-assets-sub">—</p></div>
-    <div class="kpi"><p class="eyebrow">Prochain achat</p><span class="v tnum" id="k-next">—</span><p class="s" id="k-next-sub">—</p></div>
-  </div>
+<div class="section" id="assets"></div>
 
-  <div class="progress">
-    <div class="row">
-      <span class="eyebrow">Avancement du plan</span>
-      <span class="tnum" id="p-label" style="font-size:.8125rem">—</span>
-    </div>
-    <div class="meter"><i id="p-bar" style="width:0%"></i></div>
-  </div>
+<div class="card section">
+  <h2>Achats effectués</h2>
+  <div id="done-table"></div>
+</div>
 
-  <section id="instruments-section">
-    <div class="shead">
-      <h2>Cryptos OKX disponibles</h2>
-      <span class="count" id="c-inst"></span>
-    </div>
-    <div class="controls">
-      <input class="input" id="inst-search" placeholder="Chercher : BTC, ETH, SOL, PEPE…" aria-label="Chercher une crypto">
-      <input class="input" id="quote-filter" placeholder="Devise : USDC, EUR, USD…" aria-label="Filtrer par devise de cotation" value="USDC">
-    </div>
-    <div class="tablewrap" id="inst-wrap"></div>
-    <div class="pills" id="quote-pills"></div>
-    <p class="note"><b>Mode démo —</b><span>Sur OKX Europe, l'USDT peut être restreint. Pour tester, privilégiez les paires <code style="font-family:var(--font-mono),monospace">*-USDC</code>.</span></p>
-  </section>
+<div class="card section">
+  <h2>Achats restants</h2>
+  <div id="todo-table"></div>
+</div>
 
-  <section id="positions-section" hidden>
-    <div class="shead">
-      <h2>Positions par actif</h2>
-      <span class="count" id="c-pos"></span>
-    </div>
-    <div class="tablewrap" id="pos-wrap"></div>
-  </section>
+<div class="notice">
+  <b>Mode actuel : compte démo OKX.</b><br>
+  Ce tableau montre des achats fictifs en environnement OKX simulé. Pour passer en argent réel, il faut modifier le plan explicitement, avec confirmation humaine.
+</div>
 
-  <section>
-    <div class="shead">
-      <h2>Achats effectués</h2>
-      <span class="count" id="c-done"></span>
-    </div>
-    <div class="tablewrap" id="done-wrap"></div>
-  </section>
-
-  <section>
-    <div class="shead">
-      <h2>Achats à venir</h2>
-      <span class="count" id="c-todo"></span>
-    </div>
-    <div class="tablewrap" id="todo-wrap"></div>
-    <p class="note"><b>À noter —</b><span>Un ordre n'est transmis que si <code style="font-family:var(--font-mono),monospace">DRY_RUN</code> vaut <code style="font-family:var(--font-mono),monospace">0</code> dans le workflow. Tant qu'il vaut <code style="font-family:var(--font-mono),monospace">1</code>, chaque échéance est simulée et reste en attente.</span></p>
-  </section>
-
-</main>
-
-<footer>
-  <div class="wrap">
-    <div class="fgrid">
-
-      <div class="about">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="mark">OK</span>
-          <h3 style="font-size:.875rem">OKX DCA Planner</h3>
-        </div>
-        <p>Investissement programmé sur OKX — n'importe quelle paire au comptant — piloté par GitHub Actions. Open source, sans serveur, sans abonnement.</p>
-        <div class="socials">
-          <a href="https://x.com/capetlevrai" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-          <a href="https://discord.gg/VmBa7f9ZAt" target="_blank" rel="noopener noreferrer" aria-label="Discord"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.369a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.6 12.6 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.1 13.1 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.009c.12.099.246.198.373.292a.077.077 0 01-.006.127 12.3 12.3 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.057c.5-5.177-.838-9.673-3.549-13.66a.061.061 0 00-.031-.028zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></a>
-          <a href="https://www.twitch.tv/capetlevrai" target="_blank" rel="noopener noreferrer" aria-label="Twitch"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></a>
-          <a href="https://www.youtube.com/@CAPETCRYPTO" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/></svg></a>
-        </div>
-      </div>
-
-      <div>
-        <h3 class="eyebrow">Pour démarrer</h3>
-        <ul>
-          <li><a href="https://coinacademy.fr/academie/okx-agent-trade-kit-trader-sur-okx-avec-une-ia/" target="_blank" rel="noopener noreferrer">Tutoriel — Trader sur OKX avec une IA</a></li>
-          <li><a href="#" id="repo-link" target="_blank" rel="noopener noreferrer">Code source du projet</a></li>
-          <li><a href="https://github.com/okx/agent-trade-kit" target="_blank" rel="noopener noreferrer">OKX Agent Trade Kit</a></li>
-          <li><a href="https://docs.github.com/actions" target="_blank" rel="noopener noreferrer">Documentation GitHub Actions</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h3 class="eyebrow">OKX</h3>
-        <ul>
-          <li><a href="https://my.okx.com" target="_blank" rel="noopener noreferrer">OKX Europe</a></li>
-          <li><a href="https://okxeuropeexplorer.netlify.app/" target="_blank" rel="noopener noreferrer">OKX Europe Explorer</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h3 class="eyebrow">Partenaires</h3>
-        <ul>
-          <li><a href="https://capetlevrai.com" target="_blank" rel="noopener noreferrer">capetlevrai.com</a></li>
-          <li><a href="https://coinacademy.fr/" target="_blank" rel="noopener noreferrer">coinacademy.fr</a></li>
-          <li><a href="https://vibecrypto.org" target="_blank" rel="noopener noreferrer">vibecrypto.org</a></li>
-        </ul>
-      </div>
-
-    </div>
-    <div class="legal">
-      <span>© <span id="year">2026</span> OKX DCA Planner — Réalisé par <a class="hl" href="https://x.com/capetlevrai" target="_blank" rel="noopener noreferrer">Capetlevrai</a></span>
-      <span>Données fournies à titre informatif uniquement. Ceci n'est pas un conseil financier.</span>
-    </div>
-  </div>
+<footer class="small">
+  Projet : <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">okx-planifier-achat-github-actions</a> · Ceci n’est pas un conseil financier.
 </footer>
+</div>
 
 <script type="module">
-const $ = (id) => document.getElementById(id);
-
-/* ---------- thème ---------- */
-const root = document.documentElement;
-// Mode jour par défaut ; le choix de l'utilisateur est ensuite mémorisé.
-root.className = localStorage.getItem('dca-theme') || 'light';
-$('theme').addEventListener('click', () => {
-  const next = root.className === 'dark' ? 'light' : 'dark';
-  root.className = next;
-  localStorage.setItem('dca-theme', next);
-});
-$('year').textContent = new Date().getFullYear();
-
-/* ---------- formatage ---------- */
-const nf = (v, d = 2) => new Intl.NumberFormat('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
-const money = (v, ccy) => `${nf(v, 2)} ${ccy}`;
-const dateFmt = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
-const timeFmt = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
-const fmtDate = (iso) => dateFmt.format(new Date(iso));
-const relative = (iso) => {
-  const days = Math.round((new Date(iso) - Date.now()) / 86400000);
-  if (days === 0) return "aujourd'hui";
-  if (days === 1) return 'demain';
-  if (days > 1) return `dans ${days} jours`;
-  if (days === -1) return 'hier';
-  return `il y a ${Math.abs(days)} jours`;
-};
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-const emptyState = (title, hint) =>
-  `<div class="empty"><p style="color:rgb(var(--ink));font-weight:500;margin-bottom:6px">${title}</p><p>${hint}</p></div>`;
-
-/* ---------- chargement ---------- */
-/*
- * Deux façons d'obtenir les données :
- *  - window.__DCA__ : injecté par scripts/report.mjs dans le fichier autonome
- *    tableau-de-bord.html, qui s'ouvre par simple double-clic (file://, où
- *    fetch() est bloqué par le navigateur) ;
- *  - sinon fetch, quand la page est servie. Déployé, data/ est à côté de
- *    index.html ; en local, index.html vit dans site/ et data/ est au-dessus.
- */
-async function loadJson(name, fallback) {
-  const embedded = window.__DCA__;
-  if (embedded) return embedded[name.replace('.json', '')] ?? fallback;
-
-  for (const path of [`./data/${name}`, `../data/${name}`]) {
-    try {
-      const res = await fetch(path, { cache: 'no-store' });
-      if (res.ok) return await res.json();
-    } catch { /* chemin suivant */ }
-  }
-  return fallback;
-}
-
-const [plan, history, instruments] = await Promise.all([
-  loadJson('plan.json', null),
-  loadJson('history.json', { purchases: [] }),
-  loadJson('instruments.json', { instruments: [], byQuote: {} }),
-]);
-
-/* Lien « code source » déduit de l'URL GitHub Pages. */
-const host = location.hostname.match(/^(.+)\.github\.io$/);
-$('repo-link').href = host ? `https://github.com/${host[1]}${location.pathname.split('/')[1] ? '/' + location.pathname.split('/')[1] : ''}` : 'https://github.com/';
-
-renderInstruments(instruments);
-
-if (!plan) {
-  $('done-wrap').innerHTML = emptyState('data/plan.json est introuvable', 'Générez-le avec <code>node scripts/plan.mjs</code>, puis rechargez la page. En local, servez le dossier via <code>npx serve</code> — un simple double-clic sur le fichier bloque la lecture des JSON.');
-  $('todo-wrap').innerHTML = '';
-} else {
-  render(plan, history);
-}
-
-/** Le planning a pu être écrit par une version mono-actif : on normalise. */
-function normalize(strategy) {
-  const instIds = strategy.instIds ?? (strategy.instId ? [strategy.instId] : []);
-  return {
-    instIds,
-    quoteCcy: strategy.quoteCcy ?? (instIds[0] ? instIds[0].split('-')[1] : ''),
-    amountPerAsset: strategy.amountPerAsset ?? strategy.amount ?? 0,
-    everyDays: strategy.everyDays ?? 0,
-    hourUtc: strategy.hourUtc ?? 0,
-  };
-}
-
-
-function renderInstruments(data) {
-  const list = data?.instruments || [];
-  const wrap = $('inst-wrap');
-  const search = $('inst-search');
-  const quoteInput = $('quote-filter');
-  const pills = $('quote-pills');
-  const count = $('c-inst');
-
-  const topQuotes = Object.entries(data?.byQuote || {})
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10);
-  pills.innerHTML = topQuotes.map(([q, n]) => `<button class="pill" type="button" data-q="${esc(q)}">${esc(q)} · ${n}</button>`).join('');
-  pills.addEventListener('click', (e) => {
-    const q = e.target?.dataset?.q;
-    if (q) { quoteInput.value = q; draw(); }
-  });
-
-  function draw() {
-    const q = quoteInput.value.trim().toUpperCase();
-    const term = search.value.trim().toUpperCase();
-    const rows = list
-      .filter((x) => !q || x.quoteCcy === q)
-      .filter((x) => !term || x.instId.includes(term) || x.baseCcy.includes(term))
-      .slice(0, 150);
-    count.textContent = `${rows.length} affichée${rows.length > 1 ? 's' : ''} sur ${list.length}`;
-    wrap.innerHTML = rows.length ? `<table>
-      <thead><tr><th>Paire</th><th>Actif</th><th>Devise</th><th class="num">Min</th><th class="num">Lot</th></tr></thead>
-      <tbody>${rows.map((x) => `<tr>
-        <td><strong>${esc(x.instId)}</strong></td>
-        <td>${esc(x.baseCcy)}</td>
-        <td>${esc(x.quoteCcy)}</td>
-        <td class="num tnum">${esc(x.minSz)}</td>
-        <td class="num tnum">${esc(x.lotSz)}</td>
-      </tr>`).join('')}</tbody>
-    </table>` : emptyState('Aucune paire trouvée', 'Essayez USDC, EUR, BTC, ETH ou videz les filtres.');
-  }
-
-  search.addEventListener('input', draw);
-  quoteInput.addEventListener('input', draw);
-  draw();
-}
-
-function render(plan, history) {
-  const s = normalize(plan.strategy);
-  const ccy = s.quoteCcy;
-  const purchases = [...history.purchases].sort((a, b) => new Date(b.executedAt) - new Date(a.executedAt));
-  const demo = purchases.length ? purchases[0].demo !== false : true;
-  const base = (p) => p.baseCcy || p.instId.split('-')[0];
-  $('mode-badges').innerHTML = `
-    <span class="badge"><strong>${plan.demo === false ? 'RÉEL' : 'DÉMO'}</strong>${plan.demo === false ? 'argent réel' : 'argent fictif'}</span>
-    <span class="badge"><strong>${plan.live === true ? 'ARMÉ' : 'SIMULATION'}</strong>${plan.live === true ? 'ordres autorisés' : 'aucun ordre transmis'}</span>
-    <span class="badge"><strong>${esc(plan.site || 'eea').toUpperCase()}</strong>${esc((plan.baseUrl || '').replace('https://', ''))}</span>`;
-
-  /* ----- tuiles ----- */
-  const invested = purchases.reduce((n, p) => n + p.amount, 0);
-  const planned = plan.entries.reduce((n, e) => n + e.amount, 0);
-  const assets = [...new Set(plan.entries.map((e) => e.instId.split('-')[0]))];
-
-  $('k-invested').textContent = money(invested, ccy);
-  $('k-invested-sub').textContent = `sur ${money(planned, ccy)} programmés · compte ${demo ? 'démo' : 'réel'}`;
-
-  $('k-count').textContent = `${purchases.length}`;
-  $('k-count-sub').textContent = `sur ${plan.entries.length} achats programmés`;
-
-  $('k-assets').textContent = `${assets.length}`;
-  $('k-assets-sub').textContent = assets.slice(0, 5).join(' · ') + (assets.length > 5 ? ` +${assets.length - 5}` : '');
-
-  const upcoming = plan.entries
-    .filter((e) => e.status === 'pending')
-    .sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt));
-  const next = upcoming[0];
-
-  // Plusieurs actifs peuvent tomber le même jour : on les regroupe.
-  const nextBatch = next ? upcoming.filter((e) => e.dueAt === next.dueAt) : [];
-  const nextTotal = nextBatch.reduce((n, e) => n + e.amount, 0);
-
-  $('k-next').textContent = next ? fmtDate(next.dueAt) : '—';
-  $('k-next-sub').textContent = next
-    ? `${relative(next.dueAt)} · ${money(nextTotal, ccy)} · ${nextBatch.map((e) => e.instId.split('-')[0]).join(', ')}`
-    : 'plan terminé';
-
-  /* ----- avancement ----- */
-  const done = plan.entries.filter((e) => e.status === 'done').length;
-  const pct = Math.round((done / plan.entries.length) * 100);
-  $('p-label').textContent = `${done} / ${plan.entries.length} achats · ${pct}%`;
-  $('p-bar').style.width = `${pct}%`;
-
-  /* ----- positions par actif ----- */
-  const byAsset = new Map();
-  for (const p of purchases) {
-    const key = base(p);
-    const acc = byAsset.get(key) ?? { asset: key, instId: p.instId, qty: 0, spent: 0, count: 0 };
-    acc.qty += p.filledQty || 0;
-    acc.spent += p.amount;
-    acc.count += 1;
-    byAsset.set(key, acc);
-  }
-  const positions = [...byAsset.values()].sort((a, b) => b.spent - a.spent);
-
-  $('positions-section').hidden = positions.length === 0;
-  $('c-pos').textContent = positions.length ? `${positions.length} actif${positions.length > 1 ? 's' : ''}` : '';
-  $('pos-wrap').innerHTML = positions.length
-    ? `<table>
-        <thead><tr>
-          <th>Actif</th><th class="num">Quantité détenue</th>
-          <th class="num">Investi</th><th class="num">Prix moyen</th><th class="num">Achats</th>
-        </tr></thead>
-        <tbody>${positions.map((p) => `
-          <tr>
-            <td><strong>${esc(p.asset)}</strong><div class="sub tnum">${esc(p.instId)}</div></td>
-            <td class="num tnum">${nf(p.qty, 8)}</td>
-            <td class="num tnum">${money(p.spent, ccy)}</td>
-            <td class="num tnum">${p.qty > 0 ? money(p.spent / p.qty, ccy) : '—'}</td>
-            <td class="num tnum">${p.count}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`
-    : '';
-
-  /* ----- achats effectués ----- */
-  $('c-done').textContent = purchases.length ? `${purchases.length} exécuté${purchases.length > 1 ? 's' : ''}` : '';
-  $('done-wrap').innerHTML = purchases.length
-    ? `<table>
-        <thead><tr>
-          <th>Date</th><th>Actif</th><th class="num">Montant</th>
-          <th class="num">Quantité reçue</th><th class="num">Prix unitaire</th>
-          <th>Origine</th><th>Statut</th>
-        </tr></thead>
-        <tbody>${purchases.map((p) => `
-          <tr>
-            <td>${fmtDate(p.executedAt)}<div class="sub tnum">${timeFmt.format(new Date(p.executedAt))}</div></td>
-            <td><strong>${esc(base(p))}</strong><div class="sub tnum">${esc(p.instId)}</div></td>
-            <td class="num tnum">${money(p.amount, p.quoteCcy)}</td>
-            <td class="num tnum">${nf(p.filledQty || 0, 8)} <span class="sub">${esc(base(p))}</span></td>
-            <td class="num tnum">${p.avgPrice ? money(p.avgPrice, p.quoteCcy) : '—'}</td>
-            <td class="sub">${p.source === 'manual' ? 'Manuel' : 'Planifié'}</td>
-            <td><span class="st done">Exécuté</span></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`
-    : emptyState('Aucun achat pour le moment', 'Le premier achat apparaîtra ici dès que le workflow aura tourné avec <code>DRY_RUN=0</code>.');
-
-  /* ----- achats à venir ----- */
-  const failed = plan.entries.filter((e) => e.status === 'failed');
-  const rows = [...upcoming, ...failed].sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt));
-
-  $('c-todo').textContent = upcoming.length ? `${upcoming.length} en attente` : '';
-  $('todo-wrap').innerHTML = rows.length
-    ? `<table>
-        <thead><tr>
-          <th>Échéance</th><th>Actif</th><th class="num">Montant</th>
-          <th>Dans</th><th>Statut</th>
-        </tr></thead>
-        <tbody>${rows.map((e) => {
-          const isFailed = e.status === 'failed';
-          const isNext = !isFailed && nextBatch.includes(e);
-          return `<tr>
-            <td>${fmtDate(e.dueAt)}<div class="sub tnum">${String(s.hourUtc).padStart(2, '0')}h00 UTC</div></td>
-            <td><strong>${esc(e.instId.split('-')[0])}</strong><div class="sub tnum">${esc(e.instId)}</div></td>
-            <td class="num tnum">${money(e.amount, e.instId.split('-')[1])}</td>
-            <td class="sub">${isFailed ? '—' : relative(e.dueAt)}</td>
-            <td><span class="st ${isFailed ? 'failed' : isNext ? 'next' : 'pending'}">${isFailed ? 'Échec' : isNext ? 'Prochain' : 'Programmé'}</span>${isFailed && e.error ? `<div class="sub">${esc(e.error)}</div>` : ''}</td>
-          </tr>`;
-        }).join('')}
-        </tbody>
-      </table>`
-    : emptyState('Plan terminé', 'Tous les achats programmés ont été exécutés. Relancez <code>node scripts/plan.mjs --force</code> pour repartir sur un nouveau cycle.');
-}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=(v,d=2)=>new Intl.NumberFormat('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(Number(v||0));
+const money=(v,ccy)=>`${nf(v,2)} ${ccy}`;
+const dFmt=new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+const fmt=iso=>dFmt.format(new Date(iso));
+const rel=iso=>{const days=Math.round((new Date(iso)-Date.now())/86400000); if(days===0)return "aujourd’hui"; if(days===1)return 'demain'; if(days>1)return `dans ${days} jours`; if(days===-1)return 'hier'; return `il y a ${Math.abs(days)} jours`;};
+async function loadJson(name,fallback){const embedded=window.__DCA__; if(embedded) return embedded[name.replace('.json','')]??fallback; for(const p of[`./data/${name}`,`../data/${name}`]){try{const r=await fetch(p,{cache:'no-store'}); if(r.ok)return await r.json()}catch{}} return fallback;}
+const [plan,history]=await Promise.all([loadJson('plan.json',null),loadJson('history.json',{purchases:[]})]);
+if(!plan){document.body.innerHTML='<div class="wrap"><h1>Aucun plan</h1><p>data/plan.json introuvable.</p></div>'; throw new Error('No plan');}
+const quote=plan.strategy.quoteCcy || 'USDC';
+const entries=plan.entries||[];
+const purchases=[...(history.purchases||[])].sort((a,b)=>new Date(b.executedAt)-new Date(a.executedAt));
+const done=entries.filter(e=>e.status==='done').length;
+const failed=entries.filter(e=>e.status==='failed');
+const pending=entries.filter(e=>e.status==='pending').sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
+const planned=entries.reduce((n,e)=>n+Number(e.amount||0),0);
+const invested=purchases.reduce((n,p)=>n+Number(p.amount||0),0);
+const pct=entries.length?Math.round(done/entries.length*100):0;
+const next=pending[0];
+const nextBatch=next?pending.filter(e=>e.dueAt===next.dueAt):[];
+$('mode').innerHTML=`<span class="pill"><b>${plan.demo===false?'RÉEL':'DÉMO'}</b> ${plan.demo===false?'argent réel':'argent fictif'}</span><span class="pill"><b>${plan.live?'ARMÉ':'SIMULATION'}</b> ${plan.live?'ordres autorisés':'aucun ordre transmis'}</span><span class="pill"><b>${esc(quote)}</b> devise d’achat</span>`;
+$('invested').textContent=money(invested,quote); $('planned').textContent=`sur ${money(planned,quote)} programmés`;
+$('done-count').textContent=String(purchases.length); $('remaining').textContent=`${pending.length} restants · ${failed.length} échecs`;
+$('next-date').textContent=next?fmt(next.dueAt):'—'; $('next-sub').textContent=next?`${rel(next.dueAt)} · ${money(nextBatch.reduce((n,e)=>n+Number(e.amount||0),0),quote)}`:'plan terminé';
+$('progress-label').textContent=`${done} / ${entries.length} achats · ${pct}%`; $('progress-bar').style.width=`${pct}%`;
+const assets=[...new Set(entries.map(e=>e.instId.split('-')[0]))];
+$('assets').innerHTML=assets.map(asset=>{const ps=purchases.filter(p=>(p.baseCcy||p.instId.split('-')[0])===asset);const spent=ps.reduce((n,p)=>n+Number(p.amount||0),0);const qty=ps.reduce((n,p)=>n+Number(p.filledQty||0),0);const left=entries.filter(e=>e.instId.startsWith(asset+'-')&&e.status==='pending').length;return `<div class="card section asset"><div><strong>${esc(asset)}</strong><div class="sub mono">${money(spent,quote)} investi · ${nf(qty,8)} ${esc(asset)} reçu</div></div><div class="right mono"><b>${ps.length}</b> faits<br><span class="sub">${left} restants</span></div></div>`}).join('');
+function table(rows,empty){if(!rows.length)return `<p class="small">${empty}</p>`;return `<table class="table"><thead><tr><th>Date</th><th>Actif</th><th class="right">Montant</th><th>Statut</th></tr></thead><tbody>${rows.map(r=>r).join('')}</tbody></table>`}
+$('done-table').innerHTML=table(purchases.map(p=>`<tr><td>${fmt(p.executedAt)}<div class="small mono">${new Date(p.executedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></td><td><b>${esc(p.baseCcy||p.instId.split('-')[0])}</b><div class="small mono">${esc(p.instId)}</div></td><td class="right mono">${money(p.amount,p.quoteCcy||quote)}</td><td class="status done">Exécuté</td></tr>`),'Aucun achat exécuté pour le moment.');
+const future=[...pending,...failed].sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
+$('todo-table').innerHTML=table(future.map(e=>`<tr><td>${fmt(e.dueAt)}<div class="small mono">${rel(e.dueAt)}</div></td><td><b>${esc(e.instId.split('-')[0])}</b><div class="small mono">${esc(e.instId)}</div></td><td class="right mono">${money(e.amount,e.instId.split('-')[1])}</td><td class="status ${e.status==='failed'?'failed':nextBatch.includes(e)?'next':'pending'}">${e.status==='failed'?'Échec':nextBatch.includes(e)?'Prochain':'Programmé'}</td></tr>`),'Plan terminé.');
 </script>
 </body>
 </html>

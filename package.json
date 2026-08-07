@@ -11,9 +11,7 @@
     "plan": "node scripts/plan.mjs",
     "run-due": "node --env-file=.env scripts/run-due.mjs",
     "buy-now": "node --env-file=.env scripts/buy-now.mjs",
-    "site": "npx --yes serve .",
-    "instruments": "node scripts/instruments.mjs",
-    "doctor": "node scripts/instruments.mjs --quote USDC && node scripts/report.mjs"
+    "site": "npx --yes serve ."
   },
   "devDependencies": {
     "@okx_ai/okx-trade-cli": "^1.4.2",

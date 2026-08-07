@@ -1,25 +1,18 @@
-# OKX DCA Planner
+# OKX DCA Planner — exemple minimal BTC + HYPE
 
-**Achetez n'importe quelle crypto automatiquement, à intervalle régulier, sans laisser votre ordinateur allumé.**
+Ce dépôt public montre un cas concret et volontairement simple :
 
-Le planning s'exécute sur les serveurs GitHub (GitHub Actions). À chaque échéance,
-un ordre au marché part sur OKX, le résultat est réécrit dans le dépôt, et une
-interface web affiche l'ensemble : achats effectués, montants, dates, achats à venir.
+- **BTC-USDC** : achat démo exécuté avec succès ;
+- **HYPE** : souhaité dans le plan, mais OKX Europe démo ne fournit pas de marché `HYPE-USDC` actif et bloque l’usage USDT côté Europe ;
+- montant prévu : **50 $ par actif** ;
+- rythme : **tous les 15 jours** ;
+- durée : **3 mois** ;
+- exécution : **GitHub Actions**, ordinateur éteint possible ;
+- secrets : uniquement dans **GitHub Actions Secrets**, jamais dans le code.
 
-**Multi-actifs** : toute paire au comptant d'OKX fonctionne — `BTC-EUR`, `ETH-USDC`,
-`SOL-EUR`, `XRP-USDT`… et vous pouvez en programmer plusieurs dans le même plan.
+Interface : https://capetlevrai.github.io/okx-planifier-achat-github-actions/
 
-Gratuit, open source, sans serveur à louer et sans abonnement.
-
-> **Important : GitHub Actions fonctionne aussi en dépôt privé.** Vous n’êtes
-> pas obligé de rendre votre dépôt public pour automatiser vos achats. Le dépôt
-> public sert ici de modèle et de tutoriel. Pour garder votre historique privé,
-> créez votre copie en **Private**.
-
-**▶️ [Voir l'interface en démo](https://capetlevrai.github.io/okx-planifier-achat-github-actions/)**
-
-> 🎓 Nouveau sur le sujet ? Commencez par le tutoriel
-> [Trader sur OKX avec une IA — OKX Agent Trade Kit](https://coinacademy.fr/academie/okx-agent-trade-kit-trader-sur-okx-avec-une-ia/)
+> GitHub Actions fonctionne aussi en dépôt privé. Ce repo est public pour servir de tutoriel et de démo visible.
 
 ---
 

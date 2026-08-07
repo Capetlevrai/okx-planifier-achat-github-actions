@@ -7,10 +7,9 @@
  */
 
 import {
-  HISTORY_FILE, readJson, writeJson,
+  HISTORY_FILE, PLAN_FILE, readJson, writeJson,
   requireCredentials, availableBalance, lastPrice, marketBuy, orderFill,
   quoteCurrency, baseCurrency, makeClOrdId, log, configure, isDemo, isDryRun, modeLabel,
-  PLAN_FILE, readJson,
 } from './okx.mjs';
 
 // Achat hors planning : on reprend le compte et la région du planning, mais

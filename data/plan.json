@@ -1,147 +1,110 @@
 {
-  "createdAt": "2026-08-07T15:59:45.272Z",
-  "live": false,
+  "createdAt": "2026-08-07T21:43:14.170955Z",
+  "updatedAt": "2026-08-07T21:43:33.592Z",
+  "live": true,
   "demo": true,
   "site": "eea",
   "baseUrl": "https://my.okx.com",
   "strategy": {
-    "label": "25 USDC par actif tous les 15 jours",
+    "label": "50 $ par actif tous les 15 jours — BTC en USDC, HYPE en USDT (démo OKX)",
     "instIds": [
       "BTC-USDC",
-      "ETH-USDC",
-      "SOL-USDC"
+      "HYPE-USDT"
     ],
-    "quoteCcy": "USDC",
-    "amountPerAsset": 25,
+    "quoteCcy": "$ démo",
+    "amountPerAsset": 50,
     "everyDays": 15,
     "cycles": 6,
-    "hourUtc": 9
+    "hourUtc": 9,
+    "note": "OKX démo Europe ne fournit pas de marché HYPE-USDC. HYPE utilise HYPE-USDT après conversion USDC→USDT en compte démo."
   },
   "entries": [
     {
       "id": "dca-1-BTC-USDC",
-      "dueAt": "2026-08-07T09:00:00.000Z",
+      "dueAt": "2026-08-07T21:00:00Z",
       "instId": "BTC-USDC",
-      "amount": 25,
-      "status": "pending"
+      "amount": 50,
+      "status": "done",
+      "executedAt": "2026-08-07T21:41:40.756Z",
+      "ordId": "3813008182231564288"
     },
     {
-      "id": "dca-1-ETH-USDC",
-      "dueAt": "2026-08-07T09:00:00.000Z",
-      "instId": "ETH-USDC",
-      "amount": 25,
-      "status": "pending"
-    },
-    {
-      "id": "dca-1-SOL-USDC",
-      "dueAt": "2026-08-07T09:00:00.000Z",
-      "instId": "SOL-USDC",
-      "amount": 25,
-      "status": "pending"
+      "id": "dca-1-HYPE-USDT",
+      "dueAt": "2026-08-07T21:00:00Z",
+      "instId": "HYPE-USDT",
+      "amount": 50,
+      "status": "failed",
+      "error": "solde insuffisant : 0 USDT disponible, 50 requis",
+      "failedAt": "2026-08-07T21:43:33.592Z"
     },
     {
       "id": "dca-2-BTC-USDC",
-      "dueAt": "2026-08-22T09:00:00.000Z",
+      "dueAt": "2026-08-22T21:00:00Z",
       "instId": "BTC-USDC",
-      "amount": 25,
+      "amount": 50,
       "status": "pending"
     },
     {
-      "id": "dca-2-ETH-USDC",
-      "dueAt": "2026-08-22T09:00:00.000Z",
-      "instId": "ETH-USDC",
-      "amount": 25,
-      "status": "pending"
-    },
-    {
-      "id": "dca-2-SOL-USDC",
-      "dueAt": "2026-08-22T09:00:00.000Z",
-      "instId": "SOL-USDC",
-      "amount": 25,
+      "id": "dca-2-HYPE-USDT",
+      "dueAt": "2026-08-22T21:00:00Z",
+      "instId": "HYPE-USDT",
+      "amount": 50,
       "status": "pending"
     },
     {
       "id": "dca-3-BTC-USDC",
-      "dueAt": "2026-09-06T09:00:00.000Z",
+      "dueAt": "2026-09-06T21:00:00Z",
       "instId": "BTC-USDC",
-      "amount": 25,
+      "amount": 50,
       "status": "pending"
     },
     {
-      "id": "dca-3-ETH-USDC",
-      "dueAt": "2026-09-06T09:00:00.000Z",
-      "instId": "ETH-USDC",
-      "amount": 25,
-      "status": "pending"
-    },
-    {
-      "id": "dca-3-SOL-USDC",
-      "dueAt": "2026-09-06T09:00:00.000Z",
-      "instId": "SOL-USDC",
-      "amount": 25,
+      "id": "dca-3-HYPE-USDT",
+      "dueAt": "2026-09-06T21:00:00Z",
+      "instId": "HYPE-USDT",
+      "amount": 50,
       "status": "pending"
     },
     {
       "id": "dca-4-BTC-USDC",
-      "dueAt": "2026-09-21T09:00:00.000Z",
+      "dueAt": "2026-09-21T21:00:00Z",
       "instId": "BTC-USDC",
-      "amount": 25,
+      "amount": 50,
       "status": "pending"
     },
     {
-      "id": "dca-4-ETH-USDC",
-      "dueAt": "2026-09-21T09:00:00.000Z",
-      "instId": "ETH-USDC",
-      "amount": 25,
-      "status": "pending"
-    },
-    {
-      "id": "dca-4-SOL-USDC",
-      "dueAt": "2026-09-21T09:00:00.000Z",
-      "instId": "SOL-USDC",
-      "amount": 25,
+      "id": "dca-4-HYPE-USDT",
+      "dueAt": "2026-09-21T21:00:00Z",
+      "instId": "HYPE-USDT",
+      "amount": 50,
       "status": "pending"
     },
     {
       "id": "dca-5-BTC-USDC",
-      "dueAt": "2026-10-06T09:00:00.000Z",
+      "dueAt": "2026-10-06T21:00:00Z",
       "instId": "BTC-USDC",
-      "amount": 25,
+      "amount": 50,
       "status": "pending"
     },
     {
-      "id": "dca-5-ETH-USDC",
-      "dueAt": "2026-10-06T09:00:00.000Z",
-      "instId": "ETH-USDC",
-      "amount": 25,
-      "status": "pending"
-    },
-    {
-      "id": "dca-5-SOL-USDC",
-      "dueAt": "2026-10-06T09:00:00.000Z",
-      "instId": "SOL-USDC",
-      "amount": 25,
+      "id": "dca-5-HYPE-USDT",
+      "dueAt": "2026-10-06T21:00:00Z",
+      "instId": "HYPE-USDT",
+      "amount": 50,
       "status": "pending"
     },
     {
       "id": "dca-6-BTC-USDC",
-      "dueAt": "2026-10-21T09:00:00.000Z",
+      "dueAt": "2026-10-21T21:00:00Z",
       "instId": "BTC-USDC",
-      "amount": 25,
+      "amount": 50,
       "status": "pending"
     },
     {
-      "id": "dca-6-ETH-USDC",
-      "dueAt": "2026-10-21T09:00:00.000Z",
-      "instId": "ETH-USDC",
-      "amount": 25,
-      "status": "pending"
-    },
-    {
-      "id": "dca-6-SOL-USDC",
-      "dueAt": "2026-10-21T09:00:00.000Z",
-      "instId": "SOL-USDC",
-      "amount": 25,
+      "id": "dca-6-HYPE-USDT",
+      "dueAt": "2026-10-21T21:00:00Z",
+      "instId": "HYPE-USDT",
+      "amount": 50,
       "status": "pending"
     }
   ]
