@@ -94,11 +94,22 @@ ne passe en `reel` qu'ensuite.
 
 Vous pouvez relancer ce formulaire quand vous voulez pour tout changer.
 
-### 5. Affichez votre tableau de bord
+### 5. Consultez votre tableau de bord
 
-**Settings → Pages → Source : GitHub Actions.**
+**Rien à faire : ouvrez `RAPPORT.md` à la racine de votre dépôt.**
 
-Votre interface est en ligne sur `https://VOTRE-PSEUDO.github.io/VOTRE-DEPOT/`.
+Positions, achats effectués, montants, dates, achats à venir, avancement — le
+fichier est régénéré automatiquement après chaque achat, et GitHub l'affiche
+directement. Votre dépôt reste **privé**, et ça ne coûte rien.
+
+Le même tableau apparaît aussi dans le récapitulatif de chaque exécution
+(onglet Actions → cliquez sur un run).
+
+> **Et la version web ?** Le dépôt contient aussi une interface HTML
+> (`site/index.html`). GitHub Pages exigeant un dépôt **public**, elle n'est
+> activée que si vous acceptez d'exposer vos achats à tout le monde — ce qui n'a
+> rien d'obligatoire. Pour la voir en privé, servez le dossier en local
+> (`npx serve .`) ou déployez-le sur un hébergeur avec accès restreint.
 
 ### 6. Les achats
 

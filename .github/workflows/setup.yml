@@ -86,35 +86,26 @@ jobs:
         run: |
           printf '{\n  "purchases": []\n}\n' > data/history.json
 
+      - name: Générer le tableau de bord
+        run: node scripts/report.mjs
+
       - name: Enregistrer le plan
         run: |
-          if [ -z "$(git status --porcelain data/)" ]; then
+          if [ -z "$(git status --porcelain data/ RAPPORT.md)" ]; then
             echo "Le plan est déjà à jour."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/
+          git add data/ RAPPORT.md
           git commit -m "Mon plan d'achats"
           git push
 
       - name: Récapitulatif
         run: |
           {
-            echo "## ✅ Votre plan est enregistré"
             echo ""
-            node -e '
-              const p = require("./data/plan.json");
-              const s = p.strategy;
-              const total = p.entries.reduce((n, e) => n + e.amount, 0);
-              console.log(`- **Actifs** : ${s.instIds.join(", ")}`);
-              console.log(`- **Montant** : ${s.amountPerAsset} ${s.quoteCcy} par actif et par échéance`);
-              console.log(`- **Rythme** : tous les ${s.everyDays} jours, ${s.cycles} fois, à ${s.hourUtc}h00 UTC`);
-              console.log(`- **Période** : du ${p.entries[0].dueAt.slice(0,10)} au ${p.entries.at(-1).dueAt.slice(0,10)}`);
-              console.log(`- **Total engagé** : ${total} ${s.quoteCcy}`);
-              console.log(`- **Compte** : ${p.demo ? "démo (argent fictif)" : "RÉEL (argent réel)"} — ${p.baseUrl}`);
-              console.log(`- **Exécution** : ${p.live ? "les ordres partiront" : "simulation, aucun ordre"}`);
-            '
+            echo "➡️ Votre tableau de bord complet : [RAPPORT.md](../blob/main/RAPPORT.md)"
             echo ""
             if [ "${{ inputs.execution }}" = "acheter" ]; then
               echo "### 🚀 C'est armé"
