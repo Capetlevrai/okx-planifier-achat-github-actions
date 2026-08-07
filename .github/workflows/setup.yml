@@ -91,13 +91,13 @@ jobs:
 
       - name: Enregistrer le plan
         run: |
-          if [ -z "$(git status --porcelain data/ RAPPORT.md)" ]; then
+          if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then
             echo "Le plan est déjà à jour."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/ RAPPORT.md
+          git add data/ RAPPORT.md tableau-de-bord.html
           git commit -m "Mon plan d'achats"
           git push
 

@@ -96,20 +96,22 @@ Vous pouvez relancer ce formulaire quand vous voulez pour tout changer.
 
 ### 5. Consultez votre tableau de bord
 
-**Rien à faire : ouvrez `RAPPORT.md` à la racine de votre dépôt.**
+Dans votre dépôt, ouvrez **`tableau-de-bord.html`** → bouton **Download raw
+file** → **double-cliquez** sur le fichier téléchargé.
 
-Positions, achats effectués, montants, dates, achats à venir, avancement — le
-fichier est régénéré automatiquement après chaque achat, et GitHub l'affiche
-directement. Votre dépôt reste **privé**, et ça ne coûte rien.
+La page s'ouvre dans votre navigateur : positions, achats effectués, montants,
+dates, achats à venir, avancement. Thème clair et sombre.
 
-Le même tableau apparaît aussi dans le récapitulatif de chaque exécution
-(onglet Actions → cliquez sur un run).
+C'est un fichier unique, avec vos données déjà incluses : **aucun serveur,
+aucune installation, et votre dépôt reste privé.** Il est régénéré
+automatiquement après chaque achat — retéléchargez-le pour la version à jour.
 
-> **Et la version web ?** Le dépôt contient aussi une interface HTML
-> (`site/index.html`). GitHub Pages exigeant un dépôt **public**, elle n'est
-> activée que si vous acceptez d'exposer vos achats à tout le monde — ce qui n'a
-> rien d'obligatoire. Pour la voir en privé, servez le dossier en local
-> (`npx serve .`) ou déployez-le sur un hébergeur avec accès restreint.
+> **Aperçu immédiat sans téléchargement :** ouvrez `RAPPORT.md`, GitHub l'affiche
+> directement dans la page. Mêmes informations, présentation plus sobre.
+>
+> **Version en ligne :** possible via *Settings → Pages → Source : GitHub
+> Actions*, mais GitHub Pages **exige un dépôt public** — vos achats seraient
+> alors visibles de tous. Réservé à ceux que ça ne dérange pas.
 
 ### 6. Les achats
 

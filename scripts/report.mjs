@@ -120,9 +120,30 @@ out.push('');
 const markdown = out.join('\n');
 fs.writeFileSync(path.join(ROOT, 'RAPPORT.md'), markdown);
 
+/*
+ * Page HTML autonome : la même interface que site/index.html, mais avec les
+ * données injectées dedans. Un seul fichier, qui s'ouvre par double-clic —
+ * pas de serveur, pas de terminal, et le dépôt peut rester privé.
+ */
+const template = fs.readFileSync(path.join(ROOT, 'site', 'index.html'), 'utf8');
+const payload = JSON.stringify({ plan, history })
+  // Empêche une valeur contenant "</script>" de refermer la balise.
+  .replace(/</g, '\\u003c');
+
+const standalone = template.replace(
+  '<script type="module">',
+  `<script>window.__DCA__ = ${payload};</script>\n<script type="module">`
+);
+
+if (standalone === template) {
+  console.error("Balise <script type=\"module\"> introuvable dans site/index.html — page autonome non générée.");
+  process.exit(1);
+}
+fs.writeFileSync(path.join(ROOT, 'tableau-de-bord.html'), standalone);
+
 // Le même contenu s'affiche dans le récapitulatif du run GitHub Actions.
 if (process.env.GITHUB_STEP_SUMMARY) {
   fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
 }
 
-console.log('RAPPORT.md mis à jour.');
+console.log('RAPPORT.md et tableau-de-bord.html mis à jour.');
