@@ -42,10 +42,13 @@ jobs:
           # '1' = compte démo (simulated trading). Mettre '0' pour le compte réel.
           OKX_DEMO: ${{ vars.OKX_DEMO || '1' }}
           OKX_BASE_URL: ${{ vars.OKX_BASE_URL || 'https://my.okx.com' }}
-          # Laissé vide sur le cron : c'est alors le champ "live" du planning,
-          # réglé depuis le formulaire de configuration, qui décide. Une valeur
-          # explicite ici (saisie manuelle ou variable de dépôt) l'emporte.
-          DRY_RUN: ${{ github.event.inputs.dry_run || vars.DRY_RUN || '' }}
+          # ATTENTION : ne pas écrire ${{ inputs.dry_run || vars.DRY_RUN }}.
+          # Les expressions GitHub castent les chaînes numériques en nombres,
+          # donc '0' est FAUX et l'opérateur || l'écraserait silencieusement —
+          # un dry_run=0 explicite serait ignoré. On passe les deux valeurs
+          # brutes et on arbitre en bash, où '0' est une chaîne comme une autre.
+          DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
+          DRY_RUN_VAR: ${{ vars.DRY_RUN }}
         run: |
           # Sur un fork fraîchement cloné, les secrets ne sont pas encore
           # renseignés : on sort proprement au lieu de faire échouer le cron.
@@ -55,6 +58,13 @@ jobs:
             echo "Settings > Secrets and variables > Actions. Voir le README."
             exit 0
           fi
+
+          # Priorité : saisie manuelle > variable de dépôt > champ "live" du plan.
+          if   [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
+          elif [ -n "$DRY_RUN_VAR" ];   then export DRY_RUN="$DRY_RUN_VAR"
+          fi
+          echo "DRY_RUN transmis au script : '${DRY_RUN-non defini, le plan decide}'"
+
           node scripts/run-due.mjs
 
       - name: Enregistrer les résultats dans le dépôt
