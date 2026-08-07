@@ -18,10 +18,73 @@ Gratuit, open source, sans serveur à louer et sans abonnement.
 
 ---
 
-## 🤖 Installation par un agent IA (la voie rapide)
+## 🚀 Démarrage en 5 minutes — sans rien installer
 
-Vous n'avez pas envie de faire ça à la main ? Ouvrez **Claude Code**, **Cursor** ou
-**Codex**, et collez le prompt ci-dessous. L'agent fait tout.
+**Ni Node, ni Git, ni ligne de commande. Uniquement votre navigateur.**
+
+### 1. Créez votre copie
+
+Cliquez sur **[Use this template](../../generate)** en haut de cette page →
+*Create a new repository*. Nommez-le comme vous voulez, laissez-le **privé**.
+
+### 2. Créez vos clés OKX
+
+Sur [my.okx.com](https://my.okx.com) → Profil → API → **Créer une clé API**.
+
+- Permissions : **Lecture + Trading**. ❌ **Jamais Retrait.**
+- Pour vous entraîner sans risque, basculez d'abord sur *Trading démo* et créez
+  une clé démo — c'est le mode par défaut du projet.
+
+Notez la **clé**, le **secret** et la **passphrase**.
+
+### 3. Collez-les dans votre dépôt
+
+**Settings → Secrets and variables → Actions → New repository secret.**
+Trois secrets à créer, un par un :
+
+| Nom | Valeur |
+|---|---|
+| `OKX_API_KEY` | votre clé |
+| `OKX_SECRET_KEY` | votre secret |
+| `OKX_PASSPHRASE` | votre passphrase |
+
+GitHub les chiffre. Ils ne sont jamais visibles, ni dans le code, ni dans les logs.
+
+### 4. Décrivez votre plan
+
+Onglet **Actions** → **1. Configurer mon plan** → bouton **Run workflow**.
+
+Un formulaire s'ouvre : que voulez-vous acheter, combien, tous les combien de
+jours, pendant combien de mois. Validez. Votre planning est généré et enregistré.
+
+### 5. Affichez votre tableau de bord
+
+**Settings → Pages → Source : GitHub Actions.**
+
+Votre interface est en ligne sur `https://VOTRE-PSEUDO.github.io/VOTRE-DEPOT/`.
+
+### C'est prêt — mais rien n'est encore acheté
+
+Par sécurité, **tout est simulé par défaut**. Le système tourne, détecte les
+échéances, mais ne transmet aucun ordre.
+
+Pour lancer les achats pour de vrai :
+**Settings → Secrets and variables → Actions → onglet Variables → New variable**,
+nom `DRY_RUN`, valeur `0`.
+
+À partir de là, plus rien à faire. GitHub achète tout seul, à chaque échéance,
+même ordinateur éteint, même si vous oubliez le projet pendant trois mois.
+
+> Pour repasser en simulation à tout moment : remettez `DRY_RUN` à `1`.
+> Pour tout arrêter : Actions → **2. Acheter** → menu `···` → *Disable workflow*.
+
+---
+
+## 🤖 Ou : laissez un agent IA le faire
+
+Vous utilisez **Claude Code**, **Cursor** ou **Codex** ? Collez le prompt
+ci-dessous, l'agent fait tout, y compris l'installation locale du CLI et du MCP
+OKX.
 
 ```text
 Installe et configure pour moi le projet OKX DCA Planner :
@@ -38,8 +101,9 @@ Voici ce que j'attends, étape par étape :
    travailler sur le compte DÉMO ou RÉEL. Configure le profil avec :
    okx config add-profile AK=<clé> SK=<secret> PP=<passphrase> site=<global|eea|us|tr> demo=<true|false>
    Vérifie que ça marche avec : okx account balance
-4. Fais un fork du dépôt sur mon compte GitHub, clone-le en local, et installe
-   les dépendances s'il y en a.
+4. Crée-moi une copie du dépôt via "Use this template" (gh repo create
+   --template Capetlevrai/okx-planifier-achat-github-actions), clone-la en
+   local, et installe les dépendances s'il y en a.
 5. Demande-moi ma stratégie : montant par achat, intervalle en jours, durée, et
    quelle(s) crypto(s) acheter. N'importe quelle paire au comptant d'OKX marche
    (BTC-EUR, ETH-USDC, SOL-EUR…) et on peut en mettre plusieurs, séparées par des
@@ -60,11 +124,15 @@ IMPORTANT :
 - Explique-moi en français ce que tu fais à chaque étape.
 ```
 
-Tout le reste de ce README décrit la procédure manuelle, si vous préférez.
-
 ---
 
-## Prérequis
+## ⚙️ Ou : en local, à la main
+
+**Cette partie est facultative.** Elle n'a d'intérêt que si vous voulez modifier
+le code, tester avant de publier, ou piloter OKX depuis votre terminal et votre
+agent IA. Le parcours navigateur ci-dessus suffit à faire tourner le système.
+
+### Prérequis
 
 | Outil | Pourquoi | Vérifier |
 |---|---|---|
@@ -117,12 +185,12 @@ okx account balance
 
 ---
 
-## Mise en place du projet
+### Mise en place du projet
 
-**1. Récupérez le dépôt** — bouton **Fork** sur GitHub, puis :
+**1. Récupérez le dépôt** — bouton **Use this template**, puis clonez votre copie :
 
 ```bash
-git clone https://github.com/VOTRE-PSEUDO/okx-planifier-achat-github-actions.git
+git clone https://github.com/VOTRE-PSEUDO/VOTRE-DEPOT.git
 ```
 
 **2. Configurez vos clés en local** — copiez `.env.example` vers `.env` et remplissez-le.
