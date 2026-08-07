@@ -98,7 +98,13 @@ export async function okx(method, requestPath, payload) {
   // Cet en-tête est la seule différence entre le compte démo et le compte réel.
   if (demo) headers['x-simulated-trading'] = '1';
 
-  const res = await fetch(baseUrl + requestPath, { method, headers, body: body || undefined });
+  const timeoutMs = Number(process.env.OKX_HTTP_TIMEOUT_MS || 15_000);
+  const res = await fetch(baseUrl + requestPath, {
+    method,
+    headers,
+    body: body || undefined,
+    signal: AbortSignal.timeout(timeoutMs),
+  });
   const json = await res.json();
 
   if (json.code !== '0') {
@@ -152,12 +158,15 @@ export async function getOrder(instId, { ordId, clOrdId }) {
   return order || null;
 }
 
+const ORDER_NOT_FOUND_CODES = new Set(['51603', '51604', '51617']);
+
 /** Retourne null si OKX ne connaît pas encore / plus ce clOrdId. */
 export async function findOrderByClOrdId(instId, clOrdId) {
   try {
     return await getOrder(instId, { clOrdId });
   } catch (err) {
     const msg = String(err.message || '').toLowerCase();
+    if (ORDER_NOT_FOUND_CODES.has(String(err.okxCode))) return null;
     if (msg.includes('order does not exist') || msg.includes("doesn't exist") || msg.includes('order not exist')) return null;
     throw err;
   }
@@ -184,11 +193,20 @@ export async function waitForOrderFill(instId, { ordId, clOrdId }, attempts = 10
   let latest = null;
   for (let i = 0; i < attempts; i++) {
     latest = normalizeOrderFill(await getOrder(instId, ordId ? { ordId } : { clOrdId }));
-    if (['filled', 'partially_filled'].includes(latest.state) && latest.filledQty > 0) return latest;
+    if (latest.state === 'filled' && latest.filledQty > 0) return latest;
     if (['canceled', 'cancelled', 'rejected'].includes(latest.state)) {
-      throw new Error(`ordre ${latest.state} sur OKX (ordId ${latest.ordId || ordId || clOrdId})`);
+      if (latest.filledQty > 0) {
+        latest.partialTerminal = true;
+        return latest;
+      }
+      throw new Error(`ordre ${latest.state} sur OKX sans remplissage (ordId ${latest.ordId || ordId || clOrdId})`);
     }
     await new Promise((r) => setTimeout(r, delayMs));
+  }
+  if (latest?.state === 'partially_filled' && latest.filledQty > 0) {
+    const error = new Error(`ordre encore partiellement rempli après ${attempts} vérifications (ordId ${latest.ordId || ordId || clOrdId})`);
+    error.partialFill = latest;
+    throw error;
   }
   throw new Error(`ordre non rempli après ${attempts} vérifications (dernier état : ${latest?.state || 'inconnu'})`);
 }

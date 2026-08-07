@@ -38,11 +38,11 @@ assert.throws(() => validateEntrySafety({ ...entry, instId: 'SOL-USDC' }, plan, 
 assert.throws(() => validateEntrySafety({ ...entry, amount: 51 }, plan, history, normalizeRisk(plan), now), /montant par ordre/);
 assert.throws(() => validateEntrySafety({ ...entry, instId: 'ETH-USDC', amount: 51 }, { ...plan, risk: { ...plan.risk, maxOrderAmount: 100 } }, history, normalizeRisk({ ...plan, risk: { ...plan.risk, maxOrderAmount: 100 } }), now), /limite journalière/);
 
-const failed = { ...entry };
+const failed = { ...entry, attempts: 1 };
 markFailure(failed, new Error('solde insuffisant : 0 USDC disponible'), { maxAttempts: 3, retryDelayMinutes: 60 }, now);
 assert.equal(failed.status, 'failed');
 assert.equal(failed.retryable, true);
-assert.equal(failed.attempts, 1);
+assert.equal(failed.attempts, 1, 'markFailure must not increment attempts a second time');
 assert.equal(failed.retryAfter, '2026-08-07T11:00:00.000Z');
 
 const hist = { purchases: [] };

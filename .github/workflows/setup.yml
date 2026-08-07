@@ -48,6 +48,11 @@ on:
         options:
           - simulation
           - acheter
+      reset_history:
+        description: "Effacer l'historique ? Interdit en compte réel"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -83,9 +88,23 @@ jobs:
             --site    "${{ inputs.region }}" \
             $CHECK $LIVE --force
 
-      - name: Repartir de zéro côté historique
+      - name: Historique conservé ou réinitialisé explicitement
         run: |
-          printf '{\n  "purchases": []\n}\n' > data/history.json
+          if [ "${{ inputs.reset_history }}" = "true" ]; then
+            if [ "${{ inputs.compte }}" = "reel" ]; then
+              echo "Refus : reset_history est interdit en compte réel pour préserver l'audit."
+              exit 1
+            fi
+            printf '{\n  "purchases": []\n}\n' > data/history.json
+            echo "Historique démo réinitialisé explicitement."
+          else
+            if [ ! -f data/history.json ]; then
+              printf '{\n  "purchases": []\n}\n' > data/history.json
+              echo "Historique initial créé."
+            else
+              echo "Historique conservé."
+            fi
+          fi
 
       - name: Générer le tableau de bord
         run: node scripts/report.mjs

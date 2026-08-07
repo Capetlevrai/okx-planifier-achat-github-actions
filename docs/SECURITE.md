@@ -72,3 +72,22 @@ ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
 ```
 
 Pour une vraie utilisation, mettez cette variable dans un environnement GitHub protégé avec approbation humaine, pas comme automatisme silencieux.
+
+## Corrections de robustesse avant argent réel
+
+Les points suivants sont obligatoires avant toute utilisation réelle :
+
+- la réconciliation OKX par `clOrdId` se fait **avant** les contrôles de solde, whitelist et plafond ;
+- un ordre `partially_filled` n'est pas présenté comme un achat complet ; il reste surveillé, ou finit en état `partial` si OKX l'annule avec une quantité partielle ;
+- `entry.attempts` est incrémenté à un seul endroit, juste avant l'envoi d'un nouvel ordre ;
+- le verrou argent réel utilise le secret `ALLOW_REAL_TRADING`, pas une variable de dépôt ordinaire ;
+- le workflow de configuration conserve l'historique par défaut ; `reset_history` est explicite et refusé en compte réel ;
+- tous les appels OKX ont un timeout HTTP explicite.
+
+Pour un DCA automatique réel, créez volontairement ce secret après confirmation humaine :
+
+```text
+ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
+```
+
+Cela active un verrou unique pour l'automatisation. Si vous voulez une validation humaine à chaque échéance, ajoutez plutôt `environment: okx-real` au job GitHub Actions et configurez l'environnement avec approbateurs.

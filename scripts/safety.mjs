@@ -107,7 +107,7 @@ export function markFailure(entry, err, risk = DEFAULT_RISK, now = new Date()) {
   entry.errorClass = classification.reason;
   entry.retryable = classification.retryable;
   entry.failedAt = now.toISOString();
-  entry.attempts = (entry.attempts || 0) + 1;
+  entry.attempts = entry.attempts || 0;
   if (classification.retryable && entry.attempts < risk.maxAttempts) {
     entry.retryAfter = new Date(now.getTime() + risk.retryDelayMinutes * 60_000).toISOString();
   } else {
