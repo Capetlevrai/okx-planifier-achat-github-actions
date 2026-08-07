@@ -1,11 +1,9 @@
 name: 2. Acheter — routine automatique
 
-# Tourne sur les serveurs GitHub : votre ordinateur peut rester éteint.
 on:
   schedule:
-    # Tous les jours à 09:00 UTC. Le script n'agit que sur les échéances
-    # réellement atteintes dans data/plan.json — un passage à vide ne coûte rien.
-    - cron: '0 9 * * *'
+    # Cadence horaire : respecte retryDelayMinutes=60 ; le script n'agit que si une échéance est due.
+    - cron: '0 * * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -15,24 +13,66 @@ on:
         type: choice
         options: ['1', '0']
 
-# Nécessaire pour réécrire data/plan.json et data/history.json dans le dépôt.
 permissions:
   contents: write
 
-# Deux exécutions simultanées réécriraient les mêmes fichiers.
 concurrency:
-  group: dca
+  group: okx-dca-state
   cancel-in-progress: false
 
 jobs:
-  execute:
+  quality-gate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Vérification syntaxe Node
+        run: |
+          for file in scripts/*.mjs tests/*.mjs; do node --check "$file"; done
+      - name: Vérification whitespace git
+        run: git diff --check
+      - name: Shellcheck workflow snippets
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          python3 - <<'PY' > /tmp/dca-shell.sh
+          from pathlib import Path
+          text = Path('.github/workflows/dca.yml').read_text()
+          blocks = []
+          in_run = False
+          buf = []
+          for line in text.splitlines():
+              if line.strip() == 'run: |':
+                  in_run = True; buf=[]; continue
+              if in_run and (line.startswith('      ') or line.strip() == ''):
+                  buf.append(line[10:] if line.startswith('          ') else line.lstrip())
+              elif in_run:
+                  blocks.append('\n'.join(buf)); in_run=False
+          if in_run: blocks.append('\n'.join(buf))
+          print('\n\n'.join(blocks))
+          PY
+          shellcheck /tmp/dca-shell.sh
+
+  execute:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    environment: real-trading
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
 
       - name: Exécuter les achats dus
         env:
@@ -40,38 +80,20 @@ jobs:
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
           OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
-          # Laissés vides par défaut : compte, région et armement viennent tous
-          # de data/plan.json, réglé depuis le formulaire de configuration.
-          # Une variable de dépôt, si elle existe, reste prioritaire.
           OKX_DEMO: ${{ vars.OKX_DEMO }}
           OKX_BASE_URL: ${{ vars.OKX_BASE_URL }}
-          # Verrou supplémentaire pour l'argent réel : laissez vide en démo.
-          # Pour une activation réelle automatique, créez explicitement ce SECRET :
-          # ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
           ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}
-          # ATTENTION : ne pas écrire ${{ inputs.dry_run || vars.DRY_RUN }}.
-          # Les expressions GitHub castent les chaînes numériques en nombres,
-          # donc '0' est FAUX et l'opérateur || l'écraserait silencieusement —
-          # un dry_run=0 explicite serait ignoré. On passe les deux valeurs
-          # brutes et on arbitre en bash, où '0' est une chaîne comme une autre.
           DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
           DRY_RUN_VAR: ${{ vars.DRY_RUN }}
         run: |
-          # Sur un fork fraîchement cloné, les secrets ne sont pas encore
-          # renseignés : on sort proprement au lieu de faire échouer le cron.
           if [ -z "$OKX_API_KEY" ]; then
             echo "Aucun secret OKX configuré sur ce dépôt — rien à exécuter."
-            echo "Ajoutez OKX_API_KEY, OKX_SECRET_KEY et OKX_PASSPHRASE dans"
-            echo "Settings > Secrets and variables > Actions. Voir le README."
             exit 0
           fi
-
-          # Priorité : saisie manuelle > variable de dépôt > champ "live" du plan.
           if   [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
           elif [ -n "$DRY_RUN_VAR" ];   then export DRY_RUN="$DRY_RUN_VAR"
           fi
           echo "DRY_RUN transmis au script : '${DRY_RUN-non defini, le plan decide}'"
-
           node scripts/run-due.mjs
 
       - name: Mettre à jour le tableau de bord
@@ -79,7 +101,6 @@ jobs:
         run: node scripts/report.mjs
 
       - name: Enregistrer les résultats dans le dépôt
-        # s'exécute même si un achat a échoué, pour conserver la trace
         if: always()
         run: |
           if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then
@@ -89,5 +110,6 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/ RAPPORT.md tableau-de-bord.html
-          git commit -m "DCA : mise à jour du planning et de l'historique [skip ci]"
+          git commit -m "DCA : mise à jour du planning, registre et historique [skip ci]"
+          git pull --rebase --autostash origin main
           git push

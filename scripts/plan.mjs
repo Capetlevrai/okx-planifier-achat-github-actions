@@ -34,7 +34,8 @@
  *   --force         écrase un planning existant
  */
 
-import { PLAN_FILE, readJson, writeJson, log, quoteCurrency, assertSpotInstrument, requireCredentials, configure, SITES, modeLabel } from './okx.mjs';
+import { PLAN_FILE, OPERATIONS_FILE, readJson, writeJson, log, quoteCurrency, assertSpotInstrument, requireCredentials, configure, SITES, modeLabel } from './okx.mjs';
+import { hasNonTerminalOperations } from './engine.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -102,9 +103,15 @@ if (args.check) {
 }
 
 const existing = readJson(PLAN_FILE, null);
+const existingOperations = readJson(OPERATIONS_FILE, { operations: [] });
+if (existing && hasNonTerminalOperations(existingOperations)) {
+  console.error('Reconfiguration refusée : le registre contient au moins une opération non terminale à réconcilier.');
+  console.error(`Conservez ${OPERATIONS_FILE} et laissez scripts/run-due.mjs terminer la réconciliation avant de remplacer le plan.`);
+  process.exit(1);
+}
 if (existing && !args.force) {
   console.error(`Un planning existe déjà (${existing.entries.length} entrées) dans ${PLAN_FILE}.`);
-  console.error('Relancez avec --force pour le remplacer.');
+  console.error('Relancez avec --force pour le remplacer uniquement après absence d’opération non terminale.');
   process.exit(1);
 }
 
@@ -155,6 +162,8 @@ const plan = {
     allowedInstIds: instIds,
     maxOrderAmount: Number(maxOrderAmount.toFixed(8)),
     maxDailyQuoteAmount: Number(maxDailyQuoteAmount.toFixed(8)),
+    maxPlanQuoteAmount: Number((perCycle * count).toFixed(8)),
+    maxLifetimeQuoteAmount: Number((perCycle * count).toFixed(8)),
     maxAttempts,
     retryDelayMinutes: 60,
     orderPollAttempts: 10,

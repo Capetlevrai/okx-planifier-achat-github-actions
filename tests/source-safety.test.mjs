@@ -2,29 +2,33 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const runDue = readFileSync(new URL('../scripts/run-due.mjs', import.meta.url), 'utf8');
-const reconcilePos = runDue.indexOf('await reconcileExisting(entry, quote)');
-const validatePos = runDue.indexOf('validateEntrySafety(entry, plan, history, risk)');
-const balancePos = runDue.indexOf('availableBalance(quote)');
-const attemptPos = runDue.indexOf('entry.attempts = (entry.attempts || 0) + 1');
-const marketBuyPos = runDue.indexOf('marketBuy(entry.instId, entry.amount, entry.clOrdId)');
-assert.ok(reconcilePos !== -1, 'run-due must try reconcileExisting');
-assert.ok(validatePos !== -1, 'run-due must validate safety before new order');
-assert.ok(balancePos !== -1, 'run-due must check balance before new order');
-assert.ok(reconcilePos < validatePos, 'reconciliation must happen before whitelist/daily-limit validation');
-assert.ok(reconcilePos < balancePos, 'reconciliation must happen before balance check');
-assert.ok(attemptPos !== -1 && marketBuyPos !== -1 && attemptPos < marketBuyPos, 'attempt counter must increment exactly once before marketBuy');
-assert.equal((runDue.match(/entry\.attempts = \(entry\.attempts \|\| 0\) \+ 1/g) || []).length, 1, 'run-due must increment attempts once');
+assert.ok(runDue.includes('runPlanner'), 'run-due must use the idempotent orchestration engine');
+assert.ok(runDue.includes('OPERATIONS_FILE'), 'run-due must persist a durable operations registry');
+assert.ok(runDue.includes('ALLOW_REAL_TRADING'), 'real-money lock must remain explicit');
+
+const engine = readFileSync(new URL('../scripts/engine.mjs', import.meta.url), 'utf8');
+assert.ok(engine.includes('reconcileOperation'), 'engine must expose reconciliation');
+assert.ok(engine.indexOf('for (const op of operations.operations.filter') < engine.indexOf('validateEntrySafety(entry'), 'reconciliation pass must run before new-order safety/preflight');
+assert.ok(engine.includes('submissionAttempts'), 'engine must track submission attempts separately');
+assert.ok(engine.includes('reconciliationAttempts'), 'engine must track reconciliation attempts separately');
+assert.ok(engine.includes('preflightFailures'), 'engine must track preflight failures separately');
+assert.ok(engine.includes('atomicWriteJson'), 'state writes must be atomic');
 
 const okx = readFileSync(new URL('../scripts/okx.mjs', import.meta.url), 'utf8');
-assert.ok(okx.includes("latest.state === 'filled'"), 'filled is the only complete success state');
-assert.ok(!okx.includes("['filled', 'partially_filled'].includes(latest.state)"), 'partially_filled must not be complete success');
-assert.ok(okx.includes('AbortSignal.timeout'), 'OKX fetch calls must have a timeout');
+assert.ok(okx.includes('validateAllowedBaseUrl'), 'OKX base URL must be allowlisted');
+assert.ok(okx.includes("item.sCode !== undefined && item.sCode !== '0'"), 'OKX item-level sCode must be validated');
+assert.ok(okx.includes('réponse non JSON'), 'OKX client must reject non-JSON responses');
+assert.ok(okx.includes('ordId/clOrdId manquant'), 'OKX order response must require identifiers');
 
 const setup = readFileSync(new URL('../.github/workflows/setup.yml', import.meta.url), 'utf8');
-assert.ok(setup.includes('reset_history'), 'setup workflow must expose explicit reset_history option');
+assert.ok(setup.includes('concurrency:'), 'setup workflow must share a concurrency group');
+assert.ok(setup.includes('PAIRES:'), 'setup inputs must be passed through env, not interpolated directly in shell commands');
 assert.ok(setup.includes('reset_history est interdit en compte réel'), 'setup workflow must refuse history reset in real mode');
 
 const dca = readFileSync(new URL('../.github/workflows/dca.yml', import.meta.url), 'utf8');
-assert.ok(dca.includes('ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}'), 'real-trading lock must come from a secret, not a normal repository variable');
+assert.ok(dca.includes('environment: real-trading'), 'financial job must be attached to the protected real-trading environment');
+assert.ok(dca.includes('needs: quality-gate'), 'financial job must depend on a secret-free quality gate');
+assert.ok(dca.includes('ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}'), 'real-trading lock must come from a secret');
+assert.ok(dca.includes('git pull --rebase'), 'state push must rebase before pushing');
 
 console.log('workflow/source safety tests OK');

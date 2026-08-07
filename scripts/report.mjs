@@ -11,7 +11,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, PLAN_FILE, HISTORY_FILE, readJson } from './okx.mjs';
+import { ROOT, PLAN_FILE, HISTORY_FILE, OPERATIONS_FILE, readJson } from './okx.mjs';
 
 const plan = readJson(PLAN_FILE, null);
 if (!plan) {
@@ -19,6 +19,7 @@ if (!plan) {
   process.exit(1);
 }
 const history = readJson(HISTORY_FILE, { purchases: [] });
+const operations = readJson(OPERATIONS_FILE, { operations: [] });
 const instruments = readJson(path.join(ROOT, 'data', 'instruments.json'), { instruments: [], byQuote: {} });
 
 const s = plan.strategy;
@@ -36,12 +37,13 @@ const relative = (iso) => {
   return d > 0 ? `dans ${d} j` : `il y a ${Math.abs(d)} j`;
 };
 
-const invested = purchases.reduce((n, p) => n + p.amount, 0);
+const invested = purchases.reduce((n, p) => n + Number(p.executedQuoteAmount ?? p.amount ?? 0), 0);
 const planned = plan.entries.reduce((n, e) => n + e.amount, 0);
 const done = plan.entries.filter((e) => e.status === 'done').length;
 const pct = Math.round((done / plan.entries.length) * 100);
 const upcoming = plan.entries.filter((e) => e.status === 'pending').sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt));
-const failed = plan.entries.filter((e) => e.status === 'failed');
+const failed = plan.entries.filter((e) => ['failed', 'partial', 'reconcile_pending', 'canceled', 'rejected'].includes(e.status));
+const openOps = (operations.operations || []).filter((op) => op.state !== 'terminal');
 const next = upcoming[0];
 const nextBatch = next ? upcoming.filter((e) => e.dueAt === next.dueAt) : [];
 
@@ -58,6 +60,7 @@ out.push('| | |');
 out.push('|---|---|');
 out.push(`| **Total investi** | ${money(invested)} sur ${money(planned)} programmés |`);
 out.push(`| **Achats effectués** | ${purchases.length} sur ${plan.entries.length} |`);
+out.push(`| **Opérations à réconcilier** | ${openOps.length} |`);
 out.push(`| **Avancement** | \`${bar}\` ${pct} % |`);
 out.push(`| **Prochain achat** | ${next ? `${day(next.dueAt)} (${relative(next.dueAt)}) — ${money(nextBatch.reduce((n, e) => n + e.amount, 0))}` : 'plan terminé'} |`);
 out.push(`| **Rythme** | ${s.amountPerAsset} ${ccy} par actif, tous les ${s.everyDays} jours, à ${String(s.hourUtc).padStart(2, '0')}h00 UTC |`);
@@ -69,7 +72,7 @@ if (purchases.length) {
     const k = base(p);
     const a = byAsset.get(k) ?? { asset: k, qty: 0, spent: 0, n: 0 };
     a.qty += p.filledQty || 0;
-    a.spent += p.amount;
+    a.spent += Number(p.executedQuoteAmount ?? p.amount ?? 0);
     a.n += 1;
     byAsset.set(k, a);
   }
@@ -84,10 +87,11 @@ if (purchases.length) {
 
   out.push('## Achats effectués');
   out.push('');
-  out.push('| Date | Actif | Montant | Quantité reçue | Prix unitaire | Origine |');
-  out.push('|---|---|---:|---:|---:|---|');
+  out.push('| Date | Actif | Montant exécuté | Quantité reçue | Prix unitaire | Statut | Origine |');
+  out.push('|---|---|---:|---:|---:|---|---|');
   for (const p of purchases) {
-    out.push(`| ${day(p.executedAt)} | ${base(p)} | ${money(p.amount)} | ${nf(p.filledQty || 0, 8)} | ${p.avgPrice ? money(p.avgPrice) : '—'} | ${p.source === 'manual' ? 'manuel' : 'planifié'} |`);
+    const status = p.status === 'filled' ? 'exécuté' : p.status === 'partial' ? 'partiel' : p.status || 'audité';
+    out.push(`| ${day(p.executedAt)} | ${base(p)} | ${money(Number(p.executedQuoteAmount ?? p.amount ?? 0))} | ${nf(p.filledQty || 0, 8)} | ${p.avgPrice ? money(p.avgPrice) : '—'} | ${status} | ${p.source === 'manual' ? 'manuel' : 'planifié'} |`);
   }
   out.push('');
 } else {

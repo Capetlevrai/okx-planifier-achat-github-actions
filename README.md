@@ -19,16 +19,30 @@ Interface : https://capetlevrai.github.io/okx-planifier-achat-github-actions/
 
 ## Sécurité anti-double achat
 
-Avant toute utilisation en argent réel, le projet applique maintenant ces protections :
+Le projet utilise un registre durable `data/operations.json` et des `clOrdId`
+déterministes pour éviter les doubles transmissions : une opération ambiguë est
+réconciliée chez OKX avant tout nouveau POST, même si le compteur de tentatives,
+le solde ou un plafond bloquerait une nouvelle soumission.
 
-- chaque échéance génère un `clOrdId` déterministe à partir de son identifiant ;
-- avant d’envoyer un ordre, le script recherche chez OKX si cet ordre existe déjà ;
-- si GitHub Actions a planté après l’envoi mais avant le commit, le run suivant réconcilie l’ordre existant au lieu d’en envoyer un second ;
-- les erreurs temporaires peuvent être réessayées avec un nombre maximum de tentatives ;
-- les erreurs définitives de paire/API sont marquées non-réessayables ;
-- chaque plan contient une whitelist des paires autorisées ;
-- chaque plan contient une limite maximale par ordre et par journée ;
-- pour l’argent réel, il est recommandé d’utiliser un environnement GitHub protégé avec validation manuelle.
+Protections en place :
+
+- états d'opération séparés du planning mutable : `prepared`, `submitting`,
+  `reconcile_pending`, `terminal` ;
+- réconciliation par `clOrdId` avant solde, whitelist, plafonds et `maxAttempts` ;
+- compteurs séparés : tentatives de soumission, réconciliations et échecs de
+  préflight ;
+- whitelist obligatoire, montants finis strictement positifs, dates ISO et
+  limites cohérentes ;
+- plafonds par ordre, par jour, par plan et sur la durée de vie ;
+- audit financier conservant `operationId`, `clOrdId`, état OKX, quantité et
+  montant réellement exécutés quand OKX les fournit ;
+- voie `buy-now` désactivée : aucune commande ponctuelle ne contourne le moteur ;
+- pour l'argent réel, le job GitHub est attaché à l'environnement protégé
+  `real-trading` et exige le secret `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS`.
+
+Aucun mécanisme ne doit être considéré comme une autorisation implicite d'acheter
+avec de l'argent réel : il faut une configuration réelle explicite, des secrets
+réels valides et le verrou d'armement dans l'environnement protégé.
 
 Ce dépôt automatise uniquement des **ordres spot OKX au marché**. Il ne fait pas de virements bancaires, retraits, paiements carte ou transferts sortants.
 

@@ -67,10 +67,10 @@ const quote=plan.strategy.quoteCcy || 'USDC';
 const entries=plan.entries||[];
 const purchases=[...(history.purchases||[])].sort((a,b)=>new Date(b.executedAt)-new Date(a.executedAt));
 const done=entries.filter(e=>e.status==='done').length;
-const failed=entries.filter(e=>e.status==='failed');
+const failed=entries.filter(e=>['failed','partial','reconcile_pending','canceled','rejected'].includes(e.status));
 const pending=entries.filter(e=>e.status==='pending').sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
 const planned=entries.reduce((n,e)=>n+Number(e.amount||0),0);
-const invested=purchases.reduce((n,p)=>n+Number(p.amount||0),0);
+const invested=purchases.reduce((n,p)=>n+Number(p.executedQuoteAmount??p.amount||0),0);
 const pct=entries.length?Math.round(done/entries.length*100):0;
 const next=pending[0];
 const nextBatch=next?pending.filter(e=>e.dueAt===next.dueAt):[];
@@ -80,11 +80,11 @@ $('done-count').textContent=String(purchases.length); $('remaining').textContent
 $('next-date').textContent=next?fmt(next.dueAt):'—'; $('next-sub').textContent=next?`${rel(next.dueAt)} · ${money(nextBatch.reduce((n,e)=>n+Number(e.amount||0),0),quote)}`:'plan terminé';
 $('progress-label').textContent=`${done} / ${entries.length} achats · ${pct}%`; $('progress-bar').style.width=`${pct}%`;
 const assets=[...new Set(entries.map(e=>e.instId.split('-')[0]))];
-$('assets').innerHTML=assets.map(asset=>{const ps=purchases.filter(p=>(p.baseCcy||p.instId.split('-')[0])===asset);const spent=ps.reduce((n,p)=>n+Number(p.amount||0),0);const qty=ps.reduce((n,p)=>n+Number(p.filledQty||0),0);const left=entries.filter(e=>e.instId.startsWith(asset+'-')&&e.status==='pending').length;return `<div class="card section asset"><div><strong>${esc(asset)}</strong><div class="sub mono">${money(spent,quote)} investi · ${nf(qty,8)} ${esc(asset)} reçu</div></div><div class="right mono"><b>${ps.length}</b> faits<br><span class="sub">${left} restants</span></div></div>`}).join('');
+$('assets').innerHTML=assets.map(asset=>{const ps=purchases.filter(p=>(p.baseCcy||p.instId.split('-')[0])===asset);const spent=ps.reduce((n,p)=>n+Number(p.executedQuoteAmount??p.amount||0),0);const qty=ps.reduce((n,p)=>n+Number(p.filledQty||0),0);const left=entries.filter(e=>e.instId.startsWith(asset+'-')&&e.status==='pending').length;return `<div class="card section asset"><div><strong>${esc(asset)}</strong><div class="sub mono">${money(spent,quote)} investi · ${nf(qty,8)} ${esc(asset)} reçu</div></div><div class="right mono"><b>${ps.length}</b> faits<br><span class="sub">${left} restants</span></div></div>`}).join('');
 function table(rows,empty){if(!rows.length)return `<p class="small">${empty}</p>`;return `<table class="table"><thead><tr><th>Date</th><th>Actif</th><th class="right">Montant</th><th>Statut</th></tr></thead><tbody>${rows.map(r=>r).join('')}</tbody></table>`}
-$('done-table').innerHTML=table(purchases.map(p=>`<tr><td>${fmt(p.executedAt)}<div class="small mono">${new Date(p.executedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></td><td><b>${esc(p.baseCcy||p.instId.split('-')[0])}</b><div class="small mono">${esc(p.instId)}</div></td><td class="right mono">${money(p.amount,p.quoteCcy||quote)}</td><td class="status done">Exécuté</td></tr>`),'Aucun achat exécuté pour le moment.');
+$('done-table').innerHTML=table(purchases.map(p=>{const st=p.status==='filled'?'Exécuté':p.status==='partial'?'Partiel':(p.status||'Audité');return `<tr><td>${fmt(p.executedAt)}<div class="small mono">${new Date(p.executedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></td><td><b>${esc(p.baseCcy||p.instId.split('-')[0])}</b><div class="small mono">${esc(p.instId)}</div></td><td class="right mono">${money(Number(p.executedQuoteAmount??p.amount||0),p.quoteCcy||quote)}</td><td class="status ${p.status==='partial'?'failed':'done'}">${esc(st)}</td></tr>`}),'Aucun achat exécuté pour le moment.');
 const future=[...pending,...failed].sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
-$('todo-table').innerHTML=table(future.map(e=>`<tr><td>${fmt(e.dueAt)}<div class="small mono">${rel(e.dueAt)}</div></td><td><b>${esc(e.instId.split('-')[0])}</b><div class="small mono">${esc(e.instId)}</div></td><td class="right mono">${money(e.amount,e.instId.split('-')[1])}</td><td class="status ${e.status==='failed'?'failed':nextBatch.includes(e)?'next':'pending'}">${e.status==='failed'?'Échec':nextBatch.includes(e)?'Prochain':'Programmé'}</td></tr>`),'Plan terminé.');
+$('todo-table').innerHTML=table(future.map(e=>{const label=e.status==='failed'?'Échec':e.status==='reconcile_pending'?'À réconcilier':e.status==='partial'?'Partiel':e.status==='canceled'?'Annulé':e.status==='rejected'?'Rejeté':nextBatch.includes(e)?'Prochain':'Programmé';return `<tr><td>${fmt(e.dueAt)}<div class="small mono">${rel(e.dueAt)}</div></td><td><b>${esc(e.instId.split('-')[0])}</b><div class="small mono">${esc(e.instId)}</div></td><td class="right mono">${money(e.amount,e.instId.split('-')[1])}</td><td class="status ${['failed','partial','reconcile_pending','canceled','rejected'].includes(e.status)?'failed':nextBatch.includes(e)?'next':'pending'}">${label}</td></tr>`}),'Plan terminé.');
 </script>
 </body>
 </html>

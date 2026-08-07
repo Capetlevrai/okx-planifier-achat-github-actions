@@ -1,8 +1,5 @@
 name: 1. Configurer mon plan
 
-# Tout se règle ici : Actions > ce workflow > "Run workflow".
-# Aucune installation, aucune page de réglages à visiter.
-
 on:
   workflow_dispatch:
     inputs:
@@ -27,29 +24,21 @@ on:
         required: true
         default: 'demo'
         type: choice
-        options:
-          - demo
-          - reel
+        options: [demo, reel]
       region:
         description: "Où est votre compte ?"
         required: true
         default: 'eea'
         type: choice
-        options:
-          - eea
-          - global
-          - us
-          - tr
+        options: [eea, global, us, tr]
       execution:
         description: "Transmettre les ordres ?"
         required: true
         default: 'simulation'
         type: choice
-        options:
-          - simulation
-          - acheter
+        options: [simulation, acheter]
       reset_history:
-        description: "Effacer l'historique ? Interdit en compte réel"
+        description: "Effacer l'historique de présentation ? Interdit en compte réel et ne touche jamais au registre"
         required: true
         default: false
         type: boolean
@@ -57,15 +46,20 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: okx-dca-state
+  cancel-in-progress: false
+
 jobs:
   configurer:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
+          cache: npm
+      - run: npm ci
 
       - name: Générer le planning
         env:
@@ -73,30 +67,43 @@ jobs:
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
           OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          PAIRES: ${{ inputs.paires }}
+          MONTANT: ${{ inputs.montant }}
+          INTERVALLE: ${{ inputs.intervalle }}
+          DUREE: ${{ inputs.duree }}
+          COMPTE: ${{ inputs.compte }}
+          REGION: ${{ inputs.region }}
+          EXECUTION: ${{ inputs.execution }}
         run: |
-          # --check valide les paires auprès d'OKX, si les secrets sont déjà là.
+          case "$PAIRES" in *$'\n'*|*$'\r'*) echo "Paires invalides"; exit 1;; esac
+          case "$MONTANT" in *[!0-9.]*|'') echo "Montant invalide"; exit 1;; esac
+          case "$INTERVALLE" in *[!0-9]*|'') echo "Intervalle invalide"; exit 1;; esac
+          case "$DUREE" in *[!0-9.]*|'') echo "Durée invalide"; exit 1;; esac
           CHECK=""
           if [ -n "$OKX_API_KEY" ]; then CHECK="--check"; fi
           LIVE=""
-          if [ "${{ inputs.execution }}" = "acheter" ]; then LIVE="--live"; fi
+          if [ "$EXECUTION" = "acheter" ]; then LIVE="--live"; fi
           node scripts/plan.mjs \
-            --instId  "${{ inputs.paires }}" \
-            --amount  "${{ inputs.montant }}" \
-            --every   "${{ inputs.intervalle }}" \
-            --months  "${{ inputs.duree }}" \
-            --account "${{ inputs.compte }}" \
-            --site    "${{ inputs.region }}" \
+            --instId "$PAIRES" \
+            --amount "$MONTANT" \
+            --every "$INTERVALLE" \
+            --months "$DUREE" \
+            --account "$COMPTE" \
+            --site "$REGION" \
             $CHECK $LIVE --force
 
-      - name: Historique conservé ou réinitialisé explicitement
+      - name: Historique conservé ou projection démo réinitialisée explicitement
+        env:
+          RESET_HISTORY: ${{ inputs.reset_history }}
+          COMPTE: ${{ inputs.compte }}
         run: |
-          if [ "${{ inputs.reset_history }}" = "true" ]; then
-            if [ "${{ inputs.compte }}" = "reel" ]; then
+          if [ "$RESET_HISTORY" = "true" ]; then
+            if [ "$COMPTE" = "reel" ]; then
               echo "Refus : reset_history est interdit en compte réel pour préserver l'audit."
               exit 1
             fi
             printf '{\n  "purchases": []\n}\n' > data/history.json
-            echo "Historique démo réinitialisé explicitement."
+            echo "Historique de présentation démo réinitialisé ; data/operations.json est conservé."
           else
             if [ ! -f data/history.json ]; then
               printf '{\n  "purchases": []\n}\n' > data/history.json
@@ -119,23 +126,25 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/ RAPPORT.md tableau-de-bord.html
           git commit -m "Mon plan d'achats"
+          git pull --rebase --autostash origin main
           git push
 
       - name: Récapitulatif
+        env:
+          EXECUTION: ${{ inputs.execution }}
         run: |
           {
             echo ""
             echo "➡️ Votre tableau de bord complet : [RAPPORT.md](../blob/main/RAPPORT.md)"
             echo ""
-            if [ "${{ inputs.execution }}" = "acheter" ]; then
-              echo "### 🚀 C'est armé"
+            if [ "$EXECUTION" = "acheter" ]; then
+              echo "### ⚠️ Plan live demandé"
               echo ""
-              echo "Les achats partiront automatiquement à chaque échéance, ordinateur éteint compris."
-              echo "Pour arrêter : relancez ce workflow avec \`simulation\`."
+              echo "Le plan est marqué live, mais le réel ne peut partir que via le job protégé real-trading et son secret d'armement."
+              echo "En démo, les ordres restent fictifs. Pour arrêter : relancez ce workflow avec \`simulation\`."
             else
               echo "### 🧪 Mode simulation"
               echo ""
-              echo "Le système tourne et détecte les échéances, mais **ne transmet aucun ordre**."
-              echo "Quand vous êtes prêt, relancez ce workflow avec \`acheter\`."
+              echo "Le système détecte les échéances, mais **ne transmet aucun ordre**."
             fi
           } >> "$GITHUB_STEP_SUMMARY"

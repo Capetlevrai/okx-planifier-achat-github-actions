@@ -9,11 +9,16 @@
       "amount": 50,
       "filledQty": 0.00077525,
       "avgPrice": 64495.11099645276,
-      "fee": -7.7525e-7,
+      "fee": -7.7525e-07,
       "feeCcy": "BTC",
       "ordId": "3813008182231564288",
       "demo": true,
-      "source": "schedule"
+      "source": "schedule",
+      "operationId": "op_db1d5a96829e9e237482cb25",
+      "clOrdId": "dca61e35721d04513ea553f7ca3",
+      "status": "filled",
+      "requestedQuoteAmount": 50,
+      "executedQuoteAmount": 50
     },
     {
       "id": "dca-1-ETH-USDC",
@@ -24,11 +29,16 @@
       "amount": 50,
       "filledQty": 0.026045,
       "avgPrice": 1919.700940679593,
-      "fee": -0.000026045,
+      "fee": -2.6045e-05,
       "feeCcy": "ETH",
       "ordId": "3813023216194158592",
       "demo": true,
-      "source": "schedule"
+      "source": "schedule",
+      "operationId": "op_a732812feb870985df104fc7",
+      "clOrdId": "dcab8d9978b2bb1b172ba18a724",
+      "status": "filled",
+      "requestedQuoteAmount": 50,
+      "executedQuoteAmount": 50
     }
   ],
   "updatedAt": "2026-08-07T21:49:08.797Z"

@@ -6,6 +6,7 @@
 |---|---|
 | **Total investi** | 100,00 USDC sur 600,00 USDC programmés |
 | **Achats effectués** | 2 sur 12 |
+| **Opérations à réconcilier** | 10 |
 | **Avancement** | `███░░░░░░░░░░░░░░░░░` 17 % |
 | **Prochain achat** | 22 août 2026 (dans 14 j) — 100,00 USDC |
 | **Rythme** | 50 USDC par actif, tous les 15 jours, à 09h00 UTC |
@@ -19,10 +20,10 @@
 
 ## Achats effectués
 
-| Date | Actif | Montant | Quantité reçue | Prix unitaire | Origine |
-|---|---|---:|---:|---:|---|
-| 07 août 2026 | ETH | 50,00 USDC | 0,02604500 | 1 919,70 USDC | planifié |
-| 07 août 2026 | BTC | 50,00 USDC | 0,00077525 | 64 495,11 USDC | planifié |
+| Date | Actif | Montant exécuté | Quantité reçue | Prix unitaire | Statut | Origine |
+|---|---|---:|---:|---:|---|---|
+| 07 août 2026 | ETH | 50,00 USDC | 0,02604500 | 1 919,70 USDC | exécuté | planifié |
+| 07 août 2026 | BTC | 50,00 USDC | 0,00077525 | 64 495,11 USDC | exécuté | planifié |
 
 ## Achats à venir
 
@@ -41,4 +42,4 @@
 
 ---
 
-<sub>Généré le 07/08/2026 22:10:13 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>
+<sub>Généré le 07/08/2026 22:35:06 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>
