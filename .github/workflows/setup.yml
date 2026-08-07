@@ -61,7 +61,8 @@ jobs:
             $CHECK --force
 
       - name: Repartir de zéro côté historique
-        run: printf '{\n  "purchases": []\n}\n' > data/history.json
+        run: |
+          printf '{\n  "purchases": []\n}\n' > data/history.json
 
       - name: Enregistrer le plan
         run: |
