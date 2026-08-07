@@ -56,7 +56,7 @@ Pose ces questions. Les valeurs entre crochets sont les défauts à proposer.
 | 3 | Ta clé API OKX ? | — |
 | 4 | Ton secret ? | — |
 | 5 | Ta passphrase ? | — |
-| 6 | Quelle(s) crypto acheter ? | BTC-EUR |
+| 6 | Quelle(s) crypto acheter ? | BTC-USDC,ETH-USDC |
 | 7 | Combien à chaque achat ? | 50 |
 | 8 | Tous les combien de jours ? | 15 |
 | 9 | Pendant combien de mois ? | 3 |
@@ -66,7 +66,7 @@ Pose ces questions. Les valeurs entre crochets sont les défauts à proposer.
 
 | Réponse | `site` | Domaine | Devise conseillée |
 |---|---|---|---|
-| Europe | `eea` | my.okx.com | `-EUR` |
+| Europe | `eea` | my.okx.com | `-USDC` en démo, `-EUR` ou `-USDC` en réel selon disponibilité |
 | US | `us` | us.okx.com | `-USD` |
 | Turquie | `tr` | tr.okx.com | `-TRY` |
 | Ailleurs | `global` | www.okx.com | `-USDT` |
@@ -77,10 +77,10 @@ démo, il doit d'abord basculer sur *Trading démo* puis créer une clé démo.
 
 **Question 6 :** n'importe quelle paire au comptant d'OKX fonctionne. Plusieurs
 sont possibles, séparées par des virgules, à condition de partager la même devise
-de cotation (`BTC-EUR,ETH-EUR,SOL-EUR` ✅ · `BTC-EUR,ETH-USDC` ❌).
+de cotation (`BTC-USDC,ETH-USDC` ✅ · `BTC-EUR,ETH-USDC` ❌ si les devises sont mélangées).
 
 ⚠️ Un compte **démo** n'est pas approvisionné en EUR. Si l'utilisateur choisit le
-mode démo, propose des paires en `-USDC`.
+mode démo, propose d’abord des paires en `-USDC` comme `BTC-USDC,ETH-USDC`.
 
 ---
 
@@ -192,7 +192,7 @@ gh workflow run pages.yml --repo <pseudo>/<nom-du-dépôt>
 L'interface sera sur `https://<pseudo>.github.io/<nom-du-dépôt>/`.
 
 S'il refuse, désactive le workflow pour éviter des runs rouges à répétition, et
-dis-lui qu'il peut consulter l'interface en local avec `npx serve .` :
+dis-lui qu'il peut consulter l'interface en local avec ``npm run site -- -l tcp://0.0.0.0:4173` :
 
 ```bash
 gh workflow disable pages.yml --repo <pseudo>/<nom-du-dépôt>

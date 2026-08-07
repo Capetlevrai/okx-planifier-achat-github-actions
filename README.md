@@ -1,10 +1,10 @@
-# OKX DCA Planner — exemple minimal BTC + HYPE
+# OKX DCA Planner — exemple minimal BTC + ETH
 
 Ce dépôt public montre un cas concret et volontairement simple :
 
 - **BTC-USDC** : achat démo exécuté avec succès ;
-- **HYPE** : souhaité dans le plan, mais OKX Europe démo ne fournit pas de marché `HYPE-USDC` actif et bloque l’usage USDT côté Europe ;
-- montant prévu : **50 $ par actif** ;
+- **ETH-USDC** : achat démo exécuté avec succès ;
+- montant prévu : **50 USDC par actif** ;
 - rythme : **tous les 15 jours** ;
 - durée : **3 mois** ;
 - exécution : **GitHub Actions**, ordinateur éteint possible ;
