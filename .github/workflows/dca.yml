@@ -1,0 +1,71 @@
+name: DCA — achats programmés
+
+# Tourne sur les serveurs GitHub : votre ordinateur peut rester éteint.
+on:
+  schedule:
+    # Tous les jours à 09:00 UTC. Le script n'agit que sur les échéances
+    # réellement atteintes dans data/plan.json — un passage à vide ne coûte rien.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 = simulation (aucun ordre), 0 = passer les ordres réellement"
+        required: true
+        default: '1'
+        type: choice
+        options: ['1', '0']
+
+# Nécessaire pour réécrire data/plan.json et data/history.json dans le dépôt.
+permissions:
+  contents: write
+
+# Deux exécutions simultanées réécriraient les mêmes fichiers.
+concurrency:
+  group: dca
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Exécuter les achats dus
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          # '1' = compte démo (simulated trading). Mettre '0' pour le compte réel.
+          OKX_DEMO: ${{ vars.OKX_DEMO || '1' }}
+          OKX_BASE_URL: ${{ vars.OKX_BASE_URL || 'https://my.okx.com' }}
+          # Sur cron : lit la variable de dépôt DRY_RUN, et retombe sur '1' si
+          # elle n'existe pas. Aucun ordre n'est donc passé par accident.
+          DRY_RUN: ${{ github.event.inputs.dry_run || vars.DRY_RUN || '1' }}
+        run: |
+          # Sur un fork fraîchement cloné, les secrets ne sont pas encore
+          # renseignés : on sort proprement au lieu de faire échouer le cron.
+          if [ -z "$OKX_API_KEY" ]; then
+            echo "Aucun secret OKX configuré sur ce dépôt — rien à exécuter."
+            echo "Ajoutez OKX_API_KEY, OKX_SECRET_KEY et OKX_PASSPHRASE dans"
+            echo "Settings > Secrets and variables > Actions. Voir le README."
+            exit 0
+          fi
+          node scripts/run-due.mjs
+
+      - name: Enregistrer les résultats dans le dépôt
+        # s'exécute même si un achat a échoué, pour conserver la trace
+        if: always()
+        run: |
+          if [ -z "$(git status --porcelain data/)" ]; then
+            echo "Aucune modification à enregistrer."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git commit -m "DCA : mise à jour du planning et de l'historique [skip ci]"
+          git push

@@ -1,0 +1,20 @@
+{
+  "name": "okx-dca-planner",
+  "version": "1.0.0",
+  "description": "Achats crypto programmés sur OKX (toute paire au comptant), exécutés par GitHub Actions — ordinateur éteint compris.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "plan": "node scripts/plan.mjs",
+    "run-due": "node --env-file=.env scripts/run-due.mjs",
+    "buy-now": "node --env-file=.env scripts/buy-now.mjs",
+    "site": "npx --yes serve ."
+  },
+  "devDependencies": {
+    "@okx_ai/okx-trade-cli": "^1.4.2",
+    "@okx_ai/okx-trade-mcp": "^1.4.2"
+  }
+}
