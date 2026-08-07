@@ -45,6 +45,10 @@ jobs:
           # Une variable de dépôt, si elle existe, reste prioritaire.
           OKX_DEMO: ${{ vars.OKX_DEMO }}
           OKX_BASE_URL: ${{ vars.OKX_BASE_URL }}
+          # Verrou supplémentaire pour l'argent réel : laissez vide en démo.
+          # Pour un vrai plan réel, stockez cette valeur dans un environnement
+          # GitHub protégé avec approbation humaine obligatoire.
+          ALLOW_REAL_TRADING: ${{ vars.ALLOW_REAL_TRADING }}
           # ATTENTION : ne pas écrire ${{ inputs.dry_run || vars.DRY_RUN }}.
           # Les expressions GitHub castent les chaînes numériques en nombres,
           # donc '0' est FAUX et l'opérateur || l'écraserait silencieusement —

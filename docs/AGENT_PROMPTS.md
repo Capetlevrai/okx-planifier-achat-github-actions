@@ -65,3 +65,13 @@ Selon l’action demandée, il peut aussi falloir :
 - Administration : Read and write, seulement si l’agent doit modifier la description, la visibilité ou les paramètres du repo.
 
 Révoquez le token après configuration.
+
+## Verrou argent réel
+
+Même si un plan est configuré en argent réel (`demo: false`) et armé (`live: true`), `scripts/run-due.mjs` refuse d'envoyer un ordre réel tant que la variable suivante n'existe pas :
+
+```text
+ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
+```
+
+Pour une vraie utilisation, mettez cette variable dans un environnement GitHub protégé avec approbation humaine, pas comme automatisme silencieux.

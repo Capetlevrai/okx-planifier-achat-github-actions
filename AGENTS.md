@@ -200,6 +200,20 @@ gh workflow disable pages.yml --repo <pseudo>/<nom-du-dépôt>
 
 ---
 
+## Sécurité obligatoire avant argent réel
+
+Avant de proposer l’argent réel à l’utilisateur, vérifie que :
+
+- `scripts/run-due.mjs` utilise un `clOrdId` déterministe ;
+- le script recherche l’ordre OKX par `clOrdId` avant tout nouvel envoi ;
+- les paires sont limitées par `risk.allowedInstIds` ;
+- `risk.maxOrderAmount` et `risk.maxDailyQuoteAmount` sont cohérents ;
+- un dry-run passe ;
+- un petit ordre démo passe ;
+- idéalement, le workflow réel utilise un environnement GitHub protégé nécessitant une approbation.
+
+Ne confonds pas ce projet avec des paiements bancaires : il ne fait que des achats spot OKX.
+
 ## Étape 8 — Test à blanc, puis armement
 
 Lance un test qui ne transmet rien, et **montre les logs à l'utilisateur** :

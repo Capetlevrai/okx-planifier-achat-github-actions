@@ -28,6 +28,9 @@
  *   --site <x>      eea (défaut, Europe) | global | us | tr
  *   --live          arme le plan : les ordres partiront réellement
  *                   (sans ce drapeau, tout est simulé)
+ *   --max-order <n> limite maximale par ordre                 (défaut --amount)
+ *   --max-day <n>   limite maximale par jour et devise         (défaut cycle)
+ *   --attempts <n>  nombre maximum de tentatives par échéance  (défaut 3)
  *   --force         écrase un planning existant
  */
 
@@ -124,6 +127,12 @@ for (let i = 0; i < count; i++) {
 
 const quote = quotes[0];
 const perCycle = perAsset * instIds.length;
+const maxOrderAmount = args['max-order'] ? Number(args['max-order']) : perAsset;
+const maxDailyQuoteAmount = args['max-day'] ? Number(args['max-day']) : perCycle;
+const maxAttempts = args.attempts ? Number(args.attempts) : 3;
+if (!Number.isFinite(maxOrderAmount) || maxOrderAmount < perAsset) throw new Error('--max-order doit être supérieur ou égal au montant par actif.');
+if (!Number.isFinite(maxDailyQuoteAmount) || maxDailyQuoteAmount < perCycle) throw new Error('--max-day doit couvrir au moins un cycle complet.');
+if (!Number.isInteger(maxAttempts) || maxAttempts < 1) throw new Error('--attempts doit être un entier >= 1.');
 
 const plan = {
   createdAt: new Date().toISOString(),
@@ -141,6 +150,15 @@ const plan = {
     everyDays: every,
     cycles: count,
     hourUtc: hour,
+  },
+  risk: {
+    allowedInstIds: instIds,
+    maxOrderAmount: Number(maxOrderAmount.toFixed(8)),
+    maxDailyQuoteAmount: Number(maxDailyQuoteAmount.toFixed(8)),
+    maxAttempts,
+    retryDelayMinutes: 60,
+    orderPollAttempts: 10,
+    orderPollDelayMs: 1500,
   },
   entries,
 };

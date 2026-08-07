@@ -41,4 +41,4 @@
 
 ---
 
-<sub>Généré le 07/08/2026 21:50:14 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>
+<sub>Généré le 07/08/2026 22:00:57 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>

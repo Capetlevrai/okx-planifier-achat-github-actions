@@ -16,6 +16,23 @@ Interface : https://capetlevrai.github.io/okx-planifier-achat-github-actions/
 
 ---
 
+
+## Sécurité anti-double achat
+
+Avant toute utilisation en argent réel, le projet applique maintenant ces protections :
+
+- chaque échéance génère un `clOrdId` déterministe à partir de son identifiant ;
+- avant d’envoyer un ordre, le script recherche chez OKX si cet ordre existe déjà ;
+- si GitHub Actions a planté après l’envoi mais avant le commit, le run suivant réconcilie l’ordre existant au lieu d’en envoyer un second ;
+- les erreurs temporaires peuvent être réessayées avec un nombre maximum de tentatives ;
+- les erreurs définitives de paire/API sont marquées non-réessayables ;
+- chaque plan contient une whitelist des paires autorisées ;
+- chaque plan contient une limite maximale par ordre et par journée ;
+- pour l’argent réel, il est recommandé d’utiliser un environnement GitHub protégé avec validation manuelle.
+
+Ce dépôt automatise uniquement des **ordres spot OKX au marché**. Il ne fait pas de virements bancaires, retraits, paiements carte ou transferts sortants.
+
+---
 ## 🤖 La façon la plus simple : donnez cette URL à votre agent
 
 Ouvrez **Grok**, **OpenCode**, **Claude Code**, **Cursor**, **Codex**, **ChatGPT** ou **Gemini**, et envoyez ceci :
@@ -439,3 +456,13 @@ Réalisé par **Capetlevrai** ·
 [Discord](https://discord.gg/VmBa7f9ZAt) ·
 [Twitch](https://www.twitch.tv/capetlevrai) ·
 [YouTube](https://www.youtube.com/@CAPETCRYPTO)
+
+## Verrou argent réel
+
+Même si un plan est configuré en argent réel (`demo: false`) et armé (`live: true`), `scripts/run-due.mjs` refuse d'envoyer un ordre réel tant que la variable suivante n'existe pas :
+
+```text
+ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
+```
+
+Pour une vraie utilisation, mettez cette variable dans un environnement GitHub protégé avec approbation humaine, pas comme automatisme silencieux.

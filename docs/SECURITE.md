@@ -26,3 +26,49 @@ Avant d’activer l’argent réel, vérifiez :
 - `plan.live=true` seulement après confirmation ;
 - `plan.demo=false` seulement pour compte réel ;
 - `DRY_RUN` absent ou à `0` uniquement quand vous voulez transmettre des ordres.
+
+## Idempotence et interruptions GitHub Actions
+
+Le risque critique est l’interruption entre l’envoi de l’ordre à OKX et le commit de `data/plan.json`.
+
+Protection mise en place :
+
+1. `scripts/safety.mjs` calcule un `clOrdId` déterministe pour chaque échéance.
+2. `scripts/run-due.mjs` cherche d’abord un ordre OKX existant avec ce `clOrdId`.
+3. Si l’ordre existe et est rempli, l’échéance est marquée `done` sans renvoyer d’ordre.
+4. Si l’ordre existe mais n’est pas encore rempli, le script attend son état réel.
+5. Si aucun ordre n’existe, un seul nouvel ordre est transmis avec ce même `clOrdId`.
+
+Conséquence : un rerun GitHub Actions ne doit pas créer de double achat pour la même échéance.
+
+## Échecs et retries
+
+- `pending` : échéance jamais exécutée.
+- `failed` + `retryable: true` : réessayée après `retryAfter`, jusqu’à `risk.maxAttempts`.
+- `failed` + `retryable: false` : erreur définitive, intervention humaine requise.
+- `done` : jamais rejoué.
+
+## Limites de risque
+
+Chaque `data/plan.json` contient :
+
+```json
+"risk": {
+  "allowedInstIds": ["BTC-USDC", "ETH-USDC"],
+  "maxOrderAmount": 50,
+  "maxDailyQuoteAmount": 100,
+  "maxAttempts": 3
+}
+```
+
+Pour l’argent réel, activez aussi un environnement GitHub protégé, par exemple `real-trading`, avec approbation manuelle obligatoire.
+
+## Verrou argent réel
+
+Même si un plan est configuré en argent réel (`demo: false`) et armé (`live: true`), `scripts/run-due.mjs` refuse d'envoyer un ordre réel tant que la variable suivante n'existe pas :
+
+```text
+ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
+```
+
+Pour une vraie utilisation, mettez cette variable dans un environnement GitHub protégé avec approbation humaine, pas comme automatisme silencieux.

@@ -103,10 +103,15 @@ export async function okx(method, requestPath, payload) {
 
   if (json.code !== '0') {
     const detail = json.data?.[0]?.sMsg || json.msg || json.error_message || JSON.stringify(json);
-    throw new Error(`OKX ${method} ${requestPath} — code ${json.code} : ${detail}`);
+    const error = new Error(`OKX ${method} ${requestPath} — code ${json.code} : ${detail}`);
+    error.okxCode = json.code;
+    error.okxData = json.data;
+    throw error;
   }
   return json.data;
 }
+
+const q = (value) => encodeURIComponent(value);
 
 /** Prix spot courant d'une paire. */
 export async function lastPrice(instId) {
@@ -135,22 +140,57 @@ export async function marketBuy(instId, amount, clOrdId) {
     tgtCcy: 'quote_ccy',
     clOrdId,
   };
-  if (dryRun) return { dryRun: true, order };
+  if (dryRun) return { dryRun: true, order, clOrdId };
 
   const [result] = await okx('POST', '/api/v5/trade/order', order);
-  return { dryRun: false, order, ordId: result.ordId, clOrdId: result.clOrdId };
+  return { dryRun: false, order, ordId: result.ordId, clOrdId: result.clOrdId || clOrdId };
 }
 
-/** Détail d'exécution d'un ordre : quantité réelle et prix moyen. */
-export async function orderFill(instId, ordId) {
-  const [order] = await okx('GET', `/api/v5/trade/order?instId=${instId}&ordId=${ordId}`);
+export async function getOrder(instId, { ordId, clOrdId }) {
+  const query = ordId ? `ordId=${q(ordId)}` : `clOrdId=${q(clOrdId)}`;
+  const [order] = await okx('GET', `/api/v5/trade/order?instId=${q(instId)}&${query}`);
+  return order || null;
+}
+
+/** Retourne null si OKX ne connaît pas encore / plus ce clOrdId. */
+export async function findOrderByClOrdId(instId, clOrdId) {
+  try {
+    return await getOrder(instId, { clOrdId });
+  } catch (err) {
+    const msg = String(err.message || '').toLowerCase();
+    if (msg.includes('order does not exist') || msg.includes("doesn't exist") || msg.includes('order not exist')) return null;
+    throw err;
+  }
+}
+
+export function normalizeOrderFill(order) {
   return {
+    ordId: order.ordId,
+    clOrdId: order.clOrdId,
     filledQty: Number(order.accFillSz || 0),
     avgPx: Number(order.avgPx || 0),
     fee: Number(order.fee || 0),
     feeCcy: order.feeCcy || '',
     state: order.state,
   };
+}
+
+/** Détail d'exécution d'un ordre : quantité réelle et prix moyen. */
+export async function orderFill(instId, ordId) {
+  return normalizeOrderFill(await getOrder(instId, { ordId }));
+}
+
+export async function waitForOrderFill(instId, { ordId, clOrdId }, attempts = 10, delayMs = 1500) {
+  let latest = null;
+  for (let i = 0; i < attempts; i++) {
+    latest = normalizeOrderFill(await getOrder(instId, ordId ? { ordId } : { clOrdId }));
+    if (['filled', 'partially_filled'].includes(latest.state) && latest.filledQty > 0) return latest;
+    if (['canceled', 'cancelled', 'rejected'].includes(latest.state)) {
+      throw new Error(`ordre ${latest.state} sur OKX (ordId ${latest.ordId || ordId || clOrdId})`);
+    }
+    await new Promise((r) => setTimeout(r, delayMs));
+  }
+  throw new Error(`ordre non rempli après ${attempts} vérifications (dernier état : ${latest?.state || 'inconnu'})`);
 }
 
 /** La devise de cotation est le second membre de l'instId (SOL-EUR -> EUR). */
