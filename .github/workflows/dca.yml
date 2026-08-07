@@ -42,9 +42,10 @@ jobs:
           # '1' = compte démo (simulated trading). Mettre '0' pour le compte réel.
           OKX_DEMO: ${{ vars.OKX_DEMO || '1' }}
           OKX_BASE_URL: ${{ vars.OKX_BASE_URL || 'https://my.okx.com' }}
-          # Sur cron : lit la variable de dépôt DRY_RUN, et retombe sur '1' si
-          # elle n'existe pas. Aucun ordre n'est donc passé par accident.
-          DRY_RUN: ${{ github.event.inputs.dry_run || vars.DRY_RUN || '1' }}
+          # Laissé vide sur le cron : c'est alors le champ "live" du planning,
+          # réglé depuis le formulaire de configuration, qui décide. Une valeur
+          # explicite ici (saisie manuelle ou variable de dépôt) l'emporte.
+          DRY_RUN: ${{ github.event.inputs.dry_run || vars.DRY_RUN || '' }}
         run: |
           # Sur un fork fraîchement cloné, les secrets ne sont pas encore
           # renseignés : on sort proprement au lieu de faire échouer le cron.

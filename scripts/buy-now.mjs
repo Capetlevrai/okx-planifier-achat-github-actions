@@ -9,8 +9,11 @@
 import {
   HISTORY_FILE, readJson, writeJson,
   requireCredentials, availableBalance, lastPrice, marketBuy, orderFill,
-  quoteCurrency, baseCurrency, makeClOrdId, log, DRY_RUN, DEMO,
+  quoteCurrency, baseCurrency, makeClOrdId, log, resolveDryRun, DEMO,
 } from './okx.mjs';
+
+// Achat hors planning : seule la variable d'environnement fait foi.
+const DRY_RUN = resolveDryRun(null);
 
 const args = process.argv.slice(2);
 const arg = (name, fallback) => {
@@ -40,7 +43,7 @@ if (balance < amount) {
 
 log(`Estimation : ~${(amount / price).toFixed(8)} ${base} pour ${amount} ${quote}`);
 
-const result = await marketBuy(instId, amount, makeClOrdId('now'));
+const result = await marketBuy(instId, amount, makeClOrdId('now'), DRY_RUN);
 
 if (result.dryRun) {
   log('DRY RUN — ordre qui serait transmis :');

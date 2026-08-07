@@ -21,8 +21,20 @@ const PASSPHRASE = process.env.OKX_PASSPHRASE;
 export const DEMO = (process.env.OKX_DEMO ?? '1') !== '0';
 /** my.okx.com = entité EEA. www.okx.com = global. */
 export const BASE_URL = process.env.OKX_BASE_URL ?? 'https://my.okx.com';
-/** Garde-fou : aucun ordre n'est transmis tant que DRY_RUN n'est pas mis à 0. */
-export const DRY_RUN = (process.env.DRY_RUN ?? '1') !== '0';
+
+/**
+ * Garde-fou. Deux sources, dans cet ordre :
+ *   1. la variable d'environnement DRY_RUN, si elle est explicitement fournie
+ *      (saisie manuelle, variable de dépôt) — elle l'emporte toujours ;
+ *   2. sinon le champ "live" du planning, réglé depuis le formulaire de
+ *      configuration.
+ * En l'absence des deux, on simule. Ne jamais acheter par défaut.
+ */
+export function resolveDryRun(plan) {
+  const env = process.env.DRY_RUN;
+  if (env !== undefined && env !== '') return env !== '0';
+  return plan?.live !== true;
+}
 
 export function requireCredentials() {
   const missing = ['OKX_API_KEY', 'OKX_SECRET_KEY', 'OKX_PASSPHRASE'].filter((k) => !process.env[k]);
@@ -83,7 +95,7 @@ export async function availableBalance(ccy) {
  * Achat au marché d'un montant exprimé dans la devise de cotation.
  * tgtCcy=quote_ccy => sz est en EUR/USDC, pas en BTC.
  */
-export async function marketBuy(instId, amount, clOrdId) {
+export async function marketBuy(instId, amount, clOrdId, dryRun) {
   const order = {
     instId,
     tdMode: 'cash',
@@ -93,7 +105,7 @@ export async function marketBuy(instId, amount, clOrdId) {
     tgtCcy: 'quote_ccy',
     clOrdId,
   };
-  if (DRY_RUN) return { dryRun: true, order };
+  if (dryRun) return { dryRun: true, order };
 
   const [result] = await okx('POST', '/api/v5/trade/order', order);
   return { dryRun: false, order, ordId: result.ordId, clOrdId: result.clOrdId };

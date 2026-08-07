@@ -26,6 +26,14 @@ on:
         description: "Heure d'exécution, en UTC (9 = 11h à Paris l'été)"
         required: true
         default: '9'
+      mode:
+        description: "Passer les ordres pour de vrai ?"
+        required: true
+        default: 'simulation'
+        type: choice
+        options:
+          - simulation
+          - reel
 
 permissions:
   contents: write
@@ -52,13 +60,15 @@ jobs:
           # secrets sont déjà en place. Sinon on génère quand même le plan.
           CHECK=""
           if [ -n "$OKX_API_KEY" ]; then CHECK="--check"; fi
+          LIVE=""
+          if [ "${{ inputs.mode }}" = "reel" ]; then LIVE="--live"; fi
           node scripts/plan.mjs \
             --instId "${{ inputs.paires }}" \
             --amount "${{ inputs.montant }}" \
             --every  "${{ inputs.intervalle }}" \
             --months "${{ inputs.duree }}" \
             --hour   "${{ inputs.heure }}" \
-            $CHECK --force
+            $CHECK $LIVE --force
 
       - name: Repartir de zéro côté historique
         run: |
@@ -91,13 +101,18 @@ jobs:
               console.log(`- **Premier achat** : ${p.entries[0].dueAt.slice(0, 10)}`);
               console.log(`- **Dernier achat** : ${p.entries.at(-1).dueAt.slice(0, 10)}`);
               console.log(`- **Total engagé** : ${total} ${s.quoteCcy}`);
+              console.log(`- **Mode** : ${p.live ? "RÉEL — les ordres partiront" : "simulation — aucun ordre"}`);
             '
             echo ""
-            echo "### Et maintenant ?"
-            echo ""
-            echo "Tant que la variable \`DRY_RUN\` vaut \`1\`, **tout est simulé** : aucun ordre ne part."
-            echo ""
-            echo "Pour lancer les achats pour de vrai :"
-            echo "**Settings → Secrets and variables → Actions → Variables → New variable**,"
-            echo "nom \`DRY_RUN\`, valeur \`0\`."
+            if [ "${{ inputs.mode }}" = "reel" ]; then
+              echo "### 🚀 C'est armé"
+              echo ""
+              echo "Les achats partiront automatiquement à chaque échéance, ordinateur éteint compris."
+              echo "Pour revenir en simulation : relancez ce workflow avec le mode \`simulation\`."
+            else
+              echo "### 🧪 Mode simulation"
+              echo ""
+              echo "Le système tourne et détecte les échéances, mais **ne transmet aucun ordre**."
+              echo "Quand vous êtes prêt, relancez ce workflow avec le mode \`reel\`."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

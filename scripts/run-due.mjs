@@ -12,7 +12,7 @@
 import {
   PLAN_FILE, HISTORY_FILE, readJson, writeJson,
   requireCredentials, availableBalance, lastPrice, marketBuy, orderFill,
-  quoteCurrency, baseCurrency, makeClOrdId, log, DRY_RUN, DEMO,
+  quoteCurrency, baseCurrency, makeClOrdId, log, resolveDryRun, DEMO,
 } from './okx.mjs';
 
 requireCredentials();
@@ -22,6 +22,8 @@ if (!plan) {
   console.error(`Aucun planning trouvé. Lancez d'abord : node scripts/plan.mjs`);
   process.exit(1);
 }
+
+const DRY_RUN = resolveDryRun(plan);
 
 const history = readJson(HISTORY_FILE, { purchases: [] });
 const now = Date.now();
@@ -50,7 +52,7 @@ for (const entry of due) {
     const price = await lastPrice(entry.instId);
     log(`Prix ${entry.instId} : ${price} — solde ${quote} : ${balance}`);
 
-    const result = await marketBuy(entry.instId, entry.amount, makeClOrdId());
+    const result = await marketBuy(entry.instId, entry.amount, makeClOrdId(), DRY_RUN);
 
     if (result.dryRun) {
       log('DRY RUN — ordre non transmis :', JSON.stringify(result.order));

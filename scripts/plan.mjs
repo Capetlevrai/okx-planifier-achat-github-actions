@@ -24,6 +24,8 @@
  *   --start <date>  première échéance, AAAA-MM-JJ                    (défaut aujourd'hui)
  *   --hour <n>      heure d'exécution UTC, 0-23                      (défaut 9)
  *   --check         vérifie auprès d'OKX que chaque paire existe
+ *   --live          arme le plan : les ordres partiront réellement
+ *                   (sans ce drapeau, tout est simulé)
  *   --force         écrase un planning existant
  */
 
@@ -115,6 +117,8 @@ const perCycle = perAsset * instIds.length;
 
 const plan = {
   createdAt: new Date().toISOString(),
+  // false = simulation, aucun ordre transmis. C'est le défaut, volontairement.
+  live: Boolean(args.live),
   strategy: {
     label: `${perAsset} ${quote} par actif tous les ${every} jours`,
     instIds,
@@ -134,4 +138,7 @@ log(`Actifs : ${instIds.join(', ')}`);
 log(`${perAsset} ${quote} par actif et par échéance, soit ${perCycle} ${quote} par cycle`);
 log(`Du ${entries[0].dueAt.slice(0, 10)} au ${entries.at(-1).dueAt.slice(0, 10)} à ${hour}h UTC`);
 log(`Total engagé : ${perCycle * count} ${quote}`);
+log(plan.live
+  ? '⚠️  Mode RÉEL : les ordres seront transmis à OKX aux échéances.'
+  : 'Mode SIMULATION : aucun ordre ne sera transmis (relancez avec --live pour armer).');
 log(`Fichier : ${PLAN_FILE}`);

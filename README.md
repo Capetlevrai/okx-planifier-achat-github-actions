@@ -18,7 +18,28 @@ Gratuit, open source, sans serveur à louer et sans abonnement.
 
 ---
 
-## 🚀 Démarrage en 5 minutes — sans rien installer
+## 🤖 La façon la plus simple : donnez cette URL à votre agent
+
+Ouvrez **Claude Code**, **Cursor**, **Codex** ou **ChatGPT**, et envoyez ceci :
+
+```text
+Installe ce projet pour moi : https://github.com/Capetlevrai/okx-planifier-achat-github-actions
+```
+
+C'est tout. L'agent lit [AGENTS.md](AGENTS.md) à la racine du dépôt, qui contient
+le protocole complet : il vous pose les questions une par une — quelle crypto,
+quel montant, quel rythme, démo ou réel — et se charge du reste.
+
+Il installera l'outillage, créera votre dépôt, enregistrera vos clés au bon
+endroit, générera votre planning, publiera votre tableau de bord et lancera un
+test à blanc devant vous. **Il vous demandera confirmation avant tout achat
+réel** — c'est écrit noir sur blanc dans le protocole.
+
+Vous ne tapez aucune commande et n'allez sur aucune page de réglages.
+
+---
+
+## 🖱️ Ou : à la main, sans rien installer
 
 **Ni Node, ni Git, ni ligne de commande. Uniquement votre navigateur.**
 
@@ -55,7 +76,14 @@ GitHub les chiffre. Ils ne sont jamais visibles, ni dans le code, ni dans les lo
 Onglet **Actions** → **1. Configurer mon plan** → bouton **Run workflow**.
 
 Un formulaire s'ouvre : que voulez-vous acheter, combien, tous les combien de
-jours, pendant combien de mois. Validez. Votre planning est généré et enregistré.
+jours, pendant combien de mois, et **simulation ou réel**. Validez.
+
+C'est ce dernier champ qui arme le système — il n'y a rien d'autre à régler
+ailleurs. Il vaut `simulation` par défaut : tout tourne, mais aucun ordre ne
+part. Repassez le formulaire en `reel` quand vous êtes prêt.
+
+À partir de là, plus rien à faire. GitHub achète tout seul, à chaque échéance,
+même ordinateur éteint, même si vous oubliez le projet pendant trois mois.
 
 ### 5. Affichez votre tableau de bord
 
@@ -63,28 +91,14 @@ jours, pendant combien de mois. Validez. Votre planning est généré et enregis
 
 Votre interface est en ligne sur `https://VOTRE-PSEUDO.github.io/VOTRE-DEPOT/`.
 
-### C'est prêt — mais rien n'est encore acheté
-
-Par sécurité, **tout est simulé par défaut**. Le système tourne, détecte les
-échéances, mais ne transmet aucun ordre.
-
-Pour lancer les achats pour de vrai :
-**Settings → Secrets and variables → Actions → onglet Variables → New variable**,
-nom `DRY_RUN`, valeur `0`.
-
-À partir de là, plus rien à faire. GitHub achète tout seul, à chaque échéance,
-même ordinateur éteint, même si vous oubliez le projet pendant trois mois.
-
-> Pour repasser en simulation à tout moment : remettez `DRY_RUN` à `1`.
 > Pour tout arrêter : Actions → **2. Acheter** → menu `···` → *Disable workflow*.
 
 ---
 
-## 🤖 Ou : laissez un agent IA le faire
+## 🧑‍💻 Le prompt détaillé, si vous préférez le contrôle
 
-Vous utilisez **Claude Code**, **Cursor** ou **Codex** ? Collez le prompt
-ci-dessous, l'agent fait tout, y compris l'installation locale du CLI et du MCP
-OKX.
+L'agent n'a besoin que de l'URL du dépôt. Mais si vous voulez cadrer précisément
+ce qu'il fait, collez plutôt ceci :
 
 ```text
 Installe et configure pour moi le projet OKX DCA Planner :
