@@ -11,11 +11,12 @@
     "plan": "node scripts/plan.mjs",
     "run-due": "node --env-file=.env scripts/run-due.mjs",
     "site": "npx --yes serve .",
-    "test": "node tests/safety.test.mjs && node tests/orchestration.test.mjs && node tests/source-safety.test.mjs"
+    "test": "node tests/safety.test.mjs && node tests/configuration.test.mjs && node tests/okx-client.test.mjs && node tests/orchestration.test.mjs && node tests/dashboard.test.mjs && node tests/source-safety.test.mjs"
   },
   "devDependencies": {
     "@okx_ai/okx-trade-cli": "^1.4.2",
     "@okx_ai/okx-trade-mcp": "^1.4.2",
-    "serve": "^14.2.4"
+    "serve": "^14.2.4",
+    "yaml": "2.9.0"
   }
 }

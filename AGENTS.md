@@ -129,7 +129,10 @@ OKX_DEMO=1
 OKX_BASE_URL=https://my.okx.com
 ```
 
-`OKX_DEMO=0` et le bon domaine si l'utilisateur est en réel.
+Ces valeurs locales doivent correspondre au plan : toute divergence de
+`OKX_DEMO` est refusée afin qu'un même `operationId`/`clOrdId` ne puisse jamais
+passer du compte démo au compte réel, et `OKX_BASE_URL` doit correspondre au
+`site` du plan.
 
 ---
 
@@ -141,15 +144,9 @@ gh secret set OKX_API_KEY --body "<clé>" --repo <pseudo>/<nom-du-dépôt>
 
 Idem pour `OKX_SECRET_KEY` et `OKX_PASSPHRASE`.
 
-Si le compte est réel ou hors Europe, ajoute aussi les variables :
-
-```bash
-gh variable set OKX_DEMO --body "0" --repo <pseudo>/<nom-du-dépôt>
-```
-
-```bash
-gh variable set OKX_BASE_URL --body "https://www.okx.com" --repo <pseudo>/<nom-du-dépôt>
-```
+Le mode démo/réel et le domaine viennent du plan versionné. N'utilise pas une
+variable de dépôt pour convertir un plan démo en réel ou changer silencieusement
+de région.
 
 ---
 
@@ -210,7 +207,10 @@ Avant de proposer l’argent réel à l’utilisateur, vérifie que :
 - `risk.maxOrderAmount` et `risk.maxDailyQuoteAmount` sont cohérents ;
 - un dry-run passe ;
 - un petit ordre démo passe ;
-- idéalement, le workflow réel utilise un environnement GitHub protégé nécessitant une approbation.
+- le workflow réel utilise l'environnement GitHub `real-trading`, avec le secret
+  d'armement et, si possible, des approbateurs obligatoires ;
+- les tests d'orchestration à API factice passent ;
+- une validation démo prolongée a été réalisée avant tout montant réel minimal.
 
 Ne confonds pas ce projet avec des paiements bancaires : il ne fait que des achats spot OKX.
 
@@ -239,7 +239,7 @@ Puis pose la question, en clair :
 **Attends une réponse affirmative claire.** Ensuite seulement :
 
 ```bash
-node scripts/plan.mjs --instId <paires> --amount <montant> --every <jours> --months <mois> --live --force
+node scripts/plan.mjs --instId <paires> --amount <montant> --every <jours> --months <mois> --account reel --site <site> --live --force
 ```
 
 ```bash
@@ -278,14 +278,14 @@ Donne à l'utilisateur, en clair :
 | `scripts/okx.mjs` | client REST OKX signé, zéro dépendance |
 | `scripts/plan.mjs` | génère `data/plan.json` |
 | `scripts/run-due.mjs` | exécute les échéances dues (idempotent) |
-| `scripts/buy-now.mjs` | achat ponctuel hors planning |
+| `scripts/buy-now.mjs` | voie ponctuelle désactivée pour éviter tout contournement |
 | `data/plan.json` | le planning ; `live: true` = armé |
 | `data/history.json` | les achats réalisés |
 | `site/index.html` | l'interface, sans build |
 
-Le garde-fou est dans `resolveDryRun()` (`scripts/okx.mjs`) : la variable
-d'environnement `DRY_RUN` l'emporte si elle est fournie, sinon c'est `live` du
-planning qui décide, et en l'absence des deux **on simule**.
+Le garde-fou est dans `configure()` (`scripts/okx.mjs`) et dans le moteur :
+`DRY_RUN=1` force la simulation, tandis que `DRY_RUN=0` ne peut pas armer un plan
+non-live. Un plan démo ne peut pas être converti en réel par l'environnement.
 
 
 ## Accès GitHub depuis un agent
@@ -326,4 +326,7 @@ Pour un DCA automatique réel, créez volontairement ce secret après confirmati
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
 ```
 
-Cela active un verrou unique pour l'automatisation. Si vous voulez une validation humaine à chaque échéance, ajoutez plutôt `environment: okx-real` au job GitHub Actions et configurez l'environnement avec approbateurs.
+Le job utilise déjà `environment: real-trading`. Configure cet environnement avec
+les secrets réels et des approbateurs. N'annonce jamais la sûreté réelle sur les
+seuls tests : exige une validation démo prolongée puis un premier montant réel
+minimal explicitement confirmé.

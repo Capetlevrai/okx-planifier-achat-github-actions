@@ -34,8 +34,9 @@
  *   --force         écrase un planning existant
  */
 
-import { PLAN_FILE, OPERATIONS_FILE, readJson, writeJson, log, quoteCurrency, assertSpotInstrument, requireCredentials, configure, SITES, modeLabel } from './okx.mjs';
-import { hasNonTerminalOperations } from './engine.mjs';
+import { PLAN_FILE, HISTORY_FILE, OPERATIONS_FILE, readJson, log, quoteCurrency, assertSpotInstrument, assertSpotMarketReady, configure, SITES, modeLabel } from './okx.mjs';
+import { atomicWriteJson, hasNonTerminalOperations } from './engine.mjs';
+import { cumulativeLifetimeCap } from './safety.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -61,11 +62,13 @@ const split = Boolean(args.split);
 const every = Number(args.every ?? 15);
 const months = Number(args.months ?? 3);
 const hour = Number(args.hour ?? 9);
+if (args.start && !/^\d{4}-\d{2}-\d{2}$/.test(String(args.start))) throw new Error('--start doit être au format AAAA-MM-JJ.');
 const startDate = args.start ? new Date(`${args.start}T00:00:00Z`) : new Date();
 
 if (!instIds.length) throw new Error('--instId ne peut pas être vide.');
 if (!Number.isFinite(totalAmount) || totalAmount <= 0) throw new Error('--amount doit être un nombre positif.');
-if (!Number.isFinite(every) || every < 1) throw new Error('--every doit valoir au moins 1 jour.');
+if (!Number.isInteger(every) || every < 1) throw new Error('--every doit être un nombre entier de jours >= 1.');
+if (!args.count && (!Number.isFinite(months) || months <= 0)) throw new Error('--months doit être un nombre positif.');
 if (!Number.isInteger(hour) || hour < 0 || hour > 23) throw new Error('--hour doit être entre 0 et 23.');
 if (Number.isNaN(startDate.getTime())) throw new Error('--start doit être au format AAAA-MM-JJ.');
 
@@ -84,7 +87,7 @@ const perAsset = split ? totalAmount / instIds.length : totalAmount;
 if (perAsset <= 0) throw new Error('Le montant par actif est nul — vérifiez --amount et --split.');
 
 const count = args.count ? Number(args.count) : Math.floor((months * 30) / every);
-if (!Number.isFinite(count) || count < 1) throw new Error('Le planning calculé est vide — vérifiez --every / --months.');
+if (!Number.isInteger(count) || count < 1) throw new Error('Le nombre d’échéances doit être un entier >= 1 — vérifiez --count / --every / --months.');
 
 const site = String(args.site ?? 'eea').toLowerCase();
 if (!SITES[site]) throw new Error(`--site inconnu : "${site}". Valeurs : ${Object.keys(SITES).join(', ')}.`);
@@ -94,18 +97,24 @@ if (!['demo', 'reel', 'real'].includes(account)) throw new Error('--account doit
 const isDemoAccount = account === 'demo';
 
 if (args.check) {
-  requireCredentials();
-  configure({ demo: isDemoAccount, site, live: false });
-  for (const id of instIds) {
-    const inst = await assertSpotInstrument(id);
-    log(`✓ ${id} — lot minimum ${inst.minSz} ${inst.baseCcy}`);
+  try {
+    configure({ demo: isDemoAccount, site, live: false });
+    for (const id of instIds) {
+      const inst = await assertSpotInstrument(id);
+      await assertSpotMarketReady(id);
+      log(`✓ ${id} — marché disponible, lot minimum ${inst.minSz} ${inst.baseCcy}`);
+    }
+  } catch (error) {
+    console.error(`Vérification du marché impossible : ${error.message}`);
+    process.exit(1);
   }
 }
 
 const existing = readJson(PLAN_FILE, null);
 const existingOperations = readJson(OPERATIONS_FILE, { operations: [] });
+const existingHistory = readJson(HISTORY_FILE, { purchases: [] });
 if (existing && hasNonTerminalOperations(existingOperations)) {
-  console.error('Reconfiguration refusée : le registre contient au moins une opération non terminale à réconcilier.');
+  console.error('Reconfiguration refusée : le registre contient une soumission ambiguë à réconcilier.');
   console.error(`Conservez ${OPERATIONS_FILE} et laissez scripts/run-due.mjs terminer la réconciliation avant de remplacer le plan.`);
   process.exit(1);
 }
@@ -134,12 +143,22 @@ for (let i = 0; i < count; i++) {
 
 const quote = quotes[0];
 const perCycle = perAsset * instIds.length;
+// Le plafond de durée de vie est cumulatif entre les plans. Sans cette base,
+// recréer un plan après un premier achat ferait compter l'ancien audit contre
+// un plafond ne couvrant que le nouveau plan et bloquerait son premier ordre.
+const maxLifetimeQuoteAmount = cumulativeLifetimeCap(
+  existingHistory,
+  existingOperations,
+  quote,
+  isDemoAccount,
+  perCycle * count,
+);
 const maxOrderAmount = args['max-order'] ? Number(args['max-order']) : perAsset;
 const maxDailyQuoteAmount = args['max-day'] ? Number(args['max-day']) : perCycle;
 const maxAttempts = args.attempts ? Number(args.attempts) : 3;
 if (!Number.isFinite(maxOrderAmount) || maxOrderAmount < perAsset) throw new Error('--max-order doit être supérieur ou égal au montant par actif.');
 if (!Number.isFinite(maxDailyQuoteAmount) || maxDailyQuoteAmount < perCycle) throw new Error('--max-day doit couvrir au moins un cycle complet.');
-if (!Number.isInteger(maxAttempts) || maxAttempts < 1) throw new Error('--attempts doit être un entier >= 1.');
+if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 20) throw new Error('--attempts doit être un entier entre 1 et 20.');
 
 const plan = {
   createdAt: new Date().toISOString(),
@@ -163,7 +182,7 @@ const plan = {
     maxOrderAmount: Number(maxOrderAmount.toFixed(8)),
     maxDailyQuoteAmount: Number(maxDailyQuoteAmount.toFixed(8)),
     maxPlanQuoteAmount: Number((perCycle * count).toFixed(8)),
-    maxLifetimeQuoteAmount: Number((perCycle * count).toFixed(8)),
+    maxLifetimeQuoteAmount: Number(maxLifetimeQuoteAmount.toFixed(8)),
     maxAttempts,
     retryDelayMinutes: 60,
     orderPollAttempts: 10,
@@ -172,7 +191,7 @@ const plan = {
   entries,
 };
 
-writeJson(PLAN_FILE, plan);
+atomicWriteJson(PLAN_FILE, plan);
 
 log(`Planning créé : ${count} échéances × ${instIds.length} actif(s) = ${entries.length} achats`);
 log(`Actifs : ${instIds.join(', ')}`);

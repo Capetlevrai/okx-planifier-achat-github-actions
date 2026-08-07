@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Choisissez 0 pour acheter maintenant · 1 pour seulement simuler"
+        description: "0 autorise uniquement un plan déjà live · 1 force la simulation"
         required: true
         default: '1'
         type: choice
@@ -42,26 +42,70 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck
-          python3 - <<'PY' > /tmp/dca-shell.sh
-          from pathlib import Path
-          text = Path('.github/workflows/dca.yml').read_text()
-          blocks = []
-          in_run = False
-          buf = []
-          for line in text.splitlines():
-              if line.strip() == 'run: |':
-                  in_run = True; buf=[]; continue
-              if in_run and (line.startswith('      ') or line.strip() == ''):
-                  buf.append(line[10:] if line.startswith('          ') else line.lstrip())
-              elif in_run:
-                  blocks.append('\n'.join(buf)); in_run=False
-          if in_run: blocks.append('\n'.join(buf))
-          print('\n\n'.join(blocks))
-          PY
-          shellcheck /tmp/dca-shell.sh
+          rm -rf /tmp/workflow-shell
+          node scripts/extract-workflow-shell.mjs /tmp/workflow-shell
+          shellcheck /tmp/workflow-shell/*.sh
 
-  execute:
+  inspect:
     needs: quality-gate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      account: ${{ steps.plan.outputs.account }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - id: plan
+        name: Déterminer le compte du plan sans charger de secret
+        run: |
+          ACCOUNT=$(node -p "JSON.parse(require('fs').readFileSync('data/plan.json','utf8')).demo === false ? 'real' : 'demo'")
+          echo "account=$ACCOUNT" >> "$GITHUB_OUTPUT"
+
+  execute-demo:
+    needs: [quality-gate, inspect]
+    if: needs.inspect.outputs.account == 'demo'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Exécuter les achats démo dus
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
+          DRY_RUN_VAR: ${{ vars.DRY_RUN }}
+        run: |
+          if [ -z "$OKX_API_KEY" ]; then echo "Secrets OKX démo absents — rien à exécuter."; exit 0; fi
+          if [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
+          elif [ -n "$DRY_RUN_VAR" ]; then export DRY_RUN="$DRY_RUN_VAR"
+          fi
+          node scripts/run-due.mjs
+      - name: Mettre à jour le tableau de bord
+        if: always()
+        run: node scripts/report.mjs
+      - name: Enregistrer les résultats démo
+        if: always()
+        run: |
+          if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ RAPPORT.md tableau-de-bord.html
+          git commit -m "DCA démo : mise à jour du registre [skip ci]"
+          git pull --rebase --autostash origin main
+          git push
+
+  execute-real:
+    needs: [quality-gate, inspect]
+    if: needs.inspect.outputs.account == 'real'
     runs-on: ubuntu-latest
     environment: real-trading
     steps:
@@ -73,43 +117,31 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-
-      - name: Exécuter les achats dus
+      - name: Exécuter ou réconcilier le plan réel
         env:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
           OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
-          OKX_DEMO: ${{ vars.OKX_DEMO }}
-          OKX_BASE_URL: ${{ vars.OKX_BASE_URL }}
           ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}
           DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
           DRY_RUN_VAR: ${{ vars.DRY_RUN }}
         run: |
-          if [ -z "$OKX_API_KEY" ]; then
-            echo "Aucun secret OKX configuré sur ce dépôt — rien à exécuter."
-            exit 0
+          if [ -z "$OKX_API_KEY" ]; then echo "Secrets OKX réels absents — rien à exécuter."; exit 0; fi
+          if [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
+          elif [ -n "$DRY_RUN_VAR" ]; then export DRY_RUN="$DRY_RUN_VAR"
           fi
-          if   [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
-          elif [ -n "$DRY_RUN_VAR" ];   then export DRY_RUN="$DRY_RUN_VAR"
-          fi
-          echo "DRY_RUN transmis au script : '${DRY_RUN-non defini, le plan decide}'"
           node scripts/run-due.mjs
-
       - name: Mettre à jour le tableau de bord
         if: always()
         run: node scripts/report.mjs
-
-      - name: Enregistrer les résultats dans le dépôt
+      - name: Enregistrer les résultats réels
         if: always()
         run: |
-          if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then
-            echo "Aucune modification à enregistrer."
-            exit 0
-          fi
-          git config user.name  "github-actions[bot]"
+          if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/ RAPPORT.md tableau-de-bord.html
-          git commit -m "DCA : mise à jour du planning, registre et historique [skip ci]"
+          git commit -m "DCA réel : mise à jour du registre [skip ci]"
           git pull --rebase --autostash origin main
           git push

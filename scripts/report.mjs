@@ -40,10 +40,10 @@ const relative = (iso) => {
 const invested = purchases.reduce((n, p) => n + Number(p.executedQuoteAmount ?? p.amount ?? 0), 0);
 const planned = plan.entries.reduce((n, e) => n + e.amount, 0);
 const done = plan.entries.filter((e) => e.status === 'done').length;
-const pct = Math.round((done / plan.entries.length) * 100);
+const pct = plan.entries.length ? Math.round((done / plan.entries.length) * 100) : 0;
 const upcoming = plan.entries.filter((e) => e.status === 'pending').sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt));
 const failed = plan.entries.filter((e) => ['failed', 'partial', 'reconcile_pending', 'canceled', 'rejected'].includes(e.status));
-const openOps = (operations.operations || []).filter((op) => op.state !== 'terminal');
+const openOps = (operations.operations || []).filter((op) => ['submitting', 'reconcile_pending'].includes(op.state));
 const next = upcoming[0];
 const nextBatch = next ? upcoming.filter((e) => e.dueAt === next.dueAt) : [];
 
@@ -59,10 +59,10 @@ out.push('');
 out.push('| | |');
 out.push('|---|---|');
 out.push(`| **Total investi** | ${money(invested)} sur ${money(planned)} programmés |`);
-out.push(`| **Achats effectués** | ${purchases.length} sur ${plan.entries.length} |`);
+out.push(`| **Achats effectués** | ${done} sur ${plan.entries.length} |`);
 out.push(`| **Opérations à réconcilier** | ${openOps.length} |`);
 out.push(`| **Avancement** | \`${bar}\` ${pct} % |`);
-out.push(`| **Prochain achat** | ${next ? `${day(next.dueAt)} (${relative(next.dueAt)}) — ${money(nextBatch.reduce((n, e) => n + e.amount, 0))}` : 'plan terminé'} |`);
+out.push(`| **Prochain achat** | ${next ? `${day(next.dueAt)} (${relative(next.dueAt)}) — ${money(nextBatch.reduce((n, e) => n + e.amount, 0))}` : failed.length ? `aucun — ${failed.length} opération(s) à traiter` : 'plan terminé'} |`);
 out.push(`| **Rythme** | ${s.amountPerAsset} ${ccy} par actif, tous les ${s.everyDays} jours, à ${String(s.hourUtc).padStart(2, '0')}h00 UTC |`);
 out.push('');
 
@@ -101,15 +101,22 @@ if (purchases.length) {
   out.push('');
 }
 
-out.push('## Achats à venir');
+out.push('## À venir ou à traiter');
 out.push('');
 if (upcoming.length || failed.length) {
   out.push('| Échéance | Actif | Montant | Dans | Statut |');
   out.push('|---|---|---:|---|---|');
   for (const e of [...upcoming, ...failed].sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt))) {
-    const isFailed = e.status === 'failed';
-    const statut = isFailed ? `❌ échec — ${e.error ?? ''}` : nextBatch.includes(e) ? '🔵 prochain' : '⚪ programmé';
-    out.push(`| ${day(e.dueAt)} | ${e.instId.split('-')[0]} | ${money(e.amount)} | ${isFailed ? '—' : relative(e.dueAt)} | ${statut} |`);
+    const attention = {
+      failed: `❌ échec — ${e.error ?? ''}`,
+      partial: `⚠️ partiel — ${e.error ?? 'vérification requise'}`,
+      reconcile_pending: `⚠️ réconciliation en cours — ${e.error ?? 'ordre distant à vérifier'}`,
+      canceled: `⛔ annulé — ${e.error ?? ''}`,
+      rejected: `⛔ rejeté — ${e.error ?? ''}`,
+    };
+    const statut = attention[e.status] ?? (nextBatch.includes(e) ? '🔵 prochain' : '⚪ programmé');
+    const timing = attention[e.status] ? '—' : relative(e.dueAt);
+    out.push(`| ${day(e.dueAt)} | ${e.instId.split('-')[0]} | ${money(e.amount)} | ${timing} | ${statut} |`);
   }
 } else {
   out.push('_Plan terminé._');

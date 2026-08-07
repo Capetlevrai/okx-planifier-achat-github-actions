@@ -159,16 +159,16 @@ automatiquement après chaque achat — retéléchargez-le pour la version à jo
 
 ### 6. Les achats
 
-Une fois `execution` sur `acheter`, **il n'y a plus rien à faire** : GitHub
-vérifie chaque jour à 9h UTC s'il y a une échéance et achète tout seul, votre
-ordinateur éteint.
+Une fois `execution` sur `acheter`, GitHub vérifie chaque heure s'il y a une
+échéance. En compte réel, le job passe par l'environnement `real-trading` : si
+vous lui imposez des approbateurs, chaque exécution attendra leur validation.
 
 **Pour ne pas attendre demain**, déclenchez un achat tout de suite :
 Actions → **2. Acheter — routine automatique** → **Run workflow** → menu
 déroulant sur **`0`** → bouton vert **Run workflow**.
 
-> `0` = les ordres partent · `1` = simulation. Ce menu ne vaut que pour ce
-> lancement-là, il ne modifie pas votre plan.
+> `0` autorise uniquement l'exécution d'un plan déjà marqué `live` ; il ne peut
+> pas armer un plan en simulation. `1` force la simulation pour ce lancement.
 
 **Pour tout arrêter :** Actions → **2. Acheter** → menu `···` → *Disable workflow*.
 Ou relancez le formulaire de configuration avec `execution = simulation`.
@@ -353,13 +353,16 @@ node --env-file=.env scripts/run-due.mjs
 gh repo create okx-planifier-achat-github-actions --private --source=. --push
 ```
 
-**6. Enregistrez les secrets** — `Settings → Secrets and variables → Actions`, ou :
+**6. Enregistrez les secrets démo** au niveau du dépôt — `Settings → Secrets and variables → Actions`, ou :
 
 ```bash
 gh secret set OKX_API_KEY
 ```
 
-Trois secrets à créer : `OKX_API_KEY`, `OKX_SECRET_KEY` (ou `OKX_API_SECRET`) et `OKX_PASSPHRASE`.
+Trois secrets démo à créer : `OKX_API_KEY`, `OKX_SECRET_KEY` (ou `OKX_API_SECRET`) et `OKX_PASSPHRASE`.
+Pour le réel, ne réutilisez pas ces secrets de dépôt : placez la clé réelle, son
+secret, sa passphrase et `ALLOW_REAL_TRADING` uniquement dans l'environnement
+GitHub `real-trading`.
 
 **7. Publiez l'interface** — `Settings → Pages → Source : GitHub Actions`.
 Elle sera servie sur `https://VOTRE-PSEUDO.github.io/okx-planifier-achat-github-actions/`.
@@ -367,22 +370,24 @@ Elle sera servie sur `https://VOTRE-PSEUDO.github.io/okx-planifier-achat-github-
 **8. Lancez un test à blanc sur GitHub** — onglet **Actions** → *DCA — achats
 programmés* → **Run workflow**, en laissant `dry_run` sur `1`.
 
-**9. Activez les achats réels** — quand tout est vérifié :
-`Settings → Secrets and variables → Actions → Variables` → créer `DRY_RUN` = `0`.
-
-C'est ce commutateur, et lui seul, qui autorise le passage d'ordres.
+**9. N'activez le réel qu'après une validation démo prolongée.** Il faut à la
+fois un plan `live: true` et `demo: false`, le job GitHub sur la branche `main`,
+les identifiants du compte réel, et le secret d'environnement protégé
+`ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS`. Commencez ensuite par un montant
+réel minimal explicitement confirmé et surveillé.
 
 ---
 
-## Variables de dépôt
+## Variables locales optionnelles
 
-Onglet *Variables* (à côté des secrets) — toutes optionnelles :
+Ces variables servent à l'exécution locale. Le workflow GitHub prend le mode et
+le domaine directement dans le plan afin d'éviter une divergence :
 
 | Variable | Effet | Défaut |
 |---|---|---|
-| `DRY_RUN` | `0` autorise les ordres réels. **Tant que ce n'est pas fait, tout est simulé.** | `1` |
-| `OKX_DEMO` | `0` bascule sur le compte réel | `1` |
-| `OKX_BASE_URL` | `https://www.okx.com` pour le global | `https://my.okx.com` |
+| `DRY_RUN` | `1` force la simulation ; `0` n'agit que si le plan est déjà `live` | décision du plan |
+| `OKX_DEMO` | doit correspondre exactement au mode du plan ; toute divergence est refusée pour préserver l'identité et l'audit des opérations | décision du plan |
+| `OKX_BASE_URL` | doit correspondre exactement au `site` du plan, sinon l'exécution est refusée | domaine du plan |
 
 ---
 
@@ -396,11 +401,9 @@ node scripts/plan.mjs --amount 50 --every 15 --months 3 --instId BTC-EUR,ETH-EUR
 node --env-file=.env scripts/run-due.mjs
 ```
 
-```bash
-node --env-file=.env scripts/buy-now.mjs --amount 50 --instId BTC-EUR
-```
+`scripts/buy-now.mjs` est volontairement désactivé : toute opération doit passer
+par le registre idempotent du planificateur.
 
-Ajoutez `DRY_RUN=0` devant la commande pour transmettre réellement l'ordre.
 Prévisualiser l'interface en local :
 
 ```bash
@@ -417,23 +420,27 @@ L'agent peut ensuite vous donner une URL du type `http://IP-DE-LA-MACHINE:4173/s
 data/plan.json          le planning : une entrée par achat, avec son échéance
         │
         ▼
-.github/workflows/dca.yml   cron quotidien 09:00 UTC
+.github/workflows/dca.yml   cron horaire
         │                   → scripts/run-due.mjs
         │                   → n'agit que sur les échéances atteintes
         ▼
-data/history.json       l'historique : montant, BTC reçu, prix moyen, ordId
+data/operations.json    registre canonique : intention, soumission, réconciliation
+        │
+        ▼
+data/history.json       projection d'audit et de présentation
         │
         ▼
 site/index.html         l'interface, publiée par GitHub Pages
 ```
 
-**Le cron GitHub est toujours en UTC** — `0 9 * * *` = 11h à Paris l'été, 10h l'hiver.
+**Le cron GitHub est toujours en UTC** — `0 * * * *` vérifie au début de chaque heure.
 Le déclenchement peut avoir 5 à 15 minutes de retard quand les runners sont chargés :
 sans conséquence pour du DCA.
 
-Le script est **idempotent** : une entrée marquée `done` n'est jamais rejouée, même
-si le workflow tourne plusieurs fois dans la journée. Une échéance ratée (panne,
-solde insuffisant) est rattrapée au passage suivant.
+Le moteur conserve le même `clOrdId` déterministe et teste les frontières de
+crash avec une API factice. Dès qu'une opération franchit la barrière pré-POST,
+elle n'est **jamais retransmise automatiquement** : elle reste dans le registre
+et les reprises sont limitées à la réconciliation GET jusqu'à un état terminal.
 
 Sur un dépôt **public**, les crons sont suspendus après 60 jours sans commit — le
 workflow commitant lui-même ses résultats, le problème ne se pose pas en pratique.
@@ -446,7 +453,7 @@ workflow commitant lui-même ses résultats, le problème ne se pose pas en prat
 - `.env` est dans `.gitignore`. Vérifiez avec `git status` avant chaque commit.
 - Les secrets GitHub sont chiffrés et masqués dans les logs. Sur un dépôt public,
   ils ne sont **pas** exposés aux forks ni aux pull requests externes.
-- Entraînez-vous sur le **compte démo** (`OKX_DEMO=1`) avant tout passage en réel.
+- Entraînez-vous longtemps sur un **plan démo** (`demo: true`) avant tout passage en réel.
 - Premier passage en réel : un petit montant, et surveillez le premier run.
 - Une clé qui a circulé en clair (chat, capture d'écran, log) doit être révoquée.
 
@@ -479,7 +486,8 @@ Même si un plan est configuré en argent réel (`demo: false`) et armé (`live:
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
 ```
 
-Pour une vraie utilisation, mettez cette variable dans un environnement GitHub protégé avec approbation humaine, pas comme automatisme silencieux.
+Pour une vraie utilisation, mettez cette variable et tous les identifiants réels
+dans l'environnement GitHub `real-trading`, jamais au niveau du dépôt.
 
 ## Corrections de robustesse avant argent réel
 
@@ -487,7 +495,7 @@ Les points suivants sont obligatoires avant toute utilisation réelle :
 
 - la réconciliation OKX par `clOrdId` se fait **avant** les contrôles de solde, whitelist et plafond ;
 - un ordre `partially_filled` n'est pas présenté comme un achat complet ; il reste surveillé, ou finit en état `partial` si OKX l'annule avec une quantité partielle ;
-- `entry.attempts` est incrémenté à un seul endroit, juste avant l'envoi d'un nouvel ordre ;
+- `entry.attempts` est incrémenté juste avant le POST ; après une réponse ambiguë, aucune retransmission automatique n'est permise ;
 - le verrou argent réel utilise le secret `ALLOW_REAL_TRADING`, pas une variable de dépôt ordinaire ;
 - le workflow de configuration conserve l'historique par défaut ; `reset_history` est explicite et refusé en compte réel ;
 - tous les appels OKX ont un timeout HTTP explicite.
@@ -498,4 +506,9 @@ Pour un DCA automatique réel, créez volontairement ce secret après confirmati
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
 ```
 
-Cela active un verrou unique pour l'automatisation. Si vous voulez une validation humaine à chaque échéance, ajoutez plutôt `environment: okx-real` au job GitHub Actions et configurez l'environnement avec approbateurs.
+Seul le job réel utilise `environment: real-trading`; la démo ne dépend pas de
+cet environnement. Configurez-y **tous** les secrets réels. Si vous ajoutez des
+approbateurs, GitHub demandera une validation à chaque contrôle horaire du plan
+réel, même lorsqu'aucune échéance n'est finalement soumise. Sans approbateurs,
+le secret constitue un armement volontaire mais automatique. Il ne remplace ni
+la validation démo prolongée, ni un premier montant réel minimal explicitement confirmé.

@@ -1,0 +1,37 @@
+name: CI — sûreté et qualité
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Vérification syntaxe et whitespace
+        run: |
+          for file in scripts/*.mjs tests/*.mjs; do node --check "$file"; done
+          git diff --check
+      - name: Shellcheck de tous les workflows
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          rm -rf /tmp/workflow-shell
+          node scripts/extract-workflow-shell.mjs /tmp/workflow-shell
+          shellcheck /tmp/workflow-shell/*.sh
+      - run: npm audit --audit-level=moderate

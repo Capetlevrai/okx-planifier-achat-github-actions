@@ -47,6 +47,9 @@ Ne passe l’ordre réel que si je réponds explicitement :
 Mes clés API ne doivent jamais être commit : seulement GitHub Actions Secrets.
 La clé OKX ne doit jamais avoir la permission Retrait. Lecture + Trading seulement.
 Commence toujours par un dry-run.
+Exige ensuite une validation prolongée en compte démo. Le premier ordre réel doit
+utiliser un montant minimal, être explicitement confirmé, surveillé et passer par
+l'environnement GitHub protégé `real-trading`.
 ```
 
 ## Token GitHub fine-grained minimal

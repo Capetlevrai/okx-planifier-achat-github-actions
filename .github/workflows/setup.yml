@@ -51,7 +51,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Vérification syntaxe et whitespace
+        run: |
+          for file in scripts/*.mjs tests/*.mjs; do node --check "$file"; done
+          git diff --check
+
   configurer:
+    needs: quality-gate
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -63,10 +82,6 @@ jobs:
 
       - name: Générer le planning
         env:
-          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
-          OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
-          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
-          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
           PAIRES: ${{ inputs.paires }}
           MONTANT: ${{ inputs.montant }}
           INTERVALLE: ${{ inputs.intervalle }}
@@ -79,10 +94,8 @@ jobs:
           case "$MONTANT" in *[!0-9.]*|'') echo "Montant invalide"; exit 1;; esac
           case "$INTERVALLE" in *[!0-9]*|'') echo "Intervalle invalide"; exit 1;; esac
           case "$DUREE" in *[!0-9.]*|'') echo "Durée invalide"; exit 1;; esac
-          CHECK=""
-          if [ -n "$OKX_API_KEY" ]; then CHECK="--check"; fi
-          LIVE=""
-          if [ "$EXECUTION" = "acheter" ]; then LIVE="--live"; fi
+          EXTRA_ARGS=(--check --force)
+          if [ "$EXECUTION" = "acheter" ]; then EXTRA_ARGS+=(--live); fi
           node scripts/plan.mjs \
             --instId "$PAIRES" \
             --amount "$MONTANT" \
@@ -90,7 +103,7 @@ jobs:
             --months "$DUREE" \
             --account "$COMPTE" \
             --site "$REGION" \
-            $CHECK $LIVE --force
+            "${EXTRA_ARGS[@]}"
 
       - name: Historique conservé ou projection démo réinitialisée explicitement
         env:

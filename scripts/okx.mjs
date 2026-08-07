@@ -41,13 +41,26 @@ function validateAllowedBaseUrl(urlText, source) {
 }
 
 export function configure(plan) {
-  demo = envSet('OKX_DEMO') ? process.env.OKX_DEMO !== '0' : plan?.demo !== false;
-  dryRun = envSet('DRY_RUN') ? process.env.DRY_RUN !== '0' : plan?.live !== true;
-  const siteUrl = SITES[plan?.site]?.baseUrl || SITES.eea.baseUrl;
-  if (envSet('OKX_BASE_URL')) baseUrl = validateAllowedBaseUrl(process.env.OKX_BASE_URL, 'OKX_BASE_URL');
-  else if (plan?.baseUrl) baseUrl = validateAllowedBaseUrl(plan.baseUrl, 'plan.baseUrl');
-  else baseUrl = siteUrl;
-  if (!ALLOWED_BASE_URLS.has(baseUrl)) throw new Error('Base URL OKX non autorisée.');
+  if (!SITES[plan?.site]) throw new Error(`Site OKX inconnu : ${plan?.site}.`);
+  const siteUrl = SITES[plan.site].baseUrl;
+  const planDemo = plan?.demo !== false;
+  // Le mode du compte fait partie de l'identité/audit du plan. Un override,
+  // même vers la démo, ferait enregistrer des ordres simulés comme réels puis
+  // permettrait de changer de compte sous les mêmes operationId/clOrdId.
+  if (envSet('OKX_DEMO')) {
+    const environmentDemo = process.env.OKX_DEMO !== '0';
+    if (environmentDemo !== planDemo) throw new Error('OKX_DEMO ne correspond pas au mode du plan; régénérez explicitement le plan.');
+  }
+  demo = planDemo;
+  // DRY_RUN peut toujours forcer la simulation, jamais armer un plan non-live.
+  dryRun = plan?.live !== true || (envSet('DRY_RUN') && process.env.DRY_RUN !== '0');
+  const planUrl = plan?.baseUrl ? validateAllowedBaseUrl(plan.baseUrl, 'plan.baseUrl') : siteUrl;
+  if (planUrl !== siteUrl) throw new Error('plan.baseUrl ne correspond pas à plan.site.');
+  if (envSet('OKX_BASE_URL')) {
+    const environmentUrl = validateAllowedBaseUrl(process.env.OKX_BASE_URL, 'OKX_BASE_URL');
+    if (environmentUrl !== siteUrl) throw new Error('OKX_BASE_URL ne correspond pas au site du plan.');
+  }
+  baseUrl = siteUrl;
   return { demo, baseUrl, dryRun };
 }
 
@@ -106,6 +119,7 @@ export async function okx(method, requestPath, payload) {
   };
   if (demo) headers['x-simulated-trading'] = '1';
   const timeoutMs = Number(process.env.OKX_HTTP_TIMEOUT_MS || 15_000);
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 120_000) throw new Error('OKX_HTTP_TIMEOUT_MS doit être un entier entre 1000 et 120000.');
   const res = await fetch(baseUrl + requestPath, { method, headers, body: body || undefined, signal: AbortSignal.timeout(timeoutMs) });
   const json = await parseOkxJson(res, method, requestPath);
   if (!res.ok) {
@@ -134,6 +148,24 @@ export async function okx(method, requestPath, payload) {
   return data;
 }
 
+async function publicGet(requestPath) {
+  const timeoutMs = Number(process.env.OKX_HTTP_TIMEOUT_MS || 15_000);
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 120_000) throw new Error('OKX_HTTP_TIMEOUT_MS doit être un entier entre 1000 et 120000.');
+  const res = await fetch(baseUrl + requestPath, {
+    method: 'GET',
+    headers: { Accept: 'application/json', ...(demo ? { 'x-simulated-trading': '1' } : {}) },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  const json = await parseOkxJson(res, 'GET', requestPath);
+  if (!res.ok || json.code !== '0') {
+    const error = new Error(`OKX public GET ${requestPath} — ${res.ok ? `code ${json.code}` : `HTTP ${res.status}`} : ${json.msg || 'erreur'}`);
+    error.httpStatus = res.status;
+    error.okxCode = json.code;
+    throw error;
+  }
+  return Array.isArray(json.data) ? json.data : [];
+}
+
 const q = (value) => encodeURIComponent(value);
 export async function lastPrice(instId) {
   const [ticker] = await okx('GET', `/api/v5/market/ticker?instId=${q(instId)}`);
@@ -150,13 +182,16 @@ export async function availableBalance(ccy) {
 }
 export async function marketBuy(instId, amount, clOrdId) {
   if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) throw new Error('montant achat invalide');
+  if (!/^[A-Za-z0-9]{1,32}$/.test(clOrdId || '')) throw new Error('clOrdId achat invalide');
   const order = { instId, tdMode: 'cash', side: 'buy', ordType: 'market', sz: String(amount), tgtCcy: 'quote_ccy', clOrdId };
   if (dryRun) return { dryRun: true, order, clOrdId };
   const [result] = await okx('POST', '/api/v5/trade/order', order);
   if (!result?.ordId || !result?.clOrdId) throw new Error('Réponse OKX ordre incomplète : ordId/clOrdId manquant.');
-  return { dryRun: false, order, ordId: result.ordId, clOrdId: result.clOrdId || clOrdId, state: result.state || 'submitted' };
+  if (result.clOrdId !== clOrdId) throw new Error('Réponse OKX ordre incohérente : clOrdId différent.');
+  return { dryRun: false, order, ordId: result.ordId, clOrdId: result.clOrdId, state: result.state || 'submitted' };
 }
 export async function getOrder(instId, { ordId, clOrdId }) {
+  if (!ordId && !clOrdId) throw new Error('getOrder exige ordId ou clOrdId.');
   const query = ordId ? `ordId=${q(ordId)}` : `clOrdId=${q(clOrdId)}`;
   const [order] = await okx('GET', `/api/v5/trade/order?instId=${q(instId)}&${query}`);
   return order || null;
@@ -165,8 +200,7 @@ const ORDER_NOT_FOUND_CODES = new Set(['51603', '51604', '51617']);
 export async function findOrderByClOrdId(instId, clOrdId) {
   try { return await getOrder(instId, { clOrdId }); }
   catch (err) {
-    const msg = String(err.message || '').toLowerCase();
-    if (ORDER_NOT_FOUND_CODES.has(String(err.okxCode)) || msg.includes('order does not exist') || msg.includes("doesn't exist") || msg.includes('order not exist')) return null;
+    if (ORDER_NOT_FOUND_CODES.has(String(err.okxCode))) return null;
     throw err;
   }
 }
@@ -203,9 +237,22 @@ export async function waitForOrderFill(instId, { ordId, clOrdId }, attempts = 10
 export const quoteCurrency = (instId) => instId.split('-')[1];
 export const baseCurrency = (instId) => instId.split('-')[0];
 export async function assertSpotInstrument(instId) {
-  const data = await okx('GET', `/api/v5/public/instruments?instType=SPOT&instId=${q(instId)}`);
+  const data = await publicGet(`/api/v5/public/instruments?instType=SPOT&instId=${q(instId)}`);
   if (!data.length) throw new Error(`La paire ${instId} n'existe pas au comptant sur OKX.`);
   return data[0];
+}
+export async function assertSpotMarketReady(instId) {
+  const [ticker] = await publicGet(`/api/v5/market/ticker?instId=${q(instId)}`);
+  const last = Number(ticker?.last);
+  const bid = Number(ticker?.bidPx);
+  const ask = Number(ticker?.askPx);
+  if (!(last > 0) || !(bid > 0) || !(ask > 0)) {
+    throw new Error(
+      `${instId} existe mais ne dispose d'aucune liquidité sur le marché ${demo ? 'démo' : 'réel'} OKX. ` +
+      `Choisissez une autre paire pour ce mode de compte.`,
+    );
+  }
+  return ticker;
 }
 export const readJson = (file, fallback) => fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : fallback;
 export function writeJson(file, value) {

@@ -1,10 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-07T22:34:57Z",
   "operations": [
     {
       "operationId": "op_db1d5a96829e9e237482cb25",
       "entryId": "dca-1-BTC-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "BTC-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "BTC",
@@ -18,14 +19,20 @@
       "submissionAttempts": 0,
       "reconciliationAttempts": 0,
       "preflightFailures": 0,
-      "filledQty": null,
-      "avgPrice": null,
+      "filledQty": 0.00077525,
+      "avgPrice": 64495.11099645276,
       "events": [],
-      "createdAt": "2026-08-07T21:49:01.552484Z"
+      "createdAt": "2026-08-07T21:49:01.552484Z",
+      "executedQuoteAmount": 50,
+      "fee": -7.7525e-7,
+      "feeCcy": "BTC",
+      "terminalAt": "2026-08-07T21:41:40.756Z"
     },
     {
       "operationId": "op_a732812feb870985df104fc7",
       "entryId": "dca-1-ETH-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "ETH-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "ETH",
@@ -39,14 +46,20 @@
       "submissionAttempts": 0,
       "reconciliationAttempts": 0,
       "preflightFailures": 0,
-      "filledQty": null,
-      "avgPrice": null,
+      "filledQty": 0.026045,
+      "avgPrice": 1919.700940679593,
       "events": [],
-      "createdAt": "2026-08-07T21:49:01.552484Z"
+      "createdAt": "2026-08-07T21:49:01.552484Z",
+      "executedQuoteAmount": 50,
+      "fee": -0.000026045,
+      "feeCcy": "ETH",
+      "terminalAt": "2026-08-07T21:49:08.796Z"
     },
     {
       "operationId": "op_99ea98595ab682b0cb793d16",
       "entryId": "dca-2-BTC-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "BTC-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "BTC",
@@ -68,6 +81,8 @@
     {
       "operationId": "op_e193947869acd43c6840feb9",
       "entryId": "dca-2-ETH-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "ETH-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "ETH",
@@ -89,6 +104,8 @@
     {
       "operationId": "op_d1ebc09d86265ccacf55e0b4",
       "entryId": "dca-3-BTC-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "BTC-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "BTC",
@@ -110,6 +127,8 @@
     {
       "operationId": "op_80d5bd0ca2851e5f7ff35d99",
       "entryId": "dca-3-ETH-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "ETH-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "ETH",
@@ -131,6 +150,8 @@
     {
       "operationId": "op_163613ef5e253d9b50f261e7",
       "entryId": "dca-4-BTC-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "BTC-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "BTC",
@@ -152,6 +173,8 @@
     {
       "operationId": "op_e788b6e8b7d3def236862227",
       "entryId": "dca-4-ETH-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "ETH-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "ETH",
@@ -173,6 +196,8 @@
     {
       "operationId": "op_2db84f4dd023fdcc537d4191",
       "entryId": "dca-5-BTC-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "BTC-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "BTC",
@@ -194,6 +219,8 @@
     {
       "operationId": "op_2c44b511cfd2566215730be6",
       "entryId": "dca-5-ETH-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "ETH-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "ETH",
@@ -215,6 +242,8 @@
     {
       "operationId": "op_abfde4646906c893b293523a",
       "entryId": "dca-6-BTC-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "BTC-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "BTC",
@@ -236,6 +265,8 @@
     {
       "operationId": "op_307c4848c3a4d354b03b2f69",
       "entryId": "dca-6-ETH-USDC",
+      "planCreatedAt": "2026-08-07T21:49:01.552484Z",
+      "demo": true,
       "instId": "ETH-USDC",
       "quoteCcy": "USDC",
       "baseCcy": "ETH",
@@ -254,5 +285,6 @@
       "events": [],
       "createdAt": "2026-08-07T21:49:01.552484Z"
     }
-  ]
+  ],
+  "updatedAt": "2026-08-07T22:57:38.521Z"
 }

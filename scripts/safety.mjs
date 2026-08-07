@@ -22,8 +22,14 @@ export function finitePositive(value, label) {
 }
 
 export function validIsoDate(value, label) {
-  const time = new Date(value).getTime();
-  if (typeof value !== 'string' || !Number.isFinite(time)) throw new Error(`${label} doit être une date ISO valide.`);
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/.test(value)) {
+    throw new Error(`${label} doit être une date ISO UTC complète.`);
+  }
+  const parsed = new Date(value);
+  const time = parsed.getTime();
+  if (!Number.isFinite(time) || parsed.toISOString().slice(0, 10) !== value.slice(0, 10)) {
+    throw new Error(`${label} contient une date impossible.`);
+  }
   return time;
 }
 
@@ -48,42 +54,78 @@ export function normalizeRisk(plan) {
   if (!Array.isArray(risk.allowedInstIds) || risk.allowedInstIds.length === 0) {
     throw new Error('risk.allowedInstIds doit être une whitelist non vide.');
   }
+  if (new Set(risk.allowedInstIds).size !== risk.allowedInstIds.length) throw new Error('risk.allowedInstIds contient des doublons.');
   if (!Number.isInteger(Number(risk.maxAttempts)) || Number(risk.maxAttempts) < 1 || Number(risk.maxAttempts) > 20) {
     throw new Error('risk.maxAttempts doit être un entier borné entre 1 et 20.');
   }
   risk.maxAttempts = Number(risk.maxAttempts);
   for (const key of ['retryDelayMinutes', 'orderPollAttempts', 'orderPollDelayMs']) {
-    if (!Number.isInteger(Number(risk[key])) || Number(risk[key]) < 0) throw new Error(`risk.${key} doit être un entier positif.`);
+    if (!Number.isInteger(Number(risk[key])) || Number(risk[key]) < 0) throw new Error(`risk.${key} doit être un entier positif ou nul.`);
     risk[key] = Number(risk[key]);
   }
   for (const key of ['maxOrderAmount', 'maxDailyQuoteAmount', 'maxPlanQuoteAmount', 'maxLifetimeQuoteAmount']) {
     if (risk[key] !== null && risk[key] !== undefined) risk[key] = finitePositive(risk[key], `risk.${key}`);
   }
+  if (risk.maxOrderAmount === null || risk.maxDailyQuoteAmount === null || risk.maxPlanQuoteAmount === null || risk.maxLifetimeQuoteAmount === null) {
+    throw new Error('Les quatre plafonds financiers (ordre, jour, plan, durée de vie) sont obligatoires.');
+  }
+  if (risk.maxDailyQuoteAmount < risk.maxOrderAmount) throw new Error('risk.maxDailyQuoteAmount doit être supérieur ou égal à risk.maxOrderAmount.');
   return risk;
 }
 
 export function validatePlanStrict(plan) {
-  if (!plan || typeof plan !== 'object') throw new Error('plan.json absent ou invalide.');
+  if (!plan || typeof plan !== 'object' || Array.isArray(plan)) throw new Error('plan.json absent ou invalide.');
+  validIsoDate(plan.createdAt, 'plan.createdAt');
   if (typeof plan.live !== 'boolean') throw new Error('plan.live doit être booléen.');
   if (typeof plan.demo !== 'boolean') throw new Error('plan.demo doit être booléen.');
   if (!SITES[plan.site]) throw new Error(`plan.site inconnu : ${plan.site}.`);
-  if (plan.baseUrl && plan.baseUrl !== SITES[plan.site].baseUrl) throw new Error('plan.baseUrl ne correspond pas au site OKX autorisé.');
-  if (!Array.isArray(plan.entries)) throw new Error('plan.entries doit être un tableau.');
+  if (plan.baseUrl !== SITES[plan.site].baseUrl) throw new Error('plan.baseUrl ne correspond pas au site OKX autorisé.');
+  if (!plan.strategy || typeof plan.strategy !== 'object') throw new Error('plan.strategy est obligatoire.');
+  if (!Array.isArray(plan.strategy.instIds) || plan.strategy.instIds.length === 0) throw new Error('plan.strategy.instIds doit être non vide.');
+  if (!Array.isArray(plan.entries) || plan.entries.length === 0) throw new Error('plan.entries doit être un tableau non vide.');
+
   const risk = normalizeRisk(plan);
   const allowed = new Set(risk.allowedInstIds);
+  const strategyIds = new Set(plan.strategy.instIds);
+  if (strategyIds.size !== plan.strategy.instIds.length) throw new Error('plan.strategy.instIds contient des doublons.');
+  if (strategyIds.size !== allowed.size || [...strategyIds].some((id) => !allowed.has(id))) {
+    throw new Error('strategy.instIds et risk.allowedInstIds doivent être identiques.');
+  }
   for (const instId of allowed) {
     if (!/^[A-Z0-9]+-[A-Z0-9]+$/.test(instId)) throw new Error(`Paire whitelist invalide : ${instId}.`);
   }
+
+  const quoteSet = new Set([...allowed].map(quoteCurrency));
+  if (quoteSet.size !== 1 || !quoteSet.has(plan.strategy.quoteCcy)) throw new Error('Toutes les paires doivent partager strategy.quoteCcy.');
+
+  const ids = new Set();
+  const operationIds = new Set();
+  const clOrdIds = new Set();
+  let plannedTotal = 0;
   for (const [idx, entry] of plan.entries.entries()) {
-    if (!entry || typeof entry !== 'object') throw new Error(`Entrée ${idx} invalide.`);
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw new Error(`Entrée ${idx} invalide.`);
     if (!entry.id || typeof entry.id !== 'string') throw new Error(`Entrée ${idx} sans id.`);
+    if (ids.has(entry.id)) throw new Error(`Identifiant d'entrée dupliqué : ${entry.id}.`);
+    ids.add(entry.id);
     if (!KNOWN_ENTRY_STATUSES.has(entry.status)) throw new Error(`Statut inconnu pour ${entry.id} : ${entry.status}.`);
     if (!/^[A-Z0-9]+-[A-Z0-9]+$/.test(entry.instId || '')) throw new Error(`Paire invalide pour ${entry.id}.`);
     if (!allowed.has(entry.instId)) throw new Error(`Paire non autorisée par la whitelist : ${entry.instId}.`);
-    finitePositive(entry.amount, `Montant de ${entry.id}`);
+    const amount = finitePositive(entry.amount, `Montant de ${entry.id}`);
+    if (amount > risk.maxOrderAmount) throw new Error(`Montant de ${entry.id} supérieur à risk.maxOrderAmount.`);
+    plannedTotal += amount;
     validIsoDate(entry.dueAt, `dueAt de ${entry.id}`);
     if (entry.attempts !== undefined && (!Number.isInteger(Number(entry.attempts)) || Number(entry.attempts) < 0)) throw new Error(`attempts invalide pour ${entry.id}.`);
+
+    const expectedOperationId = operationIdForEntry(entry, plan);
+    const expectedClOrdId = deterministicClOrdId({ ...entry, operationId: expectedOperationId });
+    if (entry.operationId !== undefined && entry.operationId !== expectedOperationId) throw new Error(`operationId incohérent pour ${entry.id}.`);
+    if (entry.clOrdId !== undefined && entry.clOrdId !== expectedClOrdId) throw new Error(`clOrdId incohérent pour ${entry.id}.`);
+    if (operationIds.has(expectedOperationId)) throw new Error(`operationId dupliqué : ${expectedOperationId}.`);
+    if (clOrdIds.has(expectedClOrdId)) throw new Error(`clOrdId dupliqué : ${expectedClOrdId}.`);
+    operationIds.add(expectedOperationId);
+    clOrdIds.add(expectedClOrdId);
   }
+  if (plannedTotal > risk.maxPlanQuoteAmount) throw new Error(`Le plan (${plannedTotal}) dépasse risk.maxPlanQuoteAmount (${risk.maxPlanQuoteAmount}).`);
   return risk;
 }
 
@@ -106,46 +148,81 @@ export function classifyError(err) {
   const lower = message.toLowerCase();
   if (lower.includes('instrument id') || lower.includes("doesn't exist") || lower.includes('no market data') || lower.includes('local compliance restrictions') || lower.includes('pair') || lower.includes('format attendu') || lower.includes('whitelist')) return { retryable: false, reason: 'Erreur définitive de paire/marché' };
   if (lower.includes('invalid sign') || lower.includes("api key doesn't exist") || lower.includes('identifiants manquants') || lower.includes('passphrase')) return { retryable: false, reason: 'Erreur définitive de configuration API' };
-  if (lower.includes('solde insuffisant') || lower.includes('timeout') || lower.includes('rate limit') || lower.includes('too many') || lower.includes('temporar') || lower.includes('network') || lower.includes('fetch failed')) return { retryable: true, reason: 'Erreur temporaire ou récupérable' };
+  if (lower.includes('solde insuffisant') || lower.includes('timeout') || lower.includes('rate limit') || lower.includes('too many') || lower.includes('temporar') || lower.includes('network') || lower.includes('fetch failed') || lower.includes('response lost')) return { retryable: true, reason: 'Erreur temporaire ou ambiguë' };
   return { retryable: true, reason: 'Erreur non classée, retry limité' };
 }
 
-export function reservedOrExecutedToday(history, operations, quote, day) {
-  const purchases = history.purchases || [];
-  const fromHistory = purchases
-    .filter((p) => p.quoteCcy === quote && String(p.executedAt || p.terminalAt || '').slice(0, 10) === day)
-    .reduce((sum, p) => sum + Number(p.executedQuoteAmount ?? p.amount ?? 0), 0);
-  const fromOpen = (operations.operations || [])
-    .filter((op) => op.quoteCcy === quote && op.state !== 'terminal' && String(op.createdAt || '').slice(0, 10) === day)
-    .reduce((sum, op) => sum + Number(op.requestedQuoteAmount || 0), 0);
-  return fromHistory + fromOpen;
+function operationExposure(op) {
+  if (!op || op.state === 'prepared') return 0;
+  if (op.state === 'terminal') {
+    const executed = Number(op.executedQuoteAmount);
+    if (Number.isFinite(executed) && executed >= 0) return executed;
+    return op.terminalState === 'filled' ? Number(op.requestedQuoteAmount || 0) : 0;
+  }
+  return Number(op.requestedQuoteAmount || 0);
 }
 
-export function lifetimeExecuted(history, operations, quote) {
-  const h = (history.purchases || []).filter((p) => p.quoteCcy === quote).reduce((s, p) => s + Number(p.executedQuoteAmount ?? p.amount ?? 0), 0);
-  const open = (operations.operations || []).filter((op) => op.quoteCcy === quote && op.state !== 'terminal').reduce((s, op) => s + Number(op.requestedQuoteAmount || 0), 0);
-  return h + open;
+function accountingRows(history, operations, quote, demo, excludeOperationId) {
+  const rows = [];
+  const seen = new Set();
+  const purchases = history?.purchases || [];
+  const historyById = new Map();
+  for (const purchase of purchases) {
+    if (purchase.operationId) historyById.set(purchase.operationId, purchase);
+    if (purchase.clOrdId) historyById.set(purchase.clOrdId, purchase);
+  }
+  for (const op of operations?.operations || []) {
+    if (op.operationId === excludeOperationId || op.quoteCcy !== quote || (op.demo !== undefined && op.demo !== demo)) continue;
+    const amount = operationExposure(op);
+    if (!Number.isFinite(amount) || amount < 0) throw new Error(`Montant comptable invalide pour ${op.operationId}.`);
+    if (amount === 0) continue;
+    const historyMatch = historyById.get(op.operationId) || historyById.get(op.clOrdId);
+    const at = op.state === 'terminal'
+      ? (op.terminalAt || historyMatch?.executedAt || historyMatch?.terminalAt || op.dueAt)
+      : (op.reservedAt || op.lastSubmitAt);
+    rows.push({ amount, at, open: op.state !== 'terminal' });
+    if (op.operationId) seen.add(`op:${op.operationId}`);
+    if (op.clOrdId) seen.add(`cl:${op.clOrdId}`);
+  }
+  for (const purchase of purchases) {
+    if (purchase.quoteCcy !== quote || (purchase.demo !== undefined && purchase.demo !== demo)) continue;
+    if ((purchase.operationId && seen.has(`op:${purchase.operationId}`)) || (purchase.clOrdId && seen.has(`cl:${purchase.clOrdId}`))) continue;
+    const amount = Number(purchase.executedQuoteAmount ?? purchase.amount ?? 0);
+    if (!Number.isFinite(amount) || amount < 0) throw new Error('Montant historique invalide.');
+    rows.push({ amount, at: purchase.executedAt || purchase.terminalAt, open: false });
+  }
+  return rows;
 }
 
-export function validateEntrySafety(entry, plan, history, risk = normalizeRisk(plan), now = new Date(), operations = { operations: [] }) {
+export function reservedOrExecutedToday(history, operations, quote, day, demo = true, excludeOperationId) {
+  return accountingRows(history, operations, quote, demo, excludeOperationId)
+    // Une exposition encore ouverte réserve le plafond de chaque nouveau jour
+    // jusqu'à son état terminal, même si elle a été soumise avant minuit.
+    .filter((row) => row.open || String(row.at || '').slice(0, 10) === day)
+    .reduce((sum, row) => sum + row.amount, 0);
+}
+
+export function lifetimeExecuted(history, operations, quote, demo = true, excludeOperationId) {
+  return accountingRows(history, operations, quote, demo, excludeOperationId).reduce((sum, row) => sum + row.amount, 0);
+}
+
+/** Preserve prior audited exposure when a new plan defines its lifetime cap. */
+export function cumulativeLifetimeCap(history, operations, quote, demo, newPlanQuoteAmount) {
+  const planned = finitePositive(newPlanQuoteAmount, 'Montant total du nouveau plan');
+  return lifetimeExecuted(history, operations, quote, demo) + planned;
+}
+
+export function validateEntrySafety(entry, plan, history, risk = normalizeRisk(plan), now = new Date(), operations = { operations: [] }, currentOperationId) {
   const quote = quoteCurrency(entry.instId);
   const amount = finitePositive(entry.amount, `Montant de ${entry.id}`);
   const allowed = new Set(risk.allowedInstIds || []);
   if (!allowed.has(entry.instId)) throw new Error(`paire non autorisée par la whitelist : ${entry.instId}`);
-  if (risk.maxOrderAmount !== null && amount > risk.maxOrderAmount) throw new Error(`montant par ordre trop élevé : ${amount} > ${risk.maxOrderAmount}`);
+  if (amount > risk.maxOrderAmount) throw new Error(`montant par ordre trop élevé : ${amount} > ${risk.maxOrderAmount}`);
   const day = now.toISOString().slice(0, 10);
-  if (risk.maxDailyQuoteAmount !== null) {
-    const already = reservedOrExecutedToday(history, operations, quote, day);
-    if (already + amount > risk.maxDailyQuoteAmount) throw new Error(`limite journalière dépassée : ${already + amount} ${quote} > ${risk.maxDailyQuoteAmount} ${quote}`);
-  }
-  if (risk.maxPlanQuoteAmount !== null) {
-    const planned = plan.entries.filter((e) => e.instId.endsWith(`-${quote}`)).reduce((sum, e) => sum + Number(e.amount || 0), 0);
-    if (planned > risk.maxPlanQuoteAmount) throw new Error(`limite totale du plan dépassée : ${planned} ${quote} > ${risk.maxPlanQuoteAmount} ${quote}`);
-  }
-  if (risk.maxLifetimeQuoteAmount !== null) {
-    const used = lifetimeExecuted(history, operations, quote);
-    if (used + amount > risk.maxLifetimeQuoteAmount) throw new Error(`limite de durée de vie dépassée : ${used + amount} ${quote} > ${risk.maxLifetimeQuoteAmount} ${quote}`);
-  }
+  const alreadyToday = reservedOrExecutedToday(history, operations, quote, day, plan.demo, currentOperationId);
+  if (alreadyToday + amount > risk.maxDailyQuoteAmount) throw new Error(`limite journalière dépassée : ${alreadyToday + amount} ${quote} > ${risk.maxDailyQuoteAmount} ${quote}`);
+  const used = lifetimeExecuted(history, operations, quote, plan.demo, currentOperationId);
+  if (used + amount > risk.maxLifetimeQuoteAmount) throw new Error(`limite de durée de vie dépassée : ${used + amount} ${quote} > ${risk.maxLifetimeQuoteAmount} ${quote}`);
 }
 
 export function markFailure(entry, err, risk = DEFAULT_RISK, now = new Date()) {

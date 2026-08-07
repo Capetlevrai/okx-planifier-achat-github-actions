@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OKX DCA Démo — BTC & ETH</title>
-<meta name="description" content="Suivi minimal d'un plan d'achat OKX démo : BTC et HYPE en USDC via GitHub Actions.">
+<title>OKX DCA — tableau de bord</title>
+<meta name="description" content="Tableau de bord d’un plan d’achat programmé sur OKX.">
 <style>
 :root{--bg:#f7f7f4;--card:#fff;--text:#111;--muted:#6b6b70;--line:#e5e2dc;--accent:#214cff;--ok:#16803d;--warn:#b45309;--bad:#c0262d}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45} .wrap{max-width:920px;margin:0 auto;padding:24px} header{padding:34px 0 20px} h1{font-size:clamp(28px,5vw,46px);line-height:1;margin:0 0 12px;letter-spacing:-.04em} h2{font-size:18px;margin:0 0 14px}.lead{color:var(--muted);max-width:680px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:18px}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}.value{display:block;font-size:28px;font-weight:750;letter-spacing:-.03em;margin-top:8px}.sub{font-size:13px;color:var(--muted);margin-top:6px}.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 11px;font-size:13px}.pill b{color:var(--accent)}.bar{height:10px;background:#ece9e2;border-radius:999px;overflow:hidden;margin-top:14px}.bar i{display:block;height:100%;background:var(--accent);border-radius:999px}.section{margin-top:18px}.asset{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asset strong{font-size:24px}.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.table{width:100%;border-collapse:collapse;font-size:14px}.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid var(--line)}.right{text-align:right}.status{font-weight:700}.done{color:var(--ok)}.pending{color:var(--muted)}.failed{color:var(--bad)}.next{color:var(--accent)}.notice{border-left:4px solid var(--accent);background:#eef2ff;padding:14px 16px;border-radius:12px;margin-top:18px;color:#1e2a55}.small{font-size:13px;color:var(--muted)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line)}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45} .wrap{max-width:920px;margin:0 auto;padding:24px} header{padding:34px 0 20px} h1{font-size:clamp(28px,5vw,46px);line-height:1;margin:0 0 12px;letter-spacing:-.04em} h2{font-size:18px;margin:0 0 14px}.lead{color:var(--muted);max-width:680px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:18px}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}.value{display:block;font-size:28px;font-weight:750;letter-spacing:-.03em;margin-top:8px}.sub{font-size:13px;color:var(--muted);margin-top:6px}.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 11px;font-size:13px}.pill b{color:var(--accent)}.bar{height:10px;background:#ece9e2;border-radius:999px;overflow:hidden;margin-top:14px}.bar i{display:block;height:100%;background:var(--accent);border-radius:999px}.section{margin-top:18px}.asset{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asset strong{font-size:24px}.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}#done-table,#todo-table{overflow-x:auto;-webkit-overflow-scrolling:touch}.table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid var(--line)}.right{text-align:right}.status{font-weight:700}.done{color:var(--ok)}.pending{color:var(--muted)}.failed{color:var(--bad)}.next{color:var(--accent)}.notice{border-left:4px solid var(--accent);background:#eef2ff;padding:14px 16px;border-radius:12px;margin-top:18px;color:#1e2a55}.small{font-size:13px;color:var(--muted)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line)}@media(max-width:520px){.asset{grid-template-columns:1fr}.asset .right{text-align:left}.card{padding:15px}.table{min-width:520px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <h1>Plan d’achat OKX démo</h1>
-  <p class="lead">Suivi minimal : BTC + ETH, 50 USDC par actif, automatisés par GitHub Actions. Pas de VPS, ordinateur éteint possible.</p>
+  <h1 id="page-title">Plan d’achat OKX</h1>
+  <p class="lead" id="page-lead">Chargement du plan…</p>
   <div class="pillrow" id="mode"></div>
 </header>
 
@@ -38,13 +38,12 @@
 </div>
 
 <div class="card section">
-  <h2>Achats restants</h2>
+  <h2>À venir ou à traiter</h2>
   <div id="todo-table"></div>
 </div>
 
-<div class="notice">
-  <b>Mode actuel : compte démo OKX.</b><br>
-  Ce tableau montre des achats fictifs en environnement OKX simulé. Pour passer en argent réel, il faut modifier le plan explicitement, avec confirmation humaine.
+<div class="notice" id="account-notice">
+  Chargement du mode de compte…
 </div>
 
 <footer class="small">
@@ -67,24 +66,35 @@ const quote=plan.strategy.quoteCcy || 'USDC';
 const entries=plan.entries||[];
 const purchases=[...(history.purchases||[])].sort((a,b)=>new Date(b.executedAt)-new Date(a.executedAt));
 const done=entries.filter(e=>e.status==='done').length;
-const failed=entries.filter(e=>['failed','partial','reconcile_pending','canceled','rejected'].includes(e.status));
+const problemStatuses=new Set(['failed','partial','reconcile_pending','canceled','rejected']);
+const failed=entries.filter(e=>problemStatuses.has(e.status));
 const pending=entries.filter(e=>e.status==='pending').sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
 const planned=entries.reduce((n,e)=>n+Number(e.amount||0),0);
-const invested=purchases.reduce((n,p)=>n+Number(p.executedQuoteAmount??p.amount||0),0);
+const invested=purchases.reduce((n,p)=>n+Number(p.executedQuoteAmount??p.amount??0),0);
 const pct=entries.length?Math.round(done/entries.length*100):0;
 const next=pending[0];
 const nextBatch=next?pending.filter(e=>e.dueAt===next.dueAt):[];
-$('mode').innerHTML=`<span class="pill"><b>${plan.demo===false?'RÉEL':'DÉMO'}</b> ${plan.demo===false?'argent réel':'argent fictif'}</span><span class="pill"><b>${plan.live?'ARMÉ':'SIMULATION'}</b> ${plan.live?'ordres autorisés':'aucun ordre transmis'}</span><span class="pill"><b>${esc(quote)}</b> devise d’achat</span>`;
-$('invested').textContent=money(invested,quote); $('planned').textContent=`sur ${money(planned,quote)} programmés`;
-$('done-count').textContent=String(purchases.length); $('remaining').textContent=`${pending.length} restants · ${failed.length} échecs`;
-$('next-date').textContent=next?fmt(next.dueAt):'—'; $('next-sub').textContent=next?`${rel(next.dueAt)} · ${money(nextBatch.reduce((n,e)=>n+Number(e.amount||0),0),quote)}`:'plan terminé';
-$('progress-label').textContent=`${done} / ${entries.length} achats · ${pct}%`; $('progress-bar').style.width=`${pct}%`;
 const assets=[...new Set(entries.map(e=>e.instId.split('-')[0]))];
-$('assets').innerHTML=assets.map(asset=>{const ps=purchases.filter(p=>(p.baseCcy||p.instId.split('-')[0])===asset);const spent=ps.reduce((n,p)=>n+Number(p.executedQuoteAmount??p.amount||0),0);const qty=ps.reduce((n,p)=>n+Number(p.filledQty||0),0);const left=entries.filter(e=>e.instId.startsWith(asset+'-')&&e.status==='pending').length;return `<div class="card section asset"><div><strong>${esc(asset)}</strong><div class="sub mono">${money(spent,quote)} investi · ${nf(qty,8)} ${esc(asset)} reçu</div></div><div class="right mono"><b>${ps.length}</b> faits<br><span class="sub">${left} restants</span></div></div>`}).join('');
+const demo=plan.demo!==false;
+const modeName=demo?'démo':'réel';
+const cadence=Number(plan.strategy.everyDays)===1?'chaque jour':`tous les ${plan.strategy.everyDays} jours`;
+const explainError=value=>{const text=String(value||'');const market=text.match(/^No market data available for (.+)$/);return market?`Données de marché indisponibles pour ${esc(market[1])}`:esc(text)};
+document.title=`OKX DCA ${demo?'Démo':'Réel'} — ${assets.join(' + ') || 'plan'}`;
+$('page-title').textContent=`Plan d’achat OKX ${modeName}`;
+$('page-lead').textContent=`${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`;
+$('account-notice').innerHTML=demo
+  ? '<b>Mode actuel : compte démo OKX.</b><br>Les montants et achats affichés sont fictifs et proviennent de l’environnement OKX simulé.'
+  : '<b>Attention : compte OKX réel.</b><br>Les montants affichés correspondent à de l’argent réel. Toute activation exige les garde-fous et la confirmation humaine prévus.';
+$('mode').innerHTML=`<span class="pill"><b>${demo?'DÉMO':'RÉEL'}</b> ${demo?'argent fictif':'argent réel'}</span><span class="pill"><b>${plan.live?'PLAN LIVE':'SIMULATION'}</b> ${plan.live?(demo?'soumission démo autorisée':'soumission réelle sous garde-fous'):'aucun ordre transmis'}</span><span class="pill"><b>${esc(quote)}</b> devise d’achat</span>`;
+$('invested').textContent=money(invested,quote); $('planned').textContent=`sur ${money(planned,quote)} programmés`;
+$('done-count').textContent=String(done); $('remaining').textContent=`${pending.length} programmés · ${failed.length} à traiter`;
+$('next-date').textContent=next?fmt(next.dueAt):'—'; $('next-sub').textContent=next?`${rel(next.dueAt)} · ${money(nextBatch.reduce((n,e)=>n+Number(e.amount||0),0),quote)}`:(failed.length?'attention requise':'plan terminé');
+$('progress-label').textContent=`${done} / ${entries.length} achats · ${pct}%`; $('progress-bar').style.width=`${pct}%`;
+$('assets').innerHTML=assets.map(asset=>{const assetEntries=entries.filter(e=>e.instId.startsWith(asset+'-'));const ps=purchases.filter(p=>(p.baseCcy||p.instId.split('-')[0])===asset);const spent=ps.reduce((n,p)=>n+Number(p.executedQuoteAmount??p.amount??0),0);const qty=ps.reduce((n,p)=>n+Number(p.filledQty||0),0);const assetDone=assetEntries.filter(e=>e.status==='done').length;const assetPending=assetEntries.filter(e=>e.status==='pending').length;const assetIssues=assetEntries.filter(e=>problemStatuses.has(e.status)).length;return `<div class="card section asset"><div><strong>${esc(asset)}</strong><div class="sub mono">${money(spent,quote)} investi · ${nf(qty,8)} ${esc(asset)} reçu</div></div><div class="right mono"><b>${assetDone}</b> exécuté${assetDone===1?'':'s'}<br><span class="sub">${assetPending} programmé${assetPending===1?'':'s'} · ${assetIssues} à traiter</span></div></div>`}).join('');
 function table(rows,empty){if(!rows.length)return `<p class="small">${empty}</p>`;return `<table class="table"><thead><tr><th>Date</th><th>Actif</th><th class="right">Montant</th><th>Statut</th></tr></thead><tbody>${rows.map(r=>r).join('')}</tbody></table>`}
-$('done-table').innerHTML=table(purchases.map(p=>{const st=p.status==='filled'?'Exécuté':p.status==='partial'?'Partiel':(p.status||'Audité');return `<tr><td>${fmt(p.executedAt)}<div class="small mono">${new Date(p.executedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></td><td><b>${esc(p.baseCcy||p.instId.split('-')[0])}</b><div class="small mono">${esc(p.instId)}</div></td><td class="right mono">${money(Number(p.executedQuoteAmount??p.amount||0),p.quoteCcy||quote)}</td><td class="status ${p.status==='partial'?'failed':'done'}">${esc(st)}</td></tr>`}),'Aucun achat exécuté pour le moment.');
+$('done-table').innerHTML=table(purchases.map(p=>{const st=p.status==='filled'?'Exécuté':p.status==='partial'?'Partiel':(p.status||'Audité');return `<tr><td>${fmt(p.executedAt)}<div class="small mono">${new Date(p.executedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></td><td><b>${esc(p.baseCcy||p.instId.split('-')[0])}</b><div class="small mono">${esc(p.instId)}</div></td><td class="right mono">${money(Number(p.executedQuoteAmount??p.amount??0),p.quoteCcy||quote)}</td><td class="status ${p.status==='partial'?'failed':'done'}">${esc(st)}</td></tr>`}),'Aucun résultat audité pour le moment.');
 const future=[...pending,...failed].sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt));
-$('todo-table').innerHTML=table(future.map(e=>{const label=e.status==='failed'?'Échec':e.status==='reconcile_pending'?'À réconcilier':e.status==='partial'?'Partiel':e.status==='canceled'?'Annulé':e.status==='rejected'?'Rejeté':nextBatch.includes(e)?'Prochain':'Programmé';return `<tr><td>${fmt(e.dueAt)}<div class="small mono">${rel(e.dueAt)}</div></td><td><b>${esc(e.instId.split('-')[0])}</b><div class="small mono">${esc(e.instId)}</div></td><td class="right mono">${money(e.amount,e.instId.split('-')[1])}</td><td class="status ${['failed','partial','reconcile_pending','canceled','rejected'].includes(e.status)?'failed':nextBatch.includes(e)?'next':'pending'}">${label}</td></tr>`}),'Plan terminé.');
+$('todo-table').innerHTML=table(future.map(e=>{const label=e.status==='failed'?'Échec':e.status==='reconcile_pending'?'À réconcilier':e.status==='partial'?'Partiel':e.status==='canceled'?'Annulé':e.status==='rejected'?'Rejeté':nextBatch.includes(e)?'Prochain':'Programmé';const detail=e.error?`<div class="small">${explainError(e.error)}</div>`:'';return `<tr><td>${fmt(e.dueAt)}<div class="small mono">${rel(e.dueAt)}</div></td><td><b>${esc(e.instId.split('-')[0])}</b><div class="small mono">${esc(e.instId)}</div></td><td class="right mono">${money(e.amount,e.instId.split('-')[1])}</td><td class="status ${problemStatuses.has(e.status)?'failed':nextBatch.includes(e)?'next':'pending'}">${label}${detail}</td></tr>`}),'Plan terminé.');
 </script>
 </body>
 </html>

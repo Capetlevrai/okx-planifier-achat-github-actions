@@ -1,34 +1,81 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { parse } from 'yaml';
 
-const runDue = readFileSync(new URL('../scripts/run-due.mjs', import.meta.url), 'utf8');
+const read = (relative) => readFileSync(new URL(relative, import.meta.url), 'utf8');
+const parseWorkflow = (relative) => parse(read(relative));
+const fullSha = /^[^@]+@[a-f0-9]{40}$/;
+
+const runDue = read('../scripts/run-due.mjs');
 assert.ok(runDue.includes('runPlanner'), 'run-due must use the idempotent orchestration engine');
 assert.ok(runDue.includes('OPERATIONS_FILE'), 'run-due must persist a durable operations registry');
-assert.ok(runDue.includes('ALLOW_REAL_TRADING'), 'real-money lock must remain explicit');
+assert.ok(runDue.includes('realTradingArmed'), 'run-due must pass the real-money gate into the engine');
 
-const engine = readFileSync(new URL('../scripts/engine.mjs', import.meta.url), 'utf8');
-assert.ok(engine.includes('reconcileOperation'), 'engine must expose reconciliation');
-assert.ok(engine.indexOf('for (const op of operations.operations.filter') < engine.indexOf('validateEntrySafety(entry'), 'reconciliation pass must run before new-order safety/preflight');
-assert.ok(engine.includes('submissionAttempts'), 'engine must track submission attempts separately');
-assert.ok(engine.includes('reconciliationAttempts'), 'engine must track reconciliation attempts separately');
-assert.ok(engine.includes('preflightFailures'), 'engine must track preflight failures separately');
+const engine = read('../scripts/engine.mjs');
+const reconciliationPass = engine.indexOf('// Les seules opérations globalement réconciliées');
+const dueLoop = engine.indexOf('for (const entry of plan.entries)', reconciliationPass);
+assert.ok(reconciliationPass !== -1 && dueLoop > reconciliationPass, 'ambiguous reconciliation pass must precede due-entry processing');
+assert.ok(!engine.includes('idempotent_resubmit_attempt'), 'ambiguous operations must never be retransmitted automatically');
+assert.ok(engine.includes('ordre ambigu introuvable') && engine.includes('aucun nouveau POST'), 'ambiguous not-found operations must remain reconciliation-only');
 assert.ok(engine.includes('atomicWriteJson'), 'state writes must be atomic');
 
-const okx = readFileSync(new URL('../scripts/okx.mjs', import.meta.url), 'utf8');
+const okx = read('../scripts/okx.mjs');
 assert.ok(okx.includes('validateAllowedBaseUrl'), 'OKX base URL must be allowlisted');
 assert.ok(okx.includes("item.sCode !== undefined && item.sCode !== '0'"), 'OKX item-level sCode must be validated');
-assert.ok(okx.includes('réponse non JSON'), 'OKX client must reject non-JSON responses');
-assert.ok(okx.includes('ordId/clOrdId manquant'), 'OKX order response must require identifiers');
+assert.ok(okx.includes('Réponse OKX ordre incohérente'), 'OKX order response must preserve the requested clOrdId');
+assert.ok(okx.includes('publicGet'), 'public instrument validation must not need trading credentials');
 
-const setup = readFileSync(new URL('../.github/workflows/setup.yml', import.meta.url), 'utf8');
-assert.ok(setup.includes('concurrency:'), 'setup workflow must share a concurrency group');
-assert.ok(setup.includes('PAIRES:'), 'setup inputs must be passed through env, not interpolated directly in shell commands');
-assert.ok(setup.includes('reset_history est interdit en compte réel'), 'setup workflow must refuse history reset in real mode');
+const dcaText = read('../.github/workflows/dca.yml');
+const setupText = read('../.github/workflows/setup.yml');
+const pagesText = read('../.github/workflows/pages.yml');
+const ciText = read('../.github/workflows/ci.yml');
+const dca = parseWorkflow('../.github/workflows/dca.yml');
+const setup = parseWorkflow('../.github/workflows/setup.yml');
+const pages = parseWorkflow('../.github/workflows/pages.yml');
+const ci = parseWorkflow('../.github/workflows/ci.yml');
 
-const dca = readFileSync(new URL('../.github/workflows/dca.yml', import.meta.url), 'utf8');
-assert.ok(dca.includes('environment: real-trading'), 'financial job must be attached to the protected real-trading environment');
-assert.ok(dca.includes('needs: quality-gate'), 'financial job must depend on a secret-free quality gate');
-assert.ok(dca.includes('ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}'), 'real-trading lock must come from a secret');
-assert.ok(dca.includes('git pull --rebase'), 'state push must rebase before pushing');
+assert.equal(dca.concurrency.group, 'okx-dca-state');
+assert.equal(setup.concurrency.group, 'okx-dca-state');
+assert.deepEqual(dca.jobs['execute-demo'].needs, ['quality-gate', 'inspect']);
+assert.deepEqual(dca.jobs['execute-real'].needs, ['quality-gate', 'inspect']);
+assert.equal(setup.jobs.configurer.needs, 'quality-gate');
+assert.equal(dca.jobs.inspect.if, "github.ref == 'refs/heads/main'");
+assert.equal(dca.jobs['execute-demo'].if, "needs.inspect.outputs.account == 'demo'");
+assert.equal(dca.jobs['execute-real'].if, "needs.inspect.outputs.account == 'real'");
+assert.equal(setup.jobs.configurer.if, "github.ref == 'refs/heads/main'");
+assert.equal(dca.jobs['execute-demo'].environment, undefined, 'demo must not wait for the protected real environment');
+assert.equal(dca.jobs['execute-real'].environment, 'real-trading');
+assert.equal(dca.jobs['execute-real'].env, undefined, 'financial secrets must not be exposed at job scope');
+assert.equal(dca.jobs['quality-gate'].permissions.contents, 'read');
+assert.equal(setup.jobs['quality-gate'].permissions.contents, 'read');
+const demoStep = dca.jobs['execute-demo'].steps.find((step) => step.name === 'Exécuter les achats démo dus');
+const realStep = dca.jobs['execute-real'].steps.find((step) => step.name === 'Exécuter ou réconcilier le plan réel');
+assert.ok(demoStep && realStep, 'demo/real execution steps missing');
+for (const secretName of ['OKX_API_KEY', 'OKX_SECRET_KEY', 'OKX_PASSPHRASE']) {
+  assert.match(demoStep.env[secretName], /secrets\./, `${secretName} must be scoped to the demo execution step`);
+  assert.match(realStep.env[secretName], /secrets\./, `${secretName} must be scoped to the real execution step`);
+}
+assert.equal(demoStep.env.ALLOW_REAL_TRADING, undefined);
+assert.match(realStep.env.ALLOW_REAL_TRADING, /secrets\./);
+assert.ok(!setupText.includes('secrets.OKX_'), 'setup workflow must not expose trading secrets to plan inputs or public checks');
+assert.ok(setupText.includes('reset_history est interdit en compte réel'));
+assert.ok(!setupText.includes('data/operations.json\n'), 'setup must never rewrite the operation registry through a literal reset');
+
+for (const workflow of [dca, setup, pages, ci]) {
+  for (const job of Object.values(workflow.jobs || {})) {
+    for (const step of job.steps || []) {
+      if (step.uses) assert.match(step.uses, fullSha, `action must be pinned to a full SHA: ${step.uses}`);
+      if (typeof step.run === 'string') assert.ok(!step.run.includes('${{ inputs.'), 'workflow inputs must enter shell only through env');
+    }
+  }
+}
+
+assert.ok(dcaText.includes("cron: '0 * * * *'"), 'hourly scheduler must match 60-minute retry cadence');
+assert.ok(dcaText.includes('extract-workflow-shell.mjs'), 'shellcheck must use the YAML parser based extractor');
+assert.ok(ciText.includes('pull_request') && ciText.includes('npm test'), 'push/PR quality gate is required');
+assert.equal(pages.jobs.build.permissions, undefined, 'build inherits contents:read only');
+assert.equal(pages.jobs.deploy.permissions.pages, 'write');
+assert.equal(pages.jobs.deploy.permissions['id-token'], 'write');
+assert.ok(pages.jobs.deploy.environment?.name === 'github-pages');
 
 console.log('workflow/source safety tests OK');
