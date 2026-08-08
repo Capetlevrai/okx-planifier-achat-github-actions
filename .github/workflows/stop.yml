@@ -1,0 +1,49 @@
+name: 0. ⛔ ARRÊT D'URGENCE — Couper tous les achats
+run-name: ⛔ Arrêt demandé par @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Confirmez-vous l'arrêt immédiat des prochains achats ?"
+        required: true
+        default: "NON — Ne rien arrêter"
+        type: choice
+        options:
+          - "NON — Ne rien arrêter"
+          - "OUI — COUPER LES ACHATS"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  stop:
+    name: ⛔ Bloquer les prochains achats et annuler les exécutions actives
+    if: github.event.inputs.confirmation == 'OUI — COUPER LES ACHATS'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Désactiver les achats automatiques
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/dca.yml/disable"
+
+          for run_status in queued in_progress waiting; do
+            while IFS= read -r run_id; do
+              if [ -n "$run_id" ]; then
+                gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/cancel" || true
+              fi
+            done < <(gh api --method GET \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/dca.yml/runs" \
+              -f status="$run_status" -f per_page=100 --jq '.workflow_runs[].id')
+          done
+
+          echo "Achats automatiques désactivés. Vérifiez aussi la clé API OKX pour un arrêt maximal." >> "$GITHUB_STEP_SUMMARY"
+
+  no-change:
+    name: Aucun changement demandé
+    if: github.event.inputs.confirmation != 'OUI — COUPER LES ACHATS'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Confirmation refusée — les réglages restent inchangés."

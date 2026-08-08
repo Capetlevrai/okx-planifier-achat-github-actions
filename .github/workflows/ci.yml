@@ -1,4 +1,4 @@
-name: CI — sûreté et qualité
+name: 5. ✅ SÉCURITÉ — Vérifier le projet (aucun achat)
 
 on:
   push:

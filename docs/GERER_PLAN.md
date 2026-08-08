@@ -8,28 +8,28 @@ dépôt, puis consultez la section **À venir ou à traiter**. La page
 source technique du planning ; chaque entrée indique sa date, son montant, sa
 paire et son statut.
 
-Dans GitHub, ouvrez **Actions → 2. Acheter — routine automatique** pour consulter
+Dans GitHub, ouvrez **Actions → 2. 💳 ACHATS — Exécuter le planning automatiquement** pour consulter
 les contrôles passés et ceux qui sont en cours. GitHub Actions n'affiche pas les
 futures échéances comme des ordres en attente : le workflow horaire lit
 `data/plan.json`, puis agit uniquement lorsqu'une échéance devient due.
 
-## Couper manuellement depuis GitHub
+## Couper simplement depuis GitHub
 
 1. Ouvrez votre dépôt GitHub, puis l'onglet **Actions**.
-2. Dans la colonne de gauche, choisissez **2. Acheter — routine automatique**.
-3. Ouvrez le menu **⋯** du workflow et cliquez sur **Disable workflow**. Les
-   prochains contrôles planifiés ne seront plus lancés.
-4. Regardez s'il existe un run marqué **In progress** ou **Queued**. Si oui,
-   ouvrez-le et choisissez **Cancel workflow**.
-5. Vérifiez que le workflow est indiqué comme désactivé et qu'aucun run n'est
-   encore actif.
+2. Dans la colonne de gauche, choisissez **0. ⛔ ARRÊT D'URGENCE — Couper tous
+   les achats**.
+3. Cliquez sur **Run workflow**.
+4. Dans la confirmation, choisissez **OUI — COUPER LES ACHATS**.
+5. Cliquez sur le bouton vert **Run workflow**.
+6. Attendez le résultat vert : le workflow d'achat est désactivé et les
+   exécutions encore actives ont reçu une demande d'annulation.
 
 La désactivation ou l'annulation d'un workflow ne peut pas annuler un ordre Spot
 déjà rempli par OKX.
 
 ## Arrêt dur indépendant de GitHub
 
-Pour empêcher tout nouvel ordre même en cas d'erreur de configuration GitHub,
+Pour un arrêt maximal, indépendant de GitHub,
 ouvrez la gestion des clés API du compte OKX concerné, puis révoquez la clé du
 bot ou retirez-lui la permission **Trading**. Pour un compte Europe/EEE :
 [ouvrir les clés API OKX Europe](https://my.okx.com/fr-fr/account/my-api).

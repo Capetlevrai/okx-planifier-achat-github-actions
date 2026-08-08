@@ -528,12 +528,12 @@ Donne à l'utilisateur, en clair :
   après un achat réel pour « arrêter » sans avoir d'abord lu son registre.
 - **où voir les achats programmés** : explique que `RAPPORT.md`, la section
   **À venir ou à traiter** du tableau de bord et `data/plan.json` contiennent les
-  futures échéances. L'onglet **Actions → 2. Acheter — routine automatique**
+  futures échéances. L'onglet **Actions → 2. 💳 ACHATS — Exécuter le planning automatiquement**
   montre les exécutions passées ou en cours, pas une file d'ordres futurs.
-- **comment couper manuellement sans agent** : **Actions → 2. Acheter — routine
-  automatique → ⋯ → Disable workflow** ; si un run est déjà actif, l'ouvrir et
-  choisir **Cancel workflow** ; pour un arrêt dur indépendant de GitHub,
-  révoquer la clé API OKX du bot ou retirer sa permission **Trading**. Rappelle
+- **comment couper manuellement sans agent** : **Actions → 0. ⛔ ARRÊT D'URGENCE
+  — Couper tous les achats → Run workflow → OUI — COUPER LES ACHATS → Run
+  workflow** ; pour un arrêt maximal indépendant de GitHub, révoquer ensuite la
+  clé API OKX du bot ou retirer sa permission **Trading**. Rappelle
   qu'un ordre déjà rempli ne peut pas être annulé et qu'une reprise exige un
   nouveau test à blanc.
 

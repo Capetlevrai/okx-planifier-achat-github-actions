@@ -77,7 +77,7 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 3. **[Créez ensuite la clé API OKX](https://my.okx.com/fr-fr/account/my-api)** sur le compte choisi : **Lecture + Trading** uniquement — **jamais Retrait**.
 4. Transférez le budget du compte principal vers le sous-compte depuis [cette page OKX](https://my.okx.com/fr-fr/balance/sub-transfer), avec une petite marge pour les frais. Vérifiez ensuite qu'il est disponible sur **Trading** ; sinon, [déplacez-le de Funding vers Trading](https://my.okx.com/fr-fr/balance/transfer).
 5. Ouvrez **Settings → Environments**, cliquez sur la grande carte **`real-trading`**, puis descendez jusqu'à **Environment secrets**. Cliquez sur **Add environment secret** pour ajouter `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`) et `OKX_PASSPHRASE`, un par un. **Utilisez Environment secrets, jamais Environment variables** : le workflow ne lit pas les variables comme identifiants OKX.
-6. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
+6. Actions → **1. 🗓️ PLANNING — Créer ou modifier mes achats** → choisissez paires, montants, rythme.
 7. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
 
 ### Accès directs OKX Europe/EEE
@@ -150,14 +150,14 @@ Pour une copie publique dont GitHub Pages est activé, c'est
 
 - Les futures échéances sont visibles dans **À venir ou à traiter** sur le
   tableau de bord, ainsi que dans `data/plan.json`.
-- **Actions → 2. Acheter — routine automatique** affiche les exécutions passées
+- **Actions → 2. 💳 ACHATS — Exécuter le planning automatiquement** affiche les exécutions passées
   et en cours. GitHub Actions ne crée pas quinze jours à l'avance un « ordre en
   attente » visible dans Actions : le contrôle planifié lit le plan au moment
   venu.
-- Pour couper manuellement : ouvrez ce workflow, menu **⋯** → **Disable
-  workflow**. Si un run est déjà actif, ouvrez-le puis cliquez **Cancel
-  workflow**.
-- Pour un arrêt dur indépendant de GitHub, révoquez la clé API du bot sur OKX
+- Pour couper simplement : **Actions → 0. ⛔ ARRÊT D'URGENCE — Couper tous les
+  achats → Run workflow → OUI — COUPER LES ACHATS → Run workflow**. Cette action
+  désactive les prochains achats et tente d'annuler les exécutions actives.
+- Pour un arrêt maximal indépendant de GitHub, révoquez ensuite la clé API du bot sur OKX
   ou retirez-lui la permission **Trading**. Cela n'annule pas un ordre déjà
   rempli.
 - Avant de reprendre, faites un nouveau test à blanc et vérifiez le plan.

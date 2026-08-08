@@ -31,6 +31,7 @@ const pagesText = read('../.github/workflows/pages.yml');
 const ciText = read('../.github/workflows/ci.yml');
 const keepaliveText = read('../.github/workflows/keepalive.yml');
 const solTestText = read('../.github/workflows/sol-2min-test.yml');
+const stopText = read('../.github/workflows/stop.yml');
 const agentProtocol = read('../AGENTS.md');
 const claudeProtocol = read('../CLAUDE.md');
 const readme = read('../README.md');
@@ -41,6 +42,7 @@ const pages = parseWorkflow('../.github/workflows/pages.yml');
 const ci = parseWorkflow('../.github/workflows/ci.yml');
 const keepalive = parseWorkflow('../.github/workflows/keepalive.yml');
 const solTest = parseWorkflow('../.github/workflows/sol-2min-test.yml');
+const stop = parseWorkflow('../.github/workflows/stop.yml');
 
 assert.ok(agentProtocol.includes('Les **deux premières questions sont obligatoirement posées en premier'), 'agent flow must start with mode and region');
 assert.ok(agentProtocol.includes('Démo (argent fictif)') && agentProtocol.includes('Argent réel'), 'mode choices must be explicit');
@@ -92,7 +94,7 @@ assert.ok(!setupText.includes('secrets.OKX_'), 'setup workflow must not expose t
 assert.ok(setupText.includes('reset_history est interdit en compte réel'));
 assert.ok(!setupText.includes('data/operations.json\n'), 'setup must never rewrite the operation registry through a literal reset');
 
-for (const workflow of [dca, setup, pages, ci, keepalive, solTest]) {
+for (const workflow of [dca, setup, pages, ci, keepalive, solTest, stop]) {
   for (const job of Object.values(workflow.jobs || {})) {
     for (const step of job.steps || []) {
       if (step.uses) assert.match(step.uses, fullSha, `action must be pinned to a full SHA: ${step.uses}`);
@@ -109,6 +111,13 @@ assert.ok(!keepaliveText.includes('workflow_dispatch'), 'keepalive must not be m
 assert.ok(keepaliveText.includes('node scripts/keepalive.mjs'), 'keepalive workflow must call the dedicated keepalive script');
 assert.ok(!keepaliveText.includes('ALLOW_REAL_TRADING'), 'keepalive must never require or expose the real-trading arming secret');
 assert.ok(!keepaliveText.includes('real-trading'), 'keepalive must stay non-ordering and not wait for trading approvals');
+
+assert.equal(stop.permissions.actions, 'write', 'emergency stop needs permission to disable and cancel Actions');
+assert.equal(stop.permissions.contents, 'read', 'emergency stop must not modify repository contents');
+assert.ok(stopText.includes("OUI — COUPER LES ACHATS"), 'emergency stop must require an explicit French confirmation');
+assert.ok(stopText.includes('actions/workflows/dca.yml/disable'), 'emergency stop must disable the purchasing workflow');
+assert.ok(stopText.includes('actions/runs/${run_id}/cancel'), 'emergency stop must cancel active purchasing runs');
+assert.ok(!stopText.includes('OKX_API_') && !stopText.includes('ALLOW_REAL_TRADING'), 'emergency stop must not load financial secrets');
 
 const keepaliveScript = read('../scripts/keepalive.mjs');
 assert.ok(keepaliveScript.includes('/api/v5/account/balance'), 'keepalive must use an authenticated account endpoint');

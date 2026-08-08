@@ -174,7 +174,7 @@ gh secret set OKX_PASSPHRASE --repo VOTRE_PSEUDO/VOTRE_DEPOT --env real-trading
 
 Ce dépôt fournit un workflow de test temporaire :
 
-**Actions → « Test réel SOL — 1 USDC puis +2min »**
+**Actions → « 6. ⚠️ EXPERT — Test réel SOL (1 + 1 USDC) »**
 
 ### Comportement attendu
 
@@ -296,7 +296,7 @@ Vous pouvez vous en inspirer pour tout premier passage en réel, même hors SOL.
 Pour éviter qu'un ancien workflow réécrive le planning pendant l'activation,
 respectez cet ordre strict :
 
-1. Attendez que tous les runs **« 2. Acheter — routine automatique »** soient
+1. Attendez que tous les runs **« 2. 💳 ACHATS — Exécuter le planning automatiquement »** soient
    terminés ; ne modifiez pas le plan pendant un run.
 2. Pour « maintenant », l'agent prépare une échéance déjà due. Les valeurs UTC
    sont un détail interne : il doit vous parler de **premier achat maintenant**,

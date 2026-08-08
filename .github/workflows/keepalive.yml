@@ -1,4 +1,4 @@
-name: 3. Keepalive — clé API OKX
+name: 3. 🔐 CLÉ OKX — Maintenir la connexion (aucun achat)
 
 on:
   schedule:

@@ -96,16 +96,18 @@ Dans l’onglet **Actions** de votre dépôt privé :
 
 | Workflow | Attendu |
 |---|---|
-| **CI — sûreté et qualité** | Vert après chaque push pertinent |
-| **2. Acheter — routine automatique** | Dispatch manuel avec `dry_run=1` → job `execute-demo` ou `execute-real` en **SIMULATION** |
-| **3. Keepalive — clé API OKX** | Tourne chaque jour (06:00 UTC), aucun ordre |
-| **1. Configurer mon plan** | Formulaire pour régénérer le plan |
-| **3. Publier l’interface** | Peut être **ignoré / sauté** en privé Free (voir ci-dessous) |
+| **0. ⛔ ARRÊT D'URGENCE — Couper tous les achats** | Bouton simple pour désactiver les achats et demander l'annulation des runs actifs |
+| **1. 🗓️ PLANNING — Créer ou modifier mes achats** | Formulaire pour régénérer le plan |
+| **2. 💳 ACHATS — Exécuter le planning automatiquement** | Dispatch manuel avec `dry_run=1` → job `execute-demo` ou `execute-real` en **SIMULATION** |
+| **3. 🔐 CLÉ OKX — Maintenir la connexion (aucun achat)** | Tourne chaque jour (06:00 UTC), aucun ordre |
+| **4. 📊 TABLEAU DE BORD — Mettre à jour l’affichage** | Peut être **ignoré / sauté** en privé Free (voir ci-dessous) |
+| **5. ✅ SÉCURITÉ — Vérifier le projet (aucun achat)** | Vert après chaque push pertinent |
+| **6. ⚠️ EXPERT — Test réel SOL (1 + 1 USDC)** | Test spécialisé, à ignorer dans un usage normal |
 
 Test manuel sans acheter :
 
 ```bash
-gh workflow run "2. Acheter — routine automatique" \
+gh workflow run "2. 💳 ACHATS — Exécuter le planning automatiquement" \
   --repo VOTRE_PSEUDO/VOTRE_DEPOT \
   -f dry_run=1
 ```
@@ -131,7 +133,7 @@ Sur un dépôt **privé Free**, l’historique et le planning se consultent ains
 | `data/plan.json` | Planning machine |
 | `data/history.json` | Achats enregistrés par le bot |
 
-Ces fichiers sont mis à jour par le workflow **2. Acheter** après chaque run
+Ces fichiers sont mis à jour par le workflow **2. 💳 ACHATS** après chaque run
 (commit bot `[skip ci]`).
 
 Après un achat rempli, l'agent doit donner ce lien directement à l'utilisateur :
@@ -170,7 +172,7 @@ Sur le dépôt privé de démo `okx-planifier-prive-06-08` :
 1. Dépôt créé en **Private**, code poussé depuis le projet public.  
 2. Secrets repo + environnement `real-trading` configurés.  
 3. **CI** : success.  
-4. **2. Acheter** (`dry_run=1`) : success, job `execute-real`, mode simulation,
+4. **2. 💳 ACHATS** (`dry_run=1`) : success, job `execute-real`, mode simulation,
    secrets masqués `***`.  
 5. **Pages** : échec attendu sans offre Pages privée — sans impact sur le DCA.  
 6. Keepalive : même workflow quotidien que le public.

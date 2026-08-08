@@ -1,4 +1,4 @@
-name: 1. Configurer mon plan
+name: 1. 🗓️ PLANNING — Créer ou modifier mes achats
 
 on:
   workflow_dispatch:

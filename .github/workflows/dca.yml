@@ -1,4 +1,4 @@
-name: 2. Acheter — routine automatique
+name: 2. 💳 ACHATS — Exécuter le planning automatiquement
 
 on:
   schedule:
