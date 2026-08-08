@@ -15,7 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Sur dépôt privé Free, GitHub Pages n'est souvent pas disponible.
+  # Le DCA et le keepalive n'en dépendent pas : utilisez RAPPORT.md.
+  # Pour forcer un déploiement Pages privé (compte Pro/Team) :
+  # Settings → Variables → Actions → ENABLE_PRIVATE_PAGES = true
   build:
+    if: ${{ !github.event.repository.private || vars.ENABLE_PRIVATE_PAGES == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -35,6 +40,7 @@ jobs:
 
   deploy:
     needs: build
+    if: ${{ !github.event.repository.private || vars.ENABLE_PRIVATE_PAGES == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,3 +52,14 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
+
+  private-dashboard-hint:
+    if: ${{ github.event.repository.private && vars.ENABLE_PRIVATE_PAGES != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tableau de bord sans Pages (dépôt privé)
+        run: |
+          echo "Dépôt privé : GitHub Pages n'est pas déployé (normal sur Free)."
+          echo "Consultez RAPPORT.md et tableau-de-bord.html dans le dépôt."
+          echo "Les workflows DCA / keepalive / CI fonctionnent sans Pages."
+          echo "docs/REPO_PRIVE.md explique le parcours complet."

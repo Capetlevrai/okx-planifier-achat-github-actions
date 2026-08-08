@@ -103,7 +103,12 @@ Prompts prêts à copier : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 ### 1. Créez votre copie
 
 Cliquez sur **[Use this template](../../generate)** en haut de cette page →
-*Create a new repository*. Nommez-le comme vous voulez, laissez-le **privé**.
+*Create a new repository*. Nommez-le comme vous voulez, et **cochez Private**
+si vous voulez tout garder hors du public (recommandé pour l’argent réel).
+
+GitHub Actions (achats, keepalive, secrets) fonctionne **pareil en privé**.
+Seul GitHub Pages gratuit peut manquer : dans ce cas lisez `RAPPORT.md` dans
+le dépôt. Guide dédié : **[docs/REPO_PRIVE.md](docs/REPO_PRIVE.md)**.
 
 ### 2. Créez vos clés OKX
 

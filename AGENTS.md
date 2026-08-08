@@ -333,6 +333,19 @@ les secrets réels et des approbateurs. N'annonce jamais la sûreté réelle sur
 seuls tests : exige une validation démo prolongée puis un premier montant réel
 minimal explicitement confirmé.
 
+## Dépôt privé (recommandé pour les utilisateurs finaux)
+
+Si l'utilisateur veut copier le projet **sans tout exposer** :
+
+1. Crée un dépôt **private** (template GitHub ou `gh repo create --private`).
+2. Pousse le code ; configure les **mêmes secrets** + env `real-trading`.
+3. Vérifie Actions : CI vert, puis `workflow_dispatch` du DCA avec `dry_run=1`.
+4. Explique que **Pages** peut échouer en Free privé — ce n'est pas bloquant ;
+   le tableau de bord = `RAPPORT.md` / `tableau-de-bord.html`.
+5. Guide détaillé : [`docs/REPO_PRIVE.md`](docs/REPO_PRIVE.md).
+
+Ne dis jamais que le DCA « nécessite un dépôt public ».
+
 ## Premier achat réel — guider l'utilisateur (obligatoire)
 
 Avant tout micro-test ou DCA réel, **fais lire ou résume** le guide utilisateur :
