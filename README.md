@@ -27,8 +27,15 @@ Installe ce projet pour moi et guide moi : https://github.com/Capetlevrai/okx-pl
 ```
 
 L’agent lit [AGENTS.md](AGENTS.md), vous pose les questions une par une  
-(crypto, montant, rythme, démo ou réel), configure le dépôt et les secrets,  
+(crypto, montant, rythme, démo ou réel), crée **obligatoirement un dépôt privé**  
+à partir de ce template, configure les secrets,  
 et **demande confirmation avant tout achat réel**.
+
+Parcours agent (dépôt **toujours privé**) :
+
+```bash
+gh repo create <nom-du-dépôt> --private --template Capetlevrai/okx-planifier-achat-github-actions
+```
 
 ### Si l’agent demande un token GitHub
 
@@ -52,16 +59,16 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 
 ---
 
-## À la main (navigateur uniquement)
+## Si vous souhaitez procéder à la main sans IA
 
-1. **[Use this template](../../generate)** → créez votre dépôt (de préférence **Private** pour l’argent réel).
+1. **[Use this template](../../generate)** → créez votre dépôt et choisissez **Private** dans le menu (recommandé pour l’argent réel).
 2. **[Créez une clé API OKX](https://my.okx.com/fr-fr/account/my-api)** : **Lecture + Trading** uniquement — **jamais Retrait**.
 3. Assurez-vous d’avoir des devises disponibles sur votre compte **Trading** (ex. USDC) : les fonds sont souvent sur le compte **Funding** par défaut — [transférez-les vers Trading](https://my.okx.com/fr-fr/balance/transfer) si besoin. Pour plus de sécurité, utilisez un **[sous-compte](https://my.okx.com/fr-fr/account/sub-account)** dédié.
 4. Collez les secrets dans GitHub : `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`), `OKX_PASSPHRASE`.
 5. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 6. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
 
-Dépôt privé (même fonctionnement) : [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md).
+Détails dépôt privé : [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md).
 
 ---
 

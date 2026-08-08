@@ -16,8 +16,8 @@ Rythme : tous les 15 jours.
 Durée : 3 mois.
 
 Fais tout pour moi :
-1. Vérifie que GitHub Actions fonctionne aussi en dépôt privé.
-2. Crée ou configure un dépôt à partir du template.
+1. Crée mon dépôt en **privé** à partir du template (`gh repo create … --private --template …`).
+2. Ne le passe pas en public sans ma demande explicite.
 3. Guide-moi pour créer un fine-grained token GitHub si tu dois pousser du code ou ajouter des secrets.
 4. Mets mes clés OKX uniquement dans GitHub Actions Secrets, jamais dans le code.
 5. Génère le plan en simulation d’abord.

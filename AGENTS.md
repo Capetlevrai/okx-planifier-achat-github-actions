@@ -111,9 +111,15 @@ okx setup --client claude-code
 
 ## Étape 4 — Créer le dépôt de l'utilisateur
 
+**Toujours en privé.** N’utilise jamais `--public` pour le parcours agent, sauf
+demande **explicite** de l’utilisateur (ex. GitHub Pages gratuit). Par défaut :
+
 ```bash
 gh repo create <nom-du-dépôt> --private --template Capetlevrai/okx-planifier-achat-github-actions
 ```
+
+Si tu proposes un nom de dépôt, crée-le **privé** sans reposer la question
+« public ou privé » : le privé est le choix forcé du protocole.
 
 ```bash
 git clone https://github.com/<pseudo>/<nom-du-dépôt>.git
@@ -166,27 +172,24 @@ git add data/ && git commit -m "Mon plan d'achats" && git push
 
 ---
 
-## Étape 7 — Publier l'interface
+## Étape 7 — Interface (sans passer en public par défaut)
 
-GitHub Pages exige un dépôt **public**, sauf abonnement payant. Demande à
-l'utilisateur s'il accepte de rendre son dépôt public — ses achats seront alors
-visibles de tous (ses clés, elles, restent dans les secrets, jamais exposées).
+Le dépôt reste **privé**. L’interface se consulte dans le dépôt :
 
-S'il accepte :
+- `RAPPORT.md`
+- `tableau-de-bord.html`
+
+Ne passe **pas** le dépôt en public pour Pages, sauf si l’utilisateur le
+demande **explicitement** et comprend que planning / historique versionnés
+seront visibles. Dans ce cas seulement :
 
 ```bash
 gh repo edit <pseudo>/<nom-du-dépôt> --visibility public --accept-visibility-change-consequences
-```
-
-```bash
 gh api -X POST repos/<pseudo>/<nom-du-dépôt>/pages -f build_type=workflow
-```
-
-```bash
 gh workflow run pages.yml --repo <pseudo>/<nom-du-dépôt>
 ```
 
-L'interface sera sur `https://<pseudo>.github.io/<nom-du-dépôt>/`.
+Sinon, désactive Pages si besoin et pointe vers `RAPPORT.md`.
 
 S'il refuse, désactive le workflow pour éviter des runs rouges à répétition, et
 dis-lui qu'il peut consulter l'interface en local avec ``npm run site -- -l tcp://0.0.0.0:4173` :
@@ -337,14 +340,15 @@ minimal explicitement confirmé.
 
 Si l'utilisateur veut copier le projet **sans tout exposer** :
 
-1. Crée un dépôt **private** (template GitHub ou `gh repo create --private`).
-2. Pousse le code ; configure les **mêmes secrets** + env `real-trading`.
+1. Crée **toujours** un dépôt **private** :
+   `gh repo create <nom> --private --template Capetlevrai/okx-planifier-achat-github-actions`
+2. Configure les **mêmes secrets** + env `real-trading`.
 3. Vérifie Actions : CI vert, puis `workflow_dispatch` du DCA avec `dry_run=1`.
-4. Explique que **Pages** peut échouer en Free privé — ce n'est pas bloquant ;
-   le tableau de bord = `RAPPORT.md` / `tableau-de-bord.html`.
+4. Tableau de bord = `RAPPORT.md` / `tableau-de-bord.html` (pas de passage en public pour Pages).
 5. Guide détaillé : [`docs/REPO_PRIVE.md`](docs/REPO_PRIVE.md).
 
-Ne dis jamais que le DCA « nécessite un dépôt public ».
+Ne dis jamais que le DCA « nécessite un dépôt public ».  
+Ne propose pas le public par défaut.
 
 ## Premier achat réel — guider l'utilisateur (obligatoire)
 
