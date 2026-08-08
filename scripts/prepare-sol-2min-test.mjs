@@ -2,6 +2,7 @@ import { HISTORY_FILE, OPERATIONS_FILE, PLAN_FILE, SITES, readJson } from './okx
 import { atomicWriteJson } from './engine.mjs';
 
 const TEST_TAG = 'sol-real-2min-test';
+// Live SOL test plan is built only inside the Actions runner (never committed with real fills).
 const now = new Date();
 const second = new Date(now.getTime() + 120_000);
 
