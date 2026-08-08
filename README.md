@@ -79,12 +79,14 @@ Avant d’engager de l’argent :
 
 Points critiques :
 
-- fonds sur **Trading**, pas seulement **Funding** ;
+- Les fonds doivent être dispo sur votre compte de **Trading**, pas dans **Financement** (voir image) : https://my.okx.com/fr-fr/balance/transfer
 - clé API en mode **réel** (pas démo) ;
 - secret d’armement exact : `ALLOW_REAL_TRADING` = `I_CONFIRM_REAL_SPOT_BUYS` ;
 - petit montant d’abord.
 
 Sécurité détaillée : [docs/SECURITE.md](docs/SECURITE.md).
+
+![Transfert Financement vers Trading](docs/images/transfert-financement-trading.png)
 
 ---
 
