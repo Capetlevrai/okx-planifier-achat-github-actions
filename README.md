@@ -21,7 +21,7 @@ Ce n’est **pas** un conseil financier.
 
 ## Le plus simple : une phrase à coller dans une IA
 
-Ouvrez **ChatGPT**, **Grok**, **Claude**, **Cursor**, **Gemini**, etc., et envoyez :
+Ouvrez **ChatGPT**, **Grok**, **Claude**, **Cursor**, etc., et envoyez :
 
 ```text
 Installe ce projet pour moi et guide moi : https://github.com/Capetlevrai/okx-planifier-achat-github-actions
