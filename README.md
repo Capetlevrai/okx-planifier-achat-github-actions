@@ -56,7 +56,7 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 
 1. **[Use this template](../../generate)** → créez votre dépôt (de préférence **Private** pour l’argent réel).
 2. **[Créez une clé API OKX](https://my.okx.com/fr-fr/account/my-api)** : **Lecture + Trading** uniquement — **jamais Retrait**.
-3. Mettez la devise d’achat (ex. USDC) sur le compte **Trading** (pas seulement Funding).
+3. **[Mettez la devise d’achat (ex. USDC) sur le compte Trading](https://my.okx.com/fr-fr/balance/transfer)** (pas seulement Funding).
 4. Collez les secrets dans GitHub : `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`), `OKX_PASSPHRASE`.
 5. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 6. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
