@@ -24,7 +24,9 @@ assert.ok(dashboard.includes('capetlevrai.com') && dashboard.includes('coinacade
 assert.ok(dashboard.includes('OKX Agent Trade Kit') && dashboard.includes('Documentation GitHub Actions'), 'footer must include getting-started links');
 assert.ok(dashboard.includes('Ceci n’est pas un conseil financier') || dashboard.includes("Ceci n'est pas un conseil financier"), 'footer legal disclaimer required');
 assert.ok(dashboard.includes('Réalisé par'), 'footer must credit Capetlevrai');
+assert.ok(dashboard.includes('Voir et arrêter les achats programmés') && dashboard.includes('Disable workflow') && dashboard.includes('Cancel workflow'), 'web dashboard must explain visibility and manual shutdown');
 assert.ok(report.includes('my.okx.com/fr-fr/balance/report-center/unified/account-history'), 'Markdown LIVE real report must deep-link to OKX account history');
+assert.ok(report.includes('Voir et arrêter les achats programmés') && report.includes('Disable workflow') && report.includes('Cancel workflow'), 'Markdown dashboard must explain visibility and manual shutdown');
 assert.ok(report.includes('x.com/capetlevrai') && report.includes('Réalisé par'), 'Markdown footer must include Capetlevrai credit and socials');
 assert.ok(report.includes('${done} sur ${plan.entries.length}'), 'Markdown completed count must exclude failed terminal audit rows');
 assert.ok(report.includes('p.demo !== undefined ? p.demo === planDemo : planDemo'), 'Markdown report must filter history by active demo/real account');

@@ -129,6 +129,23 @@ if (upcoming.length || failed.length) {
   out.push('_Plan terminé._');
 }
 out.push('');
+out.push('## Voir et arrêter les achats programmés');
+out.push('');
+out.push('### Où voir les prochaines échéances');
+out.push('');
+out.push('- Le tableau **À venir ou à traiter** ci-dessus est la liste des achats encore programmés.');
+out.push('- Dans GitHub, ouvrez **Actions → 2. Acheter — routine automatique** pour voir les exécutions passées et en cours. GitHub Actions n’affiche pas les futures échéances avant leur lancement : elles restent enregistrées dans `data/plan.json` et présentées ici.');
+out.push('');
+out.push('### Couper manuellement');
+out.push('');
+out.push('1. Dans le dépôt GitHub, ouvrez **Actions → 2. Acheter — routine automatique**.');
+out.push('2. Ouvrez le menu **⋯** du workflow, puis choisissez **Disable workflow** pour bloquer les prochains contrôles automatiques.');
+out.push('3. Si une exécution est déjà en cours, ouvrez-la et choisissez **Cancel workflow**. Cela ne peut pas annuler un ordre déjà rempli.');
+out.push('4. Pour un arrêt dur indépendant de GitHub, révoquez la clé API du bot sur OKX ou retirez-lui la permission **Trading**.');
+out.push('5. Avant toute reprise, refaites un test à blanc et vérifiez le planning avec votre agent.');
+out.push('');
+out.push('> Pour un arrêt assisté, demandez simplement à votre agent : **« arrête les achats »**.');
+out.push('');
 out.push('---');
 out.push('');
 out.push('### Liens');

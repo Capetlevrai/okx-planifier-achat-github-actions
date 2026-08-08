@@ -62,6 +62,25 @@ footer{margin-top:48px;border-top:1px solid var(--line);background:var(--card)}
   <div id="todo-table"></div>
 </div>
 
+<div class="card section">
+  <h2>Voir et arrêter les achats programmés</h2>
+  <h3>Où voir les prochaines échéances</h3>
+  <ul class="small">
+    <li>Le tableau <strong>À venir ou à traiter</strong> ci-dessus est la liste des achats encore programmés.</li>
+    <li>Dans le dépôt GitHub, ouvrez <strong>Actions → 2. Acheter — routine automatique</strong> pour voir les exécutions passées et en cours.</li>
+    <li>GitHub Actions n’affiche pas les futures échéances avant leur lancement : elles sont enregistrées dans <code>data/plan.json</code> et présentées sur ce tableau de bord.</li>
+  </ul>
+  <h3>Couper manuellement</h3>
+  <ol class="small">
+    <li>Ouvrez <strong>Actions → 2. Acheter — routine automatique</strong>.</li>
+    <li>Dans le menu <strong>⋯</strong> du workflow, choisissez <strong>Disable workflow</strong>.</li>
+    <li>Si une exécution est déjà en cours, ouvrez-la et choisissez <strong>Cancel workflow</strong>. Un ordre déjà rempli ne peut pas être annulé.</li>
+    <li>Pour un arrêt dur indépendant de GitHub, révoquez la clé API du bot sur OKX ou retirez-lui la permission <strong>Trading</strong>.</li>
+    <li>Avant toute reprise, faites un nouveau test à blanc et vérifiez le planning avec votre agent.</li>
+  </ol>
+  <div class="notice">Pour un arrêt assisté, demandez simplement à votre agent : <strong>« arrête les achats »</strong>.</div>
+</div>
+
 <div class="notice" id="account-notice">
   Chargement du mode de compte…
 </div>

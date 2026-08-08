@@ -146,6 +146,24 @@ est le rapport GitHub `https://github.com/<pseudo>/<dépôt>/blob/main/RAPPORT.m
 Pour une copie publique dont GitHub Pages est activé, c'est
 `https://<pseudo>.github.io/<dépôt>/` comme dans l'exemple ci-dessus.
 
+### Voir les achats programmés et couper le système
+
+- Les futures échéances sont visibles dans **À venir ou à traiter** sur le
+  tableau de bord, ainsi que dans `data/plan.json`.
+- **Actions → 2. Acheter — routine automatique** affiche les exécutions passées
+  et en cours. GitHub Actions ne crée pas quinze jours à l'avance un « ordre en
+  attente » visible dans Actions : le contrôle planifié lit le plan au moment
+  venu.
+- Pour couper manuellement : ouvrez ce workflow, menu **⋯** → **Disable
+  workflow**. Si un run est déjà actif, ouvrez-le puis cliquez **Cancel
+  workflow**.
+- Pour un arrêt dur indépendant de GitHub, révoquez la clé API du bot sur OKX
+  ou retirez-lui la permission **Trading**. Cela n'annule pas un ordre déjà
+  rempli.
+- Avant de reprendre, faites un nouveau test à blanc et vérifiez le plan.
+
+Guide détaillé : [voir et arrêter les achats programmés](docs/GERER_PLAN.md).
+
 ---
 
 ## Sécurité (essentiel)
@@ -167,6 +185,7 @@ Pour une copie publique dont GitHub Pages est activé, c'est
 | [AGENTS.md](AGENTS.md) | Protocole complet pour les agents IA |
 | [docs/PARCOURS_GUIDE.md](docs/PARCOURS_GUIDE.md) | Parcours expliqué, étape par étape, avec liens directs |
 | [docs/GUIDE_ACHAT_REEL.md](docs/GUIDE_ACHAT_REEL.md) | Checklist premier achat réel |
+| [docs/GERER_PLAN.md](docs/GERER_PLAN.md) | Voir les échéances et arrêter manuellement |
 | [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md) | Utilisation en dépôt privé |
 | [docs/SECURITE.md](docs/SECURITE.md) | Règles de sécurité |
 | [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md) | Prompts prêts à copier |
