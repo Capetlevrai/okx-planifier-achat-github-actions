@@ -372,8 +372,8 @@ export async function runPlanner({
       validateEntrySafety(entry, plan, history, risk, now, operations, op.operationId);
       const price = await client.lastPrice(entry.instId);
       const balance = await client.availableBalance(quoteCurrency(entry.instId));
-      log(`Prix ${entry.instId}: ${price}; solde ${quoteCurrency(entry.instId)}: ${balance}`);
-      if (balance < Number(entry.amount)) throw new Error(`solde insuffisant : ${balance} ${quoteCurrency(entry.instId)} disponible, ${entry.amount} requis`);
+      log(`Prix ${entry.instId}: ${price}; vérification du solde ${quoteCurrency(entry.instId)} effectuée`);
+      if (balance < Number(entry.amount)) throw new Error(`solde insuffisant : moins de ${entry.amount} ${quoteCurrency(entry.instId)} disponible`);
       if (dryRun) {
         log(`DRY RUN — ${entry.id}: aucun ordre transmis`);
         continue;

@@ -30,11 +30,13 @@ const setupText = read('../.github/workflows/setup.yml');
 const pagesText = read('../.github/workflows/pages.yml');
 const ciText = read('../.github/workflows/ci.yml');
 const keepaliveText = read('../.github/workflows/keepalive.yml');
+const solTestText = read('../.github/workflows/sol-2min-test.yml');
 const dca = parseWorkflow('../.github/workflows/dca.yml');
 const setup = parseWorkflow('../.github/workflows/setup.yml');
 const pages = parseWorkflow('../.github/workflows/pages.yml');
 const ci = parseWorkflow('../.github/workflows/ci.yml');
 const keepalive = parseWorkflow('../.github/workflows/keepalive.yml');
+const solTest = parseWorkflow('../.github/workflows/sol-2min-test.yml');
 
 assert.equal(dca.concurrency.group, 'okx-dca-state');
 assert.equal(setup.concurrency.group, 'okx-dca-state');
@@ -63,7 +65,7 @@ assert.ok(!setupText.includes('secrets.OKX_'), 'setup workflow must not expose t
 assert.ok(setupText.includes('reset_history est interdit en compte réel'));
 assert.ok(!setupText.includes('data/operations.json\n'), 'setup must never rewrite the operation registry through a literal reset');
 
-for (const workflow of [dca, setup, pages, ci, keepalive]) {
+for (const workflow of [dca, setup, pages, ci, keepalive, solTest]) {
   for (const job of Object.values(workflow.jobs || {})) {
     for (const step of job.steps || []) {
       if (step.uses) assert.match(step.uses, fullSha, `action must be pinned to a full SHA: ${step.uses}`);
@@ -85,6 +87,31 @@ const keepaliveScript = read('../scripts/keepalive.mjs');
 assert.ok(keepaliveScript.includes('/api/v5/account/balance'), 'keepalive must use an authenticated account endpoint');
 assert.ok(!keepaliveScript.includes('/api/v5/trade/order'), 'keepalive must never place an order');
 assert.ok(!keepaliveScript.includes('marketBuy'), 'keepalive must never call marketBuy');
+
+assert.equal(solTest.permissions.contents, 'read', 'temporary SOL workflow must not have write permission to publish private order state');
+assert.equal(solTest.concurrency.group, 'okx-dca-state');
+assert.equal(solTest.jobs['sol-real-test'].environment, 'real-trading');
+assert.ok(solTest.jobs['sol-real-test'].if.includes('[sol-real-test]'), 'temporary SOL workflow must require an explicit commit-message fuse');
+assert.ok(solTest.jobs['sol-real-test'].if.includes('github.run_attempt == 1'), 'temporary SOL workflow must skip GitHub reruns');
+assert.ok(!solTestText.includes('workflow_dispatch'), 'temporary SOL workflow must not be manually dispatchable from arbitrary branches');
+assert.ok(!solTestText.includes('git push'), 'temporary SOL workflow must not publish private order state');
+assert.ok(!solTestText.includes('git commit'), 'temporary SOL workflow must not commit private order state');
+assert.ok(!solTestText.includes('node scripts/report.mjs'), 'temporary SOL workflow must not publish detailed order reports for a public repo');
+assert.ok(solTestText.includes('npm ci --ignore-scripts'), 'real-money workflow must not run dependency install scripts');
+assert.ok(solTestText.includes('sleep 130'), 'temporary SOL workflow must wait for the second two-minute due entry');
+assert.ok(solTestText.includes("DRY_RUN: '0'"), 'temporary SOL workflow must explicitly execute the armed live plan, not an implicit default');
+assert.ok(solTestText.includes('node scripts/prepare-sol-2min-test.mjs'), 'temporary SOL workflow must prepare due times at runtime');
+assert.ok(solTestText.includes('node scripts/check-entry-filled.mjs sol-real-2min-test-1-SOL-USDC'));
+assert.ok(solTestText.includes('node scripts/check-entry-filled.mjs sol-real-2min-test-2-SOL-USDC'));
+assert.ok(solTestText.includes('node scripts/run-due.mjs || true'), 'temporary SOL workflow must retry/reconcile transient OKX states');
+const engineText = read('../scripts/engine.mjs');
+assert.ok(!engineText.includes('solde ${quoteCurrency(entry.instId)}: ${balance}'), 'real-money logs must not expose exact balances in public Actions logs');
+const solPrepare = read('../scripts/prepare-sol-2min-test.mjs');
+assert.ok(solPrepare.includes("instIds: ['SOL-USDC']"));
+assert.ok(solPrepare.includes('maxPlanQuoteAmount: 2'));
+assert.ok(solPrepare.includes('maxLifetimeQuoteAmount: 2'));
+assert.ok(solPrepare.includes('priorRealPurchase') && solPrepare.includes('priorRealSubmitted'), 'temporary SOL script must refuse accidental reruns after real activity');
+assert.ok(solPrepare.includes('currentPlanIsThisTest') && solPrepare.includes('priorThisTestOperation'), 'temporary SOL script must refuse reruns when the same test plan or operations are already present');
 assert.ok(dcaText.includes('extract-workflow-shell.mjs'), 'shellcheck must use the YAML parser based extractor');
 assert.ok(ciText.includes('pull_request') && ciText.includes('npm test'), 'push/PR quality gate is required');
 assert.equal(pages.jobs.build.permissions, undefined, 'build inherits contents:read only');

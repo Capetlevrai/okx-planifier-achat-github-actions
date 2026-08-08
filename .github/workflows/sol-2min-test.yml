@@ -1,0 +1,81 @@
+name: Test réel SOL — 1 USDC puis +2min
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sol-2min-test.yml'
+      - 'scripts/prepare-sol-2min-test.mjs'
+      - 'scripts/check-entry-filled.mjs'
+      - 'scripts/engine.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: okx-dca-state
+  cancel-in-progress: false
+
+jobs:
+  sol-real-test:
+    if: contains(github.event.head_commit.message, '[sol-real-test]') && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    environment: real-trading
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Garde qualité avant argent réel
+        run: |
+          npm test
+          for file in scripts/*.mjs tests/*.mjs; do node --check "$file"; done
+          git diff --check
+      - name: Préparer le plan live SOL 1+1 USDC dans le runner uniquement
+        run: |
+          node scripts/prepare-sol-2min-test.mjs
+          echo "Plan live temporaire préparé dans GitHub Actions uniquement — aucun état d'ordre ne sera commité publiquement." >> "$GITHUB_STEP_SUMMARY"
+      - name: Achat SOL 1/2 — 1 USDC réel puis réconciliation
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}
+          DRY_RUN: '0'
+        run: |
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            echo "Tentative/réconciliation achat 1/2: $attempt"
+            node scripts/run-due.mjs || true
+            if node scripts/check-entry-filled.mjs sol-real-2min-test-1-SOL-USDC; then
+              echo "Achat SOL 1/2 confirmé rempli." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 15
+          done
+          node scripts/check-entry-filled.mjs sol-real-2min-test-1-SOL-USDC
+      - name: Attendre la deuxième échéance
+        run: sleep 130
+      - name: Achat SOL 2/2 — 1 USDC réel puis réconciliation
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}
+          DRY_RUN: '0'
+        run: |
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            echo "Tentative/réconciliation achat 2/2: $attempt"
+            node scripts/run-due.mjs || true
+            if node scripts/check-entry-filled.mjs sol-real-2min-test-2-SOL-USDC; then
+              echo "Achat SOL 2/2 confirmé rempli." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 15
+          done
+          node scripts/check-entry-filled.mjs sol-real-2min-test-2-SOL-USDC
