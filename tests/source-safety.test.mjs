@@ -98,6 +98,7 @@ for (const secretName of ['OKX_API_KEY', 'OKX_SECRET_KEY', 'OKX_PASSPHRASE']) {
 }
 assert.equal(demoStep.env.ALLOW_REAL_TRADING, undefined);
 assert.match(realStep.env.ALLOW_REAL_TRADING, /secrets\./);
+assert.ok(dcaText.includes('steps.execute_demo.outputs.configured') && dcaText.includes('steps.execute_real.outputs.configured'), 'repositories without OKX secrets must not rewrite dashboards on every schedule');
 assert.ok(!setupText.includes('secrets.OKX_'), 'setup workflow must not expose trading secrets to plan inputs or public checks');
 assert.ok(setupText.includes('reset_history est interdit en compte réel'));
 assert.ok(!setupText.includes('data/operations.json\n'), 'setup must never rewrite the operation registry through a literal reset');

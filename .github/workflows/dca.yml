@@ -75,7 +75,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Exécuter les achats démo dus
+      - id: execute_demo
+        name: Exécuter les achats démo dus
         env:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
@@ -84,7 +85,12 @@ jobs:
           DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
           DRY_RUN_VAR: ${{ vars.DRY_RUN }}
         run: |
-          if [ -z "$OKX_API_KEY" ]; then echo "Secrets OKX démo absents — rien à exécuter."; exit 0; fi
+          if [ -z "$OKX_API_KEY" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Secrets OKX démo absents — rien à exécuter."
+            exit 0
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
           if [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
           elif [ -n "$DRY_RUN_VAR" ]; then export DRY_RUN="$DRY_RUN_VAR"
           fi
@@ -92,10 +98,10 @@ jobs:
           if [ "${DRY_RUN:-}" = "1" ]; then node scripts/keepalive.mjs; fi
           node scripts/run-due.mjs
       - name: Mettre à jour le tableau de bord
-        if: always()
+        if: always() && steps.execute_demo.outputs.configured == 'true'
         run: node scripts/report.mjs
       - name: Enregistrer les résultats démo
-        if: always()
+        if: always() && steps.execute_demo.outputs.configured == 'true'
         run: |
           if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then exit 0; fi
           git config user.name "github-actions[bot]"
@@ -119,7 +125,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Exécuter ou réconcilier le plan réel
+      - id: execute_real
+        name: Exécuter ou réconcilier le plan réel
         env:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
@@ -129,7 +136,12 @@ jobs:
           DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
           DRY_RUN_VAR: ${{ vars.DRY_RUN }}
         run: |
-          if [ -z "$OKX_API_KEY" ]; then echo "Secrets OKX réels absents — rien à exécuter."; exit 0; fi
+          if [ -z "$OKX_API_KEY" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Secrets OKX réels absents — rien à exécuter."
+            exit 0
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
           if [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
           elif [ -n "$DRY_RUN_VAR" ]; then export DRY_RUN="$DRY_RUN_VAR"
           fi
@@ -137,10 +149,10 @@ jobs:
           if [ "${DRY_RUN:-}" = "1" ]; then node scripts/keepalive.mjs; fi
           node scripts/run-due.mjs
       - name: Mettre à jour le tableau de bord
-        if: always()
+        if: always() && steps.execute_real.outputs.configured == 'true'
         run: node scripts/report.mjs
       - name: Enregistrer les résultats réels
-        if: always()
+        if: always() && steps.execute_real.outputs.configured == 'true'
         run: |
           if [ -z "$(git status --porcelain data/ RAPPORT.md tableau-de-bord.html)" ]; then exit 0; fi
           git config user.name "github-actions[bot]"
