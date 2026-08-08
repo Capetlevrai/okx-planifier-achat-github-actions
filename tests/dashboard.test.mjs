@@ -15,6 +15,10 @@ assert.ok(dashboard.includes("failed.length?'attention requise':'plan terminé'"
 assert.ok(dashboard.includes('e.error?'), 'failure reason must be visible in the dashboard');
 assert.ok(dashboard.includes('overflow-x:auto'), 'tables must remain usable in a narrow mobile viewport');
 assert.ok(dashboard.includes('Mode actuel : compte démo OKX') && dashboard.includes('Attention : compte OKX réel'));
+assert.ok(dashboard.includes('https://my.okx.com/fr-fr/balance/report-center/unified/account-history'), 'LIVE real dashboard must deep-link to OKX account history');
+assert.ok(dashboard.includes('id="okx-history-link"'), 'OKX history link slot must exist under completed purchases');
+assert.ok(dashboard.includes('!demo&&plan.live'), 'OKX history link is shown only for real LIVE plans');
+assert.ok(report.includes('my.okx.com/fr-fr/balance/report-center/unified/account-history'), 'Markdown LIVE real report must deep-link to OKX account history');
 assert.ok(report.includes('${done} sur ${plan.entries.length}'), 'Markdown completed count must exclude failed terminal audit rows');
 assert.ok(report.includes('p.demo !== undefined ? p.demo === planDemo : planDemo'), 'Markdown report must filter history by active demo/real account');
 assert.ok(dashboard.includes('p.demo!==undefined?p.demo===demo:demo'), 'Web dashboard must filter history by active demo/real account');

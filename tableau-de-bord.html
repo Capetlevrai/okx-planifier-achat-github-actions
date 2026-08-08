@@ -34,6 +34,7 @@
 
 <div class="card section">
   <h2>Achats effectués</h2>
+  <p class="small" id="okx-history-link" hidden></p>
   <div id="done-table"></div>
 </div>
 
@@ -83,10 +84,17 @@ const explainError=value=>{const text=String(value||'');const market=text.match(
 document.title=`OKX DCA ${demo?'Démo':'Réel'} — ${assets.join(' + ') || 'plan'}`;
 $('page-title').textContent=`Plan d’achat OKX ${modeName}`;
 $('page-lead').textContent=`${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`;
+const OKX_ACCOUNT_HISTORY_URL='https://my.okx.com/fr-fr/balance/report-center/unified/account-history';
+const okxHistoryAnchor=`<a href="${OKX_ACCOUNT_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Historique d’achats sur OKX</a>`;
 $('account-notice').innerHTML=demo
   ? '<b>Mode actuel : compte démo OKX.</b><br>Les montants et achats affichés sont fictifs et proviennent de l’environnement OKX simulé.'
-  : '<b>Attention : compte OKX réel.</b><br>Les montants affichés correspondent à de l’argent réel. Toute activation exige les garde-fous et la confirmation humaine prévus.';
+  : `<b>Attention : compte OKX réel.</b><br>Les montants affichés correspondent à de l’argent réel. Toute activation exige les garde-fous et la confirmation humaine prévus.${plan.live?`<br><br>Mode <b>LIVE</b> : ${okxHistoryAnchor} (app / site OKX, connexion requise).`:''}`;
 $('mode').innerHTML=`<span class="pill"><b>${demo?'DÉMO':'RÉEL'}</b> ${demo?'argent fictif':'argent réel'}</span><span class="pill"><b>${plan.live?'PLAN LIVE':'SIMULATION'}</b> ${plan.live?(demo?'soumission démo autorisée':'soumission réelle sous garde-fous'):'aucun ordre transmis'}</span><span class="pill"><b>${esc(quote)}</b> devise d’achat</span>`;
+if(!demo&&plan.live){
+  const link=$('okx-history-link');
+  link.hidden=false;
+  link.innerHTML=`🔗 ${okxHistoryAnchor} — ouvrir l’historique unifié du compte directement dans l’application OKX.`;
+}
 $('invested').textContent=money(invested,quote); $('planned').textContent=`sur ${money(planned,quote)} programmés`;
 $('done-count').textContent=String(done); $('remaining').textContent=`${pending.length} programmés · ${failed.length} à traiter`;
 $('next-date').textContent=next?fmt(next.dueAt):'—'; $('next-sub').textContent=next?`${rel(next.dueAt)} · ${money(nextBatch.reduce((n,e)=>n+Number(e.amount||0),0),quote)}`:(failed.length?'attention requise':'plan terminé');

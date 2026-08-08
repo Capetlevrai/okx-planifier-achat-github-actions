@@ -1,6 +1,8 @@
 # Tableau de bord
 
 > **Compte RÉEL — argent réel** · **achats armés**, les ordres partent
+>
+> 🔗 [Historique d’achats sur OKX (app / site)](https://my.okx.com/fr-fr/balance/report-center/unified/account-history) — connexion requise
 
 | | |
 |---|---|
@@ -24,4 +26,4 @@ _Aucun achat pour le moment._
 
 ---
 
-<sub>Généré le 08/08/2026 07:44:31 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>
+<sub>Généré le 08/08/2026 07:56:11 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>
