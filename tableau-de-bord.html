@@ -7,7 +7,26 @@
 <meta name="description" content="Tableau de bord d’un plan d’achat programmé sur OKX.">
 <style>
 :root{--bg:#f7f7f4;--card:#fff;--text:#111;--muted:#6b6b70;--line:#e5e2dc;--accent:#214cff;--ok:#16803d;--warn:#b45309;--bad:#c0262d}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45} .wrap{max-width:920px;margin:0 auto;padding:24px} header{padding:34px 0 20px} h1{font-size:clamp(28px,5vw,46px);line-height:1;margin:0 0 12px;letter-spacing:-.04em} h2{font-size:18px;margin:0 0 14px}.lead{color:var(--muted);max-width:680px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:18px}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}.value{display:block;font-size:28px;font-weight:750;letter-spacing:-.03em;margin-top:8px}.sub{font-size:13px;color:var(--muted);margin-top:6px}.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 11px;font-size:13px}.pill b{color:var(--accent)}.bar{height:10px;background:#ece9e2;border-radius:999px;overflow:hidden;margin-top:14px}.bar i{display:block;height:100%;background:var(--accent);border-radius:999px}.section{margin-top:18px}.asset{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asset strong{font-size:24px}.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}#done-table,#todo-table{overflow-x:auto;-webkit-overflow-scrolling:touch}.table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid var(--line)}.right{text-align:right}.status{font-weight:700}.done{color:var(--ok)}.pending{color:var(--muted)}.failed{color:var(--bad)}.next{color:var(--accent)}.notice{border-left:4px solid var(--accent);background:#eef2ff;padding:14px 16px;border-radius:12px;margin-top:18px;color:#1e2a55}.small{font-size:13px;color:var(--muted)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line)}@media(max-width:520px){.asset{grid-template-columns:1fr}.asset .right{text-align:left}.card{padding:15px}.table{min-width:520px}}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45} .wrap{max-width:920px;margin:0 auto;padding:24px} header{padding:34px 0 20px} h1{font-size:clamp(28px,5vw,46px);line-height:1;margin:0 0 12px;letter-spacing:-.04em} h2{font-size:18px;margin:0 0 14px}.lead{color:var(--muted);max-width:680px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:18px}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}.value{display:block;font-size:28px;font-weight:750;letter-spacing:-.03em;margin-top:8px}.sub{font-size:13px;color:var(--muted);margin-top:6px}.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 11px;font-size:13px}.pill b{color:var(--accent)}.bar{height:10px;background:#ece9e2;border-radius:999px;overflow:hidden;margin-top:14px}.bar i{display:block;height:100%;background:var(--accent);border-radius:999px}.section{margin-top:18px}.asset{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.asset strong{font-size:24px}.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}#done-table,#todo-table{overflow-x:auto;-webkit-overflow-scrolling:touch}.table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}.table th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.1em;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid var(--line)}.right{text-align:right}.status{font-weight:700}.done{color:var(--ok)}.pending{color:var(--muted)}.failed{color:var(--bad)}.next{color:var(--accent)}.notice{border-left:4px solid var(--accent);background:#eef2ff;padding:14px 16px;border-radius:12px;margin-top:18px;color:#1e2a55}.small{font-size:13px;color:var(--muted)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+footer{margin-top:48px;border-top:1px solid var(--line);background:var(--card)}
+.fgrid{display:grid;gap:32px;grid-template-columns:repeat(4,1fr);padding:40px 0 28px}
+@media(max-width:860px){.fgrid{grid-template-columns:repeat(2,1fr);gap:28px}}
+@media(max-width:460px){.fgrid{grid-template-columns:1fr}}
+.fgrid h3{margin:0 0 14px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.fgrid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.fgrid a{font-size:14px;color:var(--muted)}
+.fgrid a:hover{color:var(--text)}
+.about-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.about-brand .mark{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;letter-spacing:-.02em}
+.about-brand strong{font-size:14px}
+.about p{font-size:13px;color:var(--muted);margin:0;max-width:34ch;line-height:1.5}
+.socials{display:flex;gap:8px;margin-top:16px}
+.socials a{display:flex;height:32px;width:32px;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--line);color:var(--muted);transition:.15s}
+.socials a:hover{border-color:var(--accent);color:var(--text)}
+.socials svg{height:16px;width:16px}
+.legal{border-top:1px solid var(--line);padding:18px 0 28px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:12px;color:var(--muted)}
+.legal .hl{color:var(--accent);font-weight:600}
+@media(max-width:520px){.asset{grid-template-columns:1fr}.asset .right{text-align:left}.card{padding:15px}.table{min-width:520px}}
 </style>
 </head>
 <body>
@@ -46,11 +65,59 @@
 <div class="notice" id="account-notice">
   Chargement du mode de compte…
 </div>
-
-<footer class="small">
-  Projet : <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">okx-planifier-achat-github-actions</a> · Ceci n’est pas un conseil financier.
-</footer>
 </div>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="about">
+        <div class="about-brand">
+          <span class="mark">OK</span>
+          <strong>OKX DCA Planner</strong>
+        </div>
+        <p>Investissement programmé sur OKX — n’importe quelle paire au comptant — piloté par GitHub Actions. Open source, sans serveur, sans abonnement.</p>
+        <div class="socials">
+          <a href="https://x.com/capetlevrai" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="https://discord.gg/VmBa7f9ZAt" target="_blank" rel="noopener noreferrer" aria-label="Discord"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.369a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.6 12.6 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.1 13.1 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.009c.12.099.246.198.373.292a.077.077 0 01-.006.127 12.3 12.3 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.057c.5-5.177-.838-9.673-3.549-13.66a.061.061 0 00-.031-.028zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></a>
+          <a href="https://www.twitch.tv/capetlevrai" target="_blank" rel="noopener noreferrer" aria-label="Twitch"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></a>
+          <a href="https://www.youtube.com/@CAPETCRYPTO" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+
+      <div>
+        <h3>Pour démarrer</h3>
+        <ul>
+          <li><a href="https://coinacademy.fr/academie/okx-agent-trade-kit-trader-sur-okx-avec-une-ia/" target="_blank" rel="noopener noreferrer">Tutoriel — Trader sur OKX avec une IA</a></li>
+          <li><a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions" id="repo-link" target="_blank" rel="noopener noreferrer">Code source du projet</a></li>
+          <li><a href="https://github.com/okx/agent-trade-kit" target="_blank" rel="noopener noreferrer">OKX Agent Trade Kit</a></li>
+          <li><a href="https://docs.github.com/actions" target="_blank" rel="noopener noreferrer">Documentation GitHub Actions</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>OKX</h3>
+        <ul>
+          <li><a href="https://my.okx.com" target="_blank" rel="noopener noreferrer">OKX Europe</a></li>
+          <li><a href="https://my.okx.com/fr-fr/balance/report-center/unified/account-history" target="_blank" rel="noopener noreferrer">Historique de trading (Centre d’ordre)</a></li>
+          <li><a href="https://okxeuropeexplorer.netlify.app/" target="_blank" rel="noopener noreferrer">OKX Europe Explorer</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Partenaires</h3>
+        <ul>
+          <li><a href="https://capetlevrai.com" target="_blank" rel="noopener noreferrer">capetlevrai.com</a></li>
+          <li><a href="https://coinacademy.fr/" target="_blank" rel="noopener noreferrer">coinacademy.fr</a></li>
+          <li><a href="https://vibecrypto.org" target="_blank" rel="noopener noreferrer">vibecrypto.org</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© <span id="year">2026</span> OKX DCA Planner — Réalisé par <a class="hl" href="https://x.com/capetlevrai" target="_blank" rel="noopener noreferrer">Capetlevrai</a></span>
+      <span>Données fournies à titre informatif uniquement. Ceci n’est pas un conseil financier.</span>
+    </div>
+  </div>
+</footer>
 
 <script>window.__DCA__ = {"plan":{"createdAt":"2026-08-08T07:44:17.541Z","live":true,"demo":false,"site":"eea","baseUrl":"https://my.okx.com","strategy":{"label":"2 USDC par actif tous les 15 jours","instIds":["SOL-USDC"],"quoteCcy":"USDC","amountPerAsset":2,"everyDays":15,"cycles":2,"hourUtc":9},"risk":{"allowedInstIds":["SOL-USDC"],"maxOrderAmount":2,"maxDailyQuoteAmount":2,"maxPlanQuoteAmount":4,"maxLifetimeQuoteAmount":4,"maxAttempts":3,"retryDelayMinutes":60,"orderPollAttempts":10,"orderPollDelayMs":1500},"entries":[{"id":"dca-1-SOL-USDC","dueAt":"2026-08-23T09:00:00.000Z","instId":"SOL-USDC","amount":2,"status":"pending"},{"id":"dca-2-SOL-USDC","dueAt":"2026-09-07T09:00:00.000Z","instId":"SOL-USDC","amount":2,"status":"pending"}]},"history":{"purchases":[{"id":"dca-1-BTC-USDC","executedAt":"2026-08-07T21:41:40.756Z","instId":"BTC-USDC","baseCcy":"BTC","quoteCcy":"USDC","amount":50,"filledQty":0.00077525,"avgPrice":64495.11099645276,"fee":-7.7525e-7,"feeCcy":"BTC","ordId":"3813008182231564288","demo":true,"source":"schedule","operationId":"op_db1d5a96829e9e237482cb25","clOrdId":"dca61e35721d04513ea553f7ca3","status":"filled","requestedQuoteAmount":50,"executedQuoteAmount":50},{"id":"dca-1-ETH-USDC","executedAt":"2026-08-07T21:49:08.796Z","instId":"ETH-USDC","baseCcy":"ETH","quoteCcy":"USDC","amount":50,"filledQty":0.026045,"avgPrice":1919.700940679593,"fee":-0.000026045,"feeCcy":"ETH","ordId":"3813023216194158592","demo":true,"source":"schedule","operationId":"op_a732812feb870985df104fc7","clOrdId":"dcab8d9978b2bb1b172ba18a724","status":"filled","requestedQuoteAmount":50,"executedQuoteAmount":50}],"updatedAt":"2026-08-08T07:41:41.405Z"},"instruments":{"instruments":[],"byQuote":{}}};</script>
 <script type="module">
@@ -86,6 +153,8 @@ $('page-title').textContent=`Plan d’achat OKX ${modeName}`;
 $('page-lead').textContent=`${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`;
 const OKX_ACCOUNT_HISTORY_URL='https://my.okx.com/fr-fr/balance/report-center/unified/account-history';
 const okxHistoryAnchor=`<a href="${OKX_ACCOUNT_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Historique d’achats sur OKX</a>`;
+const yearEl=document.getElementById('year');
+if(yearEl) yearEl.textContent=String(new Date().getUTCFullYear());
 $('account-notice').innerHTML=demo
   ? '<b>Mode actuel : compte démo OKX.</b><br>Les montants et achats affichés sont fictifs et proviennent de l’environnement OKX simulé.'
   : `<b>Attention : compte OKX réel.</b><br>Les montants affichés correspondent à de l’argent réel. Toute activation exige les garde-fous et la confirmation humaine prévus.${plan.live?`<br><br>Mode <b>LIVE</b> : ${okxHistoryAnchor} (app / site OKX, connexion requise).`:''}`;
