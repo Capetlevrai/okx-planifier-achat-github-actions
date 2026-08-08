@@ -29,10 +29,12 @@ const dcaText = read('../.github/workflows/dca.yml');
 const setupText = read('../.github/workflows/setup.yml');
 const pagesText = read('../.github/workflows/pages.yml');
 const ciText = read('../.github/workflows/ci.yml');
+const keepaliveText = read('../.github/workflows/keepalive.yml');
 const dca = parseWorkflow('../.github/workflows/dca.yml');
 const setup = parseWorkflow('../.github/workflows/setup.yml');
 const pages = parseWorkflow('../.github/workflows/pages.yml');
 const ci = parseWorkflow('../.github/workflows/ci.yml');
+const keepalive = parseWorkflow('../.github/workflows/keepalive.yml');
 
 assert.equal(dca.concurrency.group, 'okx-dca-state');
 assert.equal(setup.concurrency.group, 'okx-dca-state');
@@ -61,7 +63,7 @@ assert.ok(!setupText.includes('secrets.OKX_'), 'setup workflow must not expose t
 assert.ok(setupText.includes('reset_history est interdit en compte réel'));
 assert.ok(!setupText.includes('data/operations.json\n'), 'setup must never rewrite the operation registry through a literal reset');
 
-for (const workflow of [dca, setup, pages, ci]) {
+for (const workflow of [dca, setup, pages, ci, keepalive]) {
   for (const job of Object.values(workflow.jobs || {})) {
     for (const step of job.steps || []) {
       if (step.uses) assert.match(step.uses, fullSha, `action must be pinned to a full SHA: ${step.uses}`);
@@ -71,6 +73,17 @@ for (const workflow of [dca, setup, pages, ci]) {
 }
 
 assert.ok(dcaText.includes("cron: '0 * * * *'"), 'hourly scheduler must match 60-minute retry cadence');
+assert.equal(keepalive.permissions.contents, 'read');
+assert.equal(keepalive.concurrency.group, 'okx-dca-keepalive');
+assert.ok(keepaliveText.includes("cron: '0 6 */2 * *'"), 'keepalive must run every 48h-ish, safely below the OKX 14-day inactivity window');
+assert.ok(keepaliveText.includes('node scripts/keepalive.mjs'), 'keepalive workflow must call the dedicated keepalive script');
+assert.ok(!keepaliveText.includes('ALLOW_REAL_TRADING'), 'keepalive must never require or expose the real-trading arming secret');
+assert.ok(!keepaliveText.includes('real-trading'), 'keepalive must stay non-ordering and not wait for trading approvals');
+
+const keepaliveScript = read('../scripts/keepalive.mjs');
+assert.ok(keepaliveScript.includes('/api/v5/account/balance'), 'keepalive must use an authenticated account endpoint');
+assert.ok(!keepaliveScript.includes('/api/v5/trade/order'), 'keepalive must never place an order');
+assert.ok(!keepaliveScript.includes('marketBuy'), 'keepalive must never call marketBuy');
 assert.ok(dcaText.includes('extract-workflow-shell.mjs'), 'shellcheck must use the YAML parser based extractor');
 assert.ok(ciText.includes('pull_request') && ciText.includes('npm test'), 'push/PR quality gate is required');
 assert.equal(pages.jobs.build.permissions, undefined, 'build inherits contents:read only');

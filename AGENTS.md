@@ -210,6 +210,8 @@ Avant de proposer l’argent réel à l’utilisateur, vérifie que :
 - le workflow réel utilise l'environnement GitHub `real-trading`, avec le secret
   d'armement et, si possible, des approbateurs obligatoires ;
 - les tests d'orchestration à API factice passent ;
+- le workflow `3. Keepalive — clé API OKX` existe, tourne toutes les 48h et
+  appelle uniquement un endpoint authentifié de solde, jamais l'endpoint d'ordre ;
 - une validation démo prolongée a été réalisée avant tout montant réel minimal.
 
 Ne confonds pas ce projet avec des paiements bancaires : il ne fait que des achats spot OKX.
