@@ -310,12 +310,45 @@ Puis pose la question, en clair :
 
 **Attends une réponse affirmative claire.** Ensuite seulement :
 
+### Parcours réel immédiat — une seule exécution, sans course
+
+Pour un premier achat « maintenant », suis impérativement cette séquence dans
+l'ordre. Ne lance pas de workflow et ne régénère pas le plan en parallèle : un
+job qui termine pourrait réécrire un ancien état par-dessus le nouveau plan.
+
+1. Attends que tous les runs `dca.yml` déjà déclenchés soient **terminés**, puis
+   fais `git pull --rebase`. S'il y a un run actif, attends sa fin avant toute
+   reconfiguration.
+2. Utilise **l'heure UTC actuelle**, pas une heure choisie arbitrairement : une
+   échéance datée de l'heure UTC en cours est immédiatement due. Pour un nombre
+   exact d'achats, emploie `--count <cycles>` plutôt que `--months`.
+3. Génère une seule fois le plan armé, commit et pousse-le. Vérifie que le
+   `git push` a réussi avant de continuer.
+4. Crée alors seulement le secret d'environnement `ALLOW_REAL_TRADING` avec la
+   valeur exacte `I_CONFIRM_REAL_SPOT_BUYS`, puis lance **un seul** dispatch
+   `dry_run=0` et attends son résultat. Ne clique jamais sur « Re-run ».
+5. Vérifie que le log indique `filled` et que l'historique Spot OKX confirme le
+   fill avant de conclure. En cas d'échec ou d'ambiguïté, n'exécute rien de
+   nouveau : réconcilie d'abord l'ordre par son `clOrdId`.
+
+Exemple : pour deux achats de 10 USDC de BTC, le premier immédiatement et le
+second 15 jours après, renseigne `--count 2 --every 15`, avec `--start` égal à
+la date UTC du jour et `--hour` égal à l'heure UTC courante.
+
 ```bash
-node scripts/plan.mjs --instId <paires> --amount <montant> --every <jours> --months <mois> --account reel --site <site> --live --force
+node scripts/plan.mjs --instId <paires> --amount <montant> --every <jours> --count <cycles> --start <AAAA-MM-JJ-UTC> --hour <HEURE-UTC-ACTUELLE> --account reel --site <site> --live --force
 ```
 
 ```bash
 git add data/ && git commit -m "Armer le plan" && git push
+```
+
+Puis, uniquement après un `git push` réussi :
+
+```bash
+gh secret set ALLOW_REAL_TRADING --repo <pseudo>/<nom-du-dépôt> --env real-trading --body "I_CONFIRM_REAL_SPOT_BUYS"
+gh workflow run dca.yml --repo <pseudo>/<nom-du-dépôt> -f dry_run=0
+gh run watch --repo <pseudo>/<nom-du-dépôt>
 ```
 
 ---
@@ -327,8 +360,10 @@ Donne à l'utilisateur, en clair :
 - l'URL de son dépôt et celle de son interface ;
 - ce qui va être acheté, quand, combien de fois, pour quel total ;
 - s'il est en démo ou en réel ;
-- **comment tout arrêter** : relancer `plan.mjs` sans `--live` et pousser, ou
-  `gh workflow disable dca.yml`.
+- **comment tout arrêter immédiatement** : supprimez d'abord le secret
+  `ALLOW_REAL_TRADING` de l'environnement `real-trading` (cela bloque tout
+  nouveau POST), puis désactivez au besoin `dca.yml`. Ne régénérez pas un plan
+  après un achat réel pour « arrêter » sans avoir d'abord lu son registre.
 
 ---
 

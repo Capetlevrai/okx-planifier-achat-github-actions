@@ -73,6 +73,8 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 6. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 7. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
 
+Pour un premier achat réel « maintenant », suivez le [parcours en une fois](docs/GUIDE_ACHAT_REEL.md#premier-achat-immédiat--le-parcours-en-une-fois) : il évite de lancer un ancien workflow avant que le planning armé soit bien poussé.
+
 Détails dépôt privé : [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md).
 
 ---

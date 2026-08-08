@@ -271,6 +271,35 @@ Vous pouvez vous en inspirer pour tout premier passage en réel, même hors SOL.
 
 ## Passage au DCA réel « normal » (après le micro-test)
 
+### Premier achat immédiat : le parcours en une fois
+
+Pour éviter qu'un ancien workflow réécrive le planning pendant l'armement,
+respectez cet ordre strict :
+
+1. Attendez que tous les runs **« 2. Acheter — routine automatique »** soient
+   terminés ; ne modifiez pas le plan pendant un run.
+2. Pour « maintenant », générez le plan avec la **date UTC du jour** et
+   **l'heure UTC en cours**. L'échéance est alors déjà due au moment du run.
+   Utilisez `--count` pour un nombre exact d'achats.
+3. Poussez le plan armé et vérifiez que le `git push` a réussi.
+4. Ajoutez seulement alors le secret d'environnement
+   `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS` et déclenchez **une seule
+   fois** le workflow avec `dry_run=0`.
+5. Attendez le résultat ; ne cliquez pas sur **Re-run**. Vérifiez ensuite le
+   statut `filled` dans le journal et dans l'historique Spot OKX.
+
+Exemple de forme de commande (remplacez la date et l'heure par les valeurs UTC
+actuelles) :
+
+```bash
+node scripts/plan.mjs --instId BTC-USDC --amount 10 --every 15 --count 2 \
+  --start AAAA-MM-JJ --hour HH --account reel --site eea --live --check --force
+```
+
+Si un run est vert mais qu'aucun achat n'est affiché, ne relancez pas : lisez
+d'abord le registre et l'historique OKX. Un ordre peut être préparé, soumis ou
+en réconciliation, et le rejouer pourrait créer un doublon.
+
 Une fois le micro-test 1–2 USDC réussi :
 
 1. Gardez le secret `ALLOW_REAL_TRADING` **uniquement** si vous voulez vraiment
@@ -286,10 +315,14 @@ Une fois le micro-test 1–2 USDC réussi :
 5. Ne laissez pas traîner une clé qui a fuité ; le workflow keepalive maintient
    l’activité API sans passer d’ordres.
 
-Pour retirer l’armement réel sans supprimer les clés :
+Pour arrêter immédiatement les prochains achats sans supprimer les clés :
 
-- supprimez ou videz le secret `ALLOW_REAL_TRADING`, **ou**
-- repassez le plan en `live: false` / `demo: true`.
+- supprimez le secret `ALLOW_REAL_TRADING` de l’environnement `real-trading` ;
+  cela bloque tout nouveau POST avant l'ordre ;
+- désactivez au besoin le workflow `dca.yml`.
+
+Ne régénérez pas un plan après un achat réel uniquement pour l'arrêter :
+contrôlez d'abord le registre, afin de préserver la réconciliation des ordres.
 
 ---
 
