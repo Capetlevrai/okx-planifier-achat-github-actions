@@ -76,7 +76,7 @@ Points critiques :
 - fonds sur **Trading**, pas seulement **Funding** ;
 - clé API en mode **réel** (pas démo) ;
 - secret d’armement exact : `ALLOW_REAL_TRADING` = `I_CONFIRM_REAL_SPOT_BUYS` ;
-- petit montant d’abord ; ne pas coller les clés dans un chat.
+- petit montant d’abord.
 
 Sécurité détaillée : [docs/SECURITE.md](docs/SECURITE.md).
 
