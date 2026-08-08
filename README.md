@@ -5,8 +5,6 @@ Ce projet comble ce manque : vous choisissez **quoi**, **combien** et **quand** 
 GitHub Actions exécute les achats **Spot au marché**, même si votre PC est éteint.  
 Pour programmer ces achats avec GitHub Actions, il faut un **compte GitHub** (gratuit) : https://github.com/signup
 
-Demo en ligne : https://capetlevrai.github.io/okx-planifier-achat-github-actions/
-
 ---
 
 ## En une phrase
