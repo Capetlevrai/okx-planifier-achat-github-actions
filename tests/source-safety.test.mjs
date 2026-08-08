@@ -77,7 +77,7 @@ for (const workflow of [dca, setup, pages, ci, keepalive, solTest]) {
 assert.ok(dcaText.includes("cron: '0 * * * *'"), 'hourly scheduler must match 60-minute retry cadence');
 assert.equal(keepalive.permissions.contents, 'read');
 assert.equal(keepalive.concurrency.group, 'okx-dca-keepalive');
-assert.ok(keepaliveText.includes("cron: '0 6 */2 * *'"), 'keepalive must run every 48h-ish, safely below the OKX 14-day inactivity window');
+assert.ok(keepaliveText.includes("cron: '0 6 * * *'"), 'keepalive must run daily, safely below the OKX 14-day inactivity window');
 assert.ok(!keepaliveText.includes('workflow_dispatch'), 'keepalive must not be manually dispatchable with secrets from arbitrary branches');
 assert.ok(keepaliveText.includes('node scripts/keepalive.mjs'), 'keepalive workflow must call the dedicated keepalive script');
 assert.ok(!keepaliveText.includes('ALLOW_REAL_TRADING'), 'keepalive must never require or expose the real-trading arming secret');

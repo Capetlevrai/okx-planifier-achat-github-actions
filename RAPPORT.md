@@ -1,15 +1,15 @@
 # Tableau de bord
 
-> **Compte RÉEL — argent réel** · simulation, aucun ordre transmis
+> **Compte RÉEL — argent réel** · **achats armés**, les ordres partent
 
 | | |
 |---|---|
-| **Total investi** | 0,00 USDC sur 10,00 USDC programmés |
-| **Achats effectués** | 0 sur 1 |
+| **Total investi** | 0,00 USDC sur 4,00 USDC programmés |
+| **Achats effectués** | 0 sur 2 |
 | **Opérations à réconcilier** | 0 |
 | **Avancement** | `░░░░░░░░░░░░░░░░░░░░` 0 % |
-| **Prochain achat** | 08 août 2026 (aujourd'hui) — 10,00 USDC |
-| **Rythme** | 10 USDC par actif, tous les 15 jours, à 09h00 UTC |
+| **Prochain achat** | 23 août 2026 (dans 15 j) — 2,00 USDC |
+| **Rythme** | 2 USDC par actif, tous les 15 jours, à 09h00 UTC |
 
 ## Achats effectués
 
@@ -19,8 +19,9 @@ _Aucun achat pour le moment._
 
 | Échéance | Actif | Montant | Dans | Statut |
 |---|---|---:|---|---|
-| 08 août 2026 | BTC | 10,00 USDC | aujourd'hui | 🔵 prochain |
+| 23 août 2026 | SOL | 2,00 USDC | dans 15 j | 🔵 prochain |
+| 07 sept. 2026 | SOL | 2,00 USDC | dans 30 j | ⚪ programmé |
 
 ---
 
-<sub>Généré le 08/08/2026 07:41:41 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>
+<sub>Généré le 08/08/2026 07:44:31 UTC · mis à jour automatiquement après chaque achat · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a></sub>

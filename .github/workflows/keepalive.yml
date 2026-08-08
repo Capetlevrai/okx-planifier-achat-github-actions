@@ -2,8 +2,10 @@ name: 3. Keepalive — clé API OKX
 
 on:
   schedule:
-    # Toutes les 48h environ : garde active une clé OKX non liée à une IP sans passer d'ordre.
-    - cron: '0 6 */2 * *'
+    # Tous les jours à 06:00 UTC : garde active une clé OKX non liée à une IP
+    # (OKX peut expirer trade sans IP fixe après ~14 jours d'inactivité).
+    # Aucun ordre : uniquement un GET solde authentifié.
+    - cron: '0 6 * * *'
 
 permissions:
   contents: read

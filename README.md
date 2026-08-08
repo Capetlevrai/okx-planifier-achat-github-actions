@@ -117,9 +117,9 @@ Sur [my.okx.com](https://my.okx.com) → Profil → API → **Créer une clé AP
   avec petit budget, sans retrait ni transfert.
 - OKX indique qu'une clé non liée à une IP avec permission `trade` peut expirer
   après **14 jours d'inactivité**. Le workflow **`3. Keepalive — clé API OKX`**
-  tourne donc toutes les 48h et effectue uniquement un appel authentifié de
-  solde (`/api/v5/account/balance`) : cela garde la clé active sans passer
-  d'ordre.
+  tourne donc **chaque jour** (06:00 UTC) et effectue uniquement un appel
+  authentifié de solde (`/api/v5/account/balance`) : cela garde la clé active
+  sans passer d'ordre.
 - Pour vous entraîner sans risque, basculez d'abord sur *Trading démo* et créez
   une clé démo — c'est le mode par défaut du projet.
 
