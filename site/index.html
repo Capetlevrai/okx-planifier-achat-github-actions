@@ -64,7 +64,8 @@ const [plan,history]=await Promise.all([loadJson('plan.json',null),loadJson('his
 if(!plan){document.body.innerHTML='<div class="wrap"><h1>Aucun plan</h1><p>data/plan.json introuvable.</p></div>'; throw new Error('No plan');}
 const quote=plan.strategy.quoteCcy || 'USDC';
 const entries=plan.entries||[];
-const purchases=[...(history.purchases||[])].sort((a,b)=>new Date(b.executedAt)-new Date(a.executedAt));
+const demo=plan.demo!==false;
+const purchases=[...(history.purchases||[])].filter(p=>(p.demo!==undefined?p.demo===demo:demo)&&((p.quoteCcy||quote)===quote)).sort((a,b)=>new Date(b.executedAt)-new Date(a.executedAt));
 const done=entries.filter(e=>e.status==='done').length;
 const problemStatuses=new Set(['failed','partial','reconcile_pending','canceled','rejected']);
 const failed=entries.filter(e=>problemStatuses.has(e.status));
@@ -75,7 +76,6 @@ const pct=entries.length?Math.round(done/entries.length*100):0;
 const next=pending[0];
 const nextBatch=next?pending.filter(e=>e.dueAt===next.dueAt):[];
 const assets=[...new Set(entries.map(e=>e.instId.split('-')[0]))];
-const demo=plan.demo!==false;
 const modeName=demo?'démo':'réel';
 const cadence=Number(plan.strategy.everyDays)===1?'chaque jour':`tous les ${plan.strategy.everyDays} jours`;
 const explainError=value=>{const text=String(value||'');const market=text.match(/^No market data available for (.+)$/);return market?`Données de marché indisponibles pour ${esc(market[1])}`:esc(text)};

@@ -1,190 +1,46 @@
 {
-  "createdAt": "2026-08-07T21:49:01.552484Z",
-  "updatedAt": "2026-08-08T05:35:47.751Z",
-  "live": true,
-  "demo": true,
+  "createdAt": "2026-08-08T06:02:05.086Z",
+  "live": false,
+  "demo": false,
   "site": "eea",
   "baseUrl": "https://my.okx.com",
   "strategy": {
-    "label": "50 USDC par actif tous les 15 jours — BTC + ETH (démo OKX)",
+    "label": "10 USDC par actif tous les 15 jours",
     "instIds": [
-      "BTC-USDC",
-      "ETH-USDC"
+      "BTC-USDC"
     ],
     "quoteCcy": "USDC",
-    "amountPerAsset": 50,
+    "amountPerAsset": 10,
     "everyDays": 15,
-    "cycles": 6,
+    "cycles": 1,
     "hourUtc": 9
+  },
+  "risk": {
+    "allowedInstIds": [
+      "BTC-USDC"
+    ],
+    "maxOrderAmount": 10,
+    "maxDailyQuoteAmount": 10,
+    "maxPlanQuoteAmount": 10,
+    "maxLifetimeQuoteAmount": 10,
+    "maxAttempts": 3,
+    "retryDelayMinutes": 60,
+    "orderPollAttempts": 10,
+    "orderPollDelayMs": 1500
   },
   "entries": [
     {
       "id": "dca-1-BTC-USDC",
-      "dueAt": "2026-08-07T09:00:00Z",
+      "dueAt": "2026-08-08T09:00:00.000Z",
       "instId": "BTC-USDC",
-      "amount": 50,
-      "status": "done",
-      "executedAt": "2026-08-07T21:41:40.756Z",
-      "ordId": "3813008182231564288",
-      "attempts": 0,
-      "operationId": "op_db1d5a96829e9e237482cb25",
-      "clOrdId": "dca61e35721d04513ea553f7ca3",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0,
-      "retryable": false,
-      "filledQty": 0.00077525,
-      "avgPrice": 64495.11099645276
-    },
-    {
-      "id": "dca-1-ETH-USDC",
-      "dueAt": "2026-08-07T09:00:00Z",
-      "instId": "ETH-USDC",
-      "amount": 50,
-      "status": "done",
-      "executedAt": "2026-08-07T21:49:08.796Z",
-      "ordId": "3813023216194158592",
-      "attempts": 0,
-      "operationId": "op_a732812feb870985df104fc7",
-      "clOrdId": "dcab8d9978b2bb1b172ba18a724",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0,
-      "retryable": false,
-      "filledQty": 0.026045,
-      "avgPrice": 1919.700940679593
-    },
-    {
-      "id": "dca-2-BTC-USDC",
-      "dueAt": "2026-08-22T09:00:00Z",
-      "instId": "BTC-USDC",
-      "amount": 50,
+      "amount": 10,
       "status": "pending",
+      "operationId": "op_0ea3f93e2c131dba55264b30",
+      "clOrdId": "dca18134e8369b0b1718d6eafa0",
       "attempts": 0,
-      "operationId": "op_99ea98595ab682b0cb793d16",
-      "clOrdId": "dca2725541698b46b6865edd006",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-2-ETH-USDC",
-      "dueAt": "2026-08-22T09:00:00Z",
-      "instId": "ETH-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_e193947869acd43c6840feb9",
-      "clOrdId": "dca972b516325e0c81f99ab8849",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-3-BTC-USDC",
-      "dueAt": "2026-09-06T09:00:00Z",
-      "instId": "BTC-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_d1ebc09d86265ccacf55e0b4",
-      "clOrdId": "dca00e1b3842822e7f33279b8ec",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-3-ETH-USDC",
-      "dueAt": "2026-09-06T09:00:00Z",
-      "instId": "ETH-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_80d5bd0ca2851e5f7ff35d99",
-      "clOrdId": "dca3a8a8246cacae4ff554f5fe8",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-4-BTC-USDC",
-      "dueAt": "2026-09-21T09:00:00Z",
-      "instId": "BTC-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_163613ef5e253d9b50f261e7",
-      "clOrdId": "dca408a23f43e4484db3aeb0610",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-4-ETH-USDC",
-      "dueAt": "2026-09-21T09:00:00Z",
-      "instId": "ETH-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_e788b6e8b7d3def236862227",
-      "clOrdId": "dca4dfbc4e357dc108d2ac4bcce",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-5-BTC-USDC",
-      "dueAt": "2026-10-06T09:00:00Z",
-      "instId": "BTC-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_2db84f4dd023fdcc537d4191",
-      "clOrdId": "dca48237dbc88f7942a01664c5b",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-5-ETH-USDC",
-      "dueAt": "2026-10-06T09:00:00Z",
-      "instId": "ETH-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_2c44b511cfd2566215730be6",
-      "clOrdId": "dca0ff3ef0c0e7466919d5638a5",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-6-BTC-USDC",
-      "dueAt": "2026-10-21T09:00:00Z",
-      "instId": "BTC-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_abfde4646906c893b293523a",
-      "clOrdId": "dca51aed8739812423d234d747c",
-      "reconciliationAttempts": 0,
-      "preflightFailures": 0
-    },
-    {
-      "id": "dca-6-ETH-USDC",
-      "dueAt": "2026-10-21T09:00:00Z",
-      "instId": "ETH-USDC",
-      "amount": 50,
-      "status": "pending",
-      "attempts": 0,
-      "operationId": "op_307c4848c3a4d354b03b2f69",
-      "clOrdId": "dcaca8fdd03eeeceb062939c5ce",
       "reconciliationAttempts": 0,
       "preflightFailures": 0
     }
   ],
-  "risk": {
-    "allowedInstIds": [
-      "BTC-USDC",
-      "ETH-USDC"
-    ],
-    "maxOrderAmount": 50,
-    "maxDailyQuoteAmount": 100,
-    "maxAttempts": 3,
-    "retryDelayMinutes": 60,
-    "orderPollAttempts": 10,
-    "orderPollDelayMs": 1500,
-    "maxPlanQuoteAmount": 600,
-    "maxLifetimeQuoteAmount": 600
-  }
+  "updatedAt": "2026-08-08T06:02:27.144Z"
 }

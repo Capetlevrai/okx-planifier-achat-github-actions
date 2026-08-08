@@ -16,6 +16,8 @@ assert.ok(dashboard.includes('e.error?'), 'failure reason must be visible in the
 assert.ok(dashboard.includes('overflow-x:auto'), 'tables must remain usable in a narrow mobile viewport');
 assert.ok(dashboard.includes('Mode actuel : compte démo OKX') && dashboard.includes('Attention : compte OKX réel'));
 assert.ok(report.includes('${done} sur ${plan.entries.length}'), 'Markdown completed count must exclude failed terminal audit rows');
+assert.ok(report.includes('p.demo !== undefined ? p.demo === planDemo : planDemo'), 'Markdown report must filter history by active demo/real account');
+assert.ok(dashboard.includes('p.demo!==undefined?p.demo===demo:demo'), 'Web dashboard must filter history by active demo/real account');
 assert.ok(report.includes('opération(s) à traiter'), 'Markdown must surface unresolved failures');
 const standaloneTemplate = standalone.replace(/<script>window\.__DCA__ = .*?;<\/script>\n/, '');
 assert.equal(standaloneTemplate, dashboard, 'standalone dashboard must be regenerated from the current responsive template');

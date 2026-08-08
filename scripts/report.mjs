@@ -24,7 +24,10 @@ const instruments = readJson(path.join(ROOT, 'data', 'instruments.json'), { inst
 
 const s = plan.strategy;
 const ccy = s.quoteCcy;
-const purchases = [...history.purchases].sort((a, b) => new Date(b.executedAt) - new Date(a.executedAt));
+const planDemo = plan.demo !== false;
+const purchases = [...history.purchases]
+  .filter((p) => (p.demo !== undefined ? p.demo === planDemo : planDemo) && (p.quoteCcy || ccy) === ccy)
+  .sort((a, b) => new Date(b.executedAt) - new Date(a.executedAt));
 const base = (p) => p.baseCcy || p.instId.split('-')[0];
 
 const nf = (v, d = 2) => new Intl.NumberFormat('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
