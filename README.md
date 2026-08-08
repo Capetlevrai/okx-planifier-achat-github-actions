@@ -9,7 +9,7 @@ Pour programmer ces achats avec GitHub Actions, il faut un **compte GitHub** (gr
 
 ## En une phrase
 
-Un **planificateur d’achats crypto sur OKX** (ex. 1 USDC de SOL tous les X jours),  
+Un **planificateur d’achats crypto sur OKX** (ex. 50 USDC de BTC tous les 15 jours),  
 open source, piloté par **GitHub Actions**, utilisable en dépôt **public ou privé**.
 
 Ce n’est **pas** un bot de trading prédictif.  
