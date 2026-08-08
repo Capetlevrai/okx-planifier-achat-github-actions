@@ -14,7 +14,7 @@ Un **planificateur d’achats crypto sur OKX** (ex. 1 USDC de SOL tous les X jou
 open source, piloté par **GitHub Actions**, utilisable en dépôt **public ou privé**.
 
 Ce n’est **pas** un bot de trading prédictif.  
-Ce n’est **pas** un conseil financier. Vous pouvez perdre de l’argent.
+Ce n’est **pas** un conseil financier.
 
 ---
 
