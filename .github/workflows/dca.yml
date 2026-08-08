@@ -88,6 +88,8 @@ jobs:
           if [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
           elif [ -n "$DRY_RUN_VAR" ]; then export DRY_RUN="$DRY_RUN_VAR"
           fi
+          # Un test à blanc valide aussi la clé et l'accès au solde, sans ordre.
+          if [ "${DRY_RUN:-}" = "1" ]; then node scripts/keepalive.mjs; fi
           node scripts/run-due.mjs
       - name: Mettre à jour le tableau de bord
         if: always()
@@ -131,6 +133,8 @@ jobs:
           if [ -n "$DRY_RUN_INPUT" ]; then export DRY_RUN="$DRY_RUN_INPUT"
           elif [ -n "$DRY_RUN_VAR" ]; then export DRY_RUN="$DRY_RUN_VAR"
           fi
+          # Un test à blanc valide aussi la clé et l'accès au solde, sans ordre.
+          if [ "${DRY_RUN:-}" = "1" ]; then node scripts/keepalive.mjs; fi
           node scripts/run-due.mjs
       - name: Mettre à jour le tableau de bord
         if: always()
