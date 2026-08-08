@@ -32,12 +32,17 @@ et **demande confirmation avant tout achat réel**.
 
 ### Si l’agent demande un token GitHub
 
-Créez un **fine-grained personal access token** limité à **votre** dépôt :
+Créez un **fine-grained personal access token** limité à **votre** dépôt :  
+https://github.com/settings/personal-access-tokens
+
+Permissions à cocher :
 
 - **Contents** : Read and write  
 - **Workflows** : Read and write  
 - **Secrets** : Read and write  
 - **Metadata** : Read-only
+
+![Permissions du token fine-grained](docs/images/permissions-token.png)
 
 Révoquez le token après installation.
 
