@@ -53,7 +53,8 @@ n’est pas OK.
 Pour un compte Europe/EEE, commencez ici :
 
 - [Ouvrir la gestion des sous-comptes OKX Europe](https://my.okx.com/fr-fr/account/sub-account) ;
-- [Ouvrir les transferts OKX Europe](https://my.okx.com/fr-fr/balance/transfer).
+- [Transférer du compte principal vers le sous-compte](https://my.okx.com/fr-fr/balance/sub-transfer) ;
+- [Transférer ensuite de Funding vers Trading si nécessaire](https://my.okx.com/fr-fr/balance/transfer).
 
 La page peut d'abord vous demander de vous connecter. Après connexion, OKX vous
 ramène à la rubrique demandée. Pour ce projet, choisissez un sous-compte
@@ -63,7 +64,9 @@ ramène à la rubrique demandée. Pour ce projet, choisissez un sous-compte
       compte principal **avant** de créer la clé API.
 - [ ] Si vous avez choisi le sous-compte, créez-le depuis l'URL officielle de
       votre région, ouverte vous-même dans votre navigateur habituel, puis
-      allouez-lui seulement le budget du plan (+ une petite marge).
+      allouez-lui seulement le budget du plan (+ une petite marge). En
+      Europe/EEE, utilisez directement la page
+      [Principal → sous-compte](https://my.okx.com/fr-fr/balance/sub-transfer).
 - [ ] Si vous avez choisi le compte principal, vous acceptez que la clé accède à
       son solde Trading et vous n'y laissez que le budget que vous assumez.
 - [ ] La devise d’achat est bien sur le compte (**USDC**, **EUR**, etc. selon

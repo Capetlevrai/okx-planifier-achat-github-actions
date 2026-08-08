@@ -44,6 +44,8 @@ assert.ok(agentProtocol.includes('Les **deux premières questions sont obligatoi
 assert.ok(agentProtocol.includes('Démo (argent fictif)') && agentProtocol.includes('Argent réel'), 'mode choices must be explicit');
 assert.ok(agentProtocol.includes('Europe/EEE') && agentProtocol.includes('États-Unis') && agentProtocol.includes('Turquie') && agentProtocol.includes('Ailleurs'), 'region choices must be explicit');
 assert.ok(agentProtocol.includes('Créer un sous-compte dédié') && agentProtocol.includes('Utiliser mon compte principal'), 'real flow must offer account isolation before API credentials');
+assert.ok(agentProtocol.includes('https://my.okx.com/fr-fr/balance/sub-transfer'), 'Europe sub-account flow must link directly to the main-to-sub-account transfer page');
+assert.ok(agentProtocol.includes('immédiatement après cette phrase'), 'agent must show the transfer link at the moment the user is asked to fund the sub-account');
 assert.ok(agentProtocol.includes("N'ouvre jamais le navigateur intégré pour OKX"), 'agent must hand off sensitive OKX pages to the user browser');
 assert.ok(agentProtocol.includes('Ne demande jamais une clé, un secret ou une passphrase dans le chat'), 'agent must not collect OKX credentials in chat');
 assert.ok(claudeProtocol.includes('choix interactifs Démo/Argent réel puis Région'), 'Claude entrypoint must preserve the interactive flow');

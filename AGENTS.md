@@ -140,10 +140,15 @@ demande-lui de l'ouvrir dans son propre navigateur, puis donne **une seule tâch
 2. choisir **Créer un sous-compte** puis le type **Standard** (pas « Managed
    trading »), avec un nom reconnaissable comme `dca-github` ;
 3. confirmer la création avec la 2FA puis revenir dire seulement « créé » ;
-4. ouvrir le lien de transfert et envoyer du compte principal vers ce
-   sous-compte uniquement le budget total du plan, avec une petite marge pour
-   les frais ;
-5. ouvrir ensuite la page API, cliquer **Créer une clé API**, puis sélectionner
+4. annoncer le montant total calculé, par exemple « Transfère au moins 20 USDC
+   du compte principal vers le sous-compte, avec une petite marge pour les
+   frais », puis afficher **immédiatement après cette phrase** le lien régional
+   de transfert principal → sous-compte. En Europe/EEE, utiliser exactement
+   [Transférer du compte principal vers le sous-compte](https://my.okx.com/fr-fr/balance/sub-transfer) ;
+5. vérifier ensuite que la devise est disponible dans le solde **Trading** du
+   sous-compte. Si elle est seulement dans **Funding / Financement**, donner le
+   lien Funding → Trading correspondant ;
+6. ouvrir ensuite la page API, cliquer **Créer une clé API**, puis sélectionner
    ce sous-compte dans le champ **Compte**.
 
 Si le champ Compte n'est pas sélectionnable, explique que cela signifie en
@@ -206,12 +211,17 @@ récapitulatif ; ne lui demande que les informations manquantes.
 
 **URLs cliquables à remettre à l'utilisateur (ouverture manuelle uniquement) :**
 
-| Région | Sous-comptes | Clés API | Transfert vers Trading / sous-compte |
+| Région | Sous-comptes | Clés API | Funding → Trading |
 |---|---|---|---|
-| Europe/EEE | [Ouvrir les sous-comptes OKX Europe](https://my.okx.com/fr-fr/account/sub-account) | [Ouvrir les clés API OKX Europe](https://my.okx.com/fr-fr/account/my-api) | [Ouvrir les transferts OKX Europe](https://my.okx.com/fr-fr/balance/transfer) |
-| États-Unis | [Ouvrir les sous-comptes OKX US](https://us.okx.com/account/sub-account) | [Ouvrir les clés API OKX US](https://us.okx.com/account/my-api) | [Ouvrir les transferts OKX US](https://us.okx.com/balance/transfer) |
-| Turquie | [Ouvrir les sous-comptes OKX TR](https://tr.okx.com/account/sub-account) | [Ouvrir les clés API OKX TR](https://tr.okx.com/account/my-api) | [Ouvrir les transferts OKX TR](https://tr.okx.com/balance/transfer) |
-| Ailleurs | [Ouvrir les sous-comptes OKX](https://www.okx.com/account/sub-account) | [Ouvrir les clés API OKX](https://www.okx.com/account/my-api) | [Ouvrir les transferts OKX](https://www.okx.com/balance/transfer) |
+| Europe/EEE | [Ouvrir les sous-comptes OKX Europe](https://my.okx.com/fr-fr/account/sub-account) | [Ouvrir les clés API OKX Europe](https://my.okx.com/fr-fr/account/my-api) | [Ouvrir le transfert Funding → Trading](https://my.okx.com/fr-fr/balance/transfer) |
+| États-Unis | [Ouvrir les sous-comptes OKX US](https://us.okx.com/account/sub-account) | [Ouvrir les clés API OKX US](https://us.okx.com/account/my-api) | [Ouvrir le transfert Funding → Trading](https://us.okx.com/balance/transfer) |
+| Turquie | [Ouvrir les sous-comptes OKX TR](https://tr.okx.com/account/sub-account) | [Ouvrir les clés API OKX TR](https://tr.okx.com/account/my-api) | [Ouvrir le transfert Funding → Trading](https://tr.okx.com/balance/transfer) |
+| Ailleurs | [Ouvrir les sous-comptes OKX](https://www.okx.com/account/sub-account) | [Ouvrir les clés API OKX](https://www.okx.com/account/my-api) | [Ouvrir le transfert Funding → Trading](https://www.okx.com/balance/transfer) |
+
+Pour l'Europe/EEE, le transfert **compte principal → sous-compte** utilise une
+page distincte : [Transférer vers un sous-compte OKX Europe](https://my.okx.com/fr-fr/balance/sub-transfer).
+Ne remplace pas ce lien par la page Funding → Trading : les deux transferts ne
+servent pas à la même étape.
 
 Ajoute aussi, si l'utilisateur hésite, les explications officielles :
 

@@ -52,10 +52,12 @@ compte que le budget assumé.
    trading ».
 4. Donnez-lui un nom reconnaissable, par exemple `dca-github`, puis confirmez
    avec la 2FA.
-5. Ouvrez [la page de transfert OKX Europe](https://my.okx.com/fr-fr/balance/transfer).
+5. Ouvrez [le transfert du compte principal vers le sous-compte](https://my.okx.com/fr-fr/balance/sub-transfer).
 6. Transférez vers ce sous-compte uniquement le total du plan, avec une petite
-   marge pour les frais. Pour un achat Spot, les fonds doivent finir sur le
-   compte **Trading**, pas seulement **Funding / Financement**.
+   marge pour les frais.
+7. Vérifiez ensuite le solde **Trading** du sous-compte. Si les fonds sont dans
+   **Funding / Financement**, ouvrez [le transfert Funding → Trading](https://my.okx.com/fr-fr/balance/transfer)
+   et déplacez-les vers Trading avant de créer la clé API.
 
 Documentation officielle : [qu'est-ce qu'un sous-compte ?](https://www.okx.com/fr-fr/help/what-is-a-sub-account)
 

@@ -87,9 +87,10 @@ connecté, OKX affiche d'abord la connexion puis revient automatiquement à la
 rubrique demandée.
 
 1. [Créer ou gérer un sous-compte dédié](https://my.okx.com/fr-fr/account/sub-account)
-2. [Transférer le budget vers le sous-compte ou le compte Trading](https://my.okx.com/fr-fr/balance/transfer)
-3. [Créer la clé API sur le compte choisi](https://my.okx.com/fr-fr/account/my-api)
-4. [Consulter ensuite l'historique Spot](https://my.okx.com/fr-fr/balance/report-center/unified/account-history)
+2. [Transférer le budget du compte principal vers le sous-compte](https://my.okx.com/fr-fr/balance/sub-transfer)
+3. [Déplacer ensuite les fonds de Funding vers Trading si nécessaire](https://my.okx.com/fr-fr/balance/transfer)
+4. [Créer la clé API sur le compte choisi](https://my.okx.com/fr-fr/account/my-api)
+5. [Consulter ensuite l'historique Spot](https://my.okx.com/fr-fr/balance/report-center/unified/account-history)
 
 Pour comprendre le choix avant d'agir :
 [guide officiel des sous-comptes](https://www.okx.com/fr-fr/help/what-is-a-sub-account)

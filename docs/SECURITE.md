@@ -58,6 +58,12 @@ insuffisant » ou préflight bloqué, **sans** que l’appli OKX « ait l’air 
 **Correctif utilisateur** : Actifs → Transfert → Funding → Trading, devise du
 plan (ex. USDC), montant ≥ exposition prévue.
 
+Sur un sous-compte Europe/EEE, il y a deux étapes distinctes : alimentez d'abord
+le sous-compte depuis le compte principal avec la page
+[Principal → sous-compte](https://my.okx.com/fr-fr/balance/sub-transfer), puis
+utilisez [Funding → Trading](https://my.okx.com/fr-fr/balance/transfer) si les
+fonds ne sont pas encore disponibles dans le solde Trading.
+
 **Automatisation optionnelle** : permission Transfer sur la clé + script
 `scripts/ensure-trading-usdc.mjs` (logs en buckets, jamais le solde exact).
 
