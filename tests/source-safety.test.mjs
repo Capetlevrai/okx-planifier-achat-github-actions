@@ -101,9 +101,15 @@ assert.ok(solTestText.includes('npm ci --ignore-scripts'), 'real-money workflow 
 assert.ok(solTestText.includes('sleep 130'), 'temporary SOL workflow must wait for the second two-minute due entry');
 assert.ok(solTestText.includes("DRY_RUN: '0'"), 'temporary SOL workflow must explicitly execute the armed live plan, not an implicit default');
 assert.ok(solTestText.includes('node scripts/prepare-sol-2min-test.mjs'), 'temporary SOL workflow must prepare due times at runtime');
+assert.ok(solTestText.includes('node scripts/ensure-trading-usdc.mjs'), 'temporary SOL workflow must ensure Trading USDC before live buys');
+assert.ok(solTestText.includes('ALLOW_REAL_TRADING manquant ou incorrect'), 'temporary SOL workflow must fail-fast if the real-trading fuse is unset');
 assert.ok(solTestText.includes('node scripts/check-entry-filled.mjs sol-real-2min-test-1-SOL-USDC'));
 assert.ok(solTestText.includes('node scripts/check-entry-filled.mjs sol-real-2min-test-2-SOL-USDC'));
 assert.ok(solTestText.includes('node scripts/run-due.mjs || true'), 'temporary SOL workflow must retry/reconcile transient OKX states');
+const ensureTrading = read('../scripts/ensure-trading-usdc.mjs');
+assert.ok(ensureTrading.includes('transferFundingToTrading'), 'ensure-trading must attempt Funding→Trading when needed');
+assert.ok(ensureTrading.includes('bucket='), 'ensure-trading must not print exact balances');
+assert.ok(!ensureTrading.includes('console.log(trading)'), 'ensure-trading must not dump raw balances');
 const engineText = read('../scripts/engine.mjs');
 assert.ok(!engineText.includes('solde ${quoteCurrency(entry.instId)}: ${balance}'), 'real-money logs must not expose exact balances in public Actions logs');
 const solPrepare = read('../scripts/prepare-sol-2min-test.mjs');

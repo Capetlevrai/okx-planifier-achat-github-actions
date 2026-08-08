@@ -180,6 +180,33 @@ export async function availableBalance(ccy) {
   if (!Number.isFinite(balance) || balance < 0) throw new Error(`solde invalide pour ${ccy}`);
   return balance;
 }
+
+/** Solde disponible sur le compte Funding (hors Trading). Ne jamais logger la valeur exacte en public. */
+export async function fundingBalance(ccy) {
+  const rows = await okx('GET', `/api/v5/asset/balances?ccy=${q(ccy)}`);
+  const row = rows.find((item) => item.ccy === ccy) || rows[0];
+  const balance = Number(row?.availBal || row?.bal || 0);
+  if (!Number.isFinite(balance) || balance < 0) throw new Error(`solde funding invalide pour ${ccy}`);
+  return balance;
+}
+
+/**
+ * Transfert interne Funding (6) → Trading (18).
+ * Exige la permission Transfer sur la clé API (en plus de Trade).
+ * Ne renvoie aucun identifiant de transfert au caller public.
+ */
+export async function transferFundingToTrading(ccy, amount) {
+  const amt = Number(amount);
+  if (!Number.isFinite(amt) || amt <= 0) throw new Error('montant de transfert invalide');
+  await okx('POST', '/api/v5/asset/transfer', {
+    ccy,
+    amt: String(amt),
+    from: '6',
+    to: '18',
+    type: '0',
+  });
+  return true;
+}
 export async function marketBuy(instId, amount, clOrdId) {
   if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) throw new Error('montant achat invalide');
   if (!/^[A-Za-z0-9]{1,32}$/.test(clOrdId || '')) throw new Error('clOrdId achat invalide');

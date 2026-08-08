@@ -6,8 +6,11 @@ on:
     paths:
       - '.github/workflows/sol-2min-test.yml'
       - 'scripts/prepare-sol-2min-test.mjs'
+      - 'scripts/ensure-trading-usdc.mjs'
       - 'scripts/check-entry-filled.mjs'
       - 'scripts/engine.mjs'
+      - 'scripts/okx.mjs'
+      - 'scripts/run-due.mjs'
 
 permissions:
   contents: read
@@ -35,10 +38,27 @@ jobs:
           npm test
           for file in scripts/*.mjs tests/*.mjs; do node --check "$file"; done
           git diff --check
+      - name: Vérifier le fusible ALLOW_REAL_TRADING
+        env:
+          ALLOW_REAL_TRADING: ${{ secrets.ALLOW_REAL_TRADING }}
+        run: |
+          if [ "$ALLOW_REAL_TRADING" != "I_CONFIRM_REAL_SPOT_BUYS" ]; then
+            echo "ALLOW_REAL_TRADING manquant ou incorrect — abandon sans POST."
+            exit 1
+          fi
+          echo "Fusible ALLOW_REAL_TRADING OK."
       - name: Préparer le plan live SOL 1+1 USDC dans le runner uniquement
         run: |
           node scripts/prepare-sol-2min-test.mjs
           echo "Plan live temporaire préparé dans GitHub Actions uniquement — aucun état d'ordre ne sera commité publiquement." >> "$GITHUB_STEP_SUMMARY"
+      - name: Assurer solde Trading USDC (Funding→Trading si possible)
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
+          REQUIRED_TRADING_USDC: '2'
+        run: node scripts/ensure-trading-usdc.mjs
       - name: Achat SOL 1/2 — 1 USDC réel puis réconciliation
         env:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
