@@ -17,7 +17,7 @@ l'utilisateur et n'ouvre jamais OKX dans un navigateur intégré. Aucun secret
 OKX ne doit être collé dans la conversation.
 
 Chaque question doit être précédée de **2 à 5 phrases simples** expliquant le
-but de l'étape, l'effet du choix, ce qui restera désarmé et l'action attendue.
+but de l'étape, l'effet du choix, ce qui restera désactivé et l'action attendue.
 Une réponse sèche comme « Réponds simplement : Europe, US… » n'est pas un
 parcours guidé. Après chaque réponse, l'agent résume ce qui est acquis et annonce
 la prochaine étape. Les liens OKX doivent être des liens Markdown cliquables et
@@ -53,7 +53,7 @@ Fais tout pour moi :
 4. Mets mes clés OKX uniquement dans GitHub Actions Secrets, jamais dans le code.
 5. Génère le plan en simulation d’abord.
 6. Lance un test à blanc.
-7. Si je demande la démo armée, exécute seulement sur compte démo.
+7. Si je demande d'activer la démo, exécute seulement sur compte démo.
 8. Ne passe aucun ordre en argent réel sans confirmation explicite.
 9. Donne-moi le lien du dashboard et explique comment arrêter le système.
 ```

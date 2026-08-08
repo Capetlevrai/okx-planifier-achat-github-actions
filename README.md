@@ -33,7 +33,7 @@ et **demande confirmation avant tout achat réel**.
 
 Le parcours ne doit pas se limiter à une succession de questions. Avant chaque
 choix, l'agent explique en quelques phrases **pourquoi l'étape existe**, ce que
-votre réponse change, ce qui reste désarmé et ce que vous devez faire. Il ne vous
+votre réponse change, ce qui reste désactivé et ce que vous devez faire. Il ne vous
 demande jamais de coller une clé API dans le chat. Consultez le
 [parcours guidé détaillé](docs/PARCOURS_GUIDE.md) pour voir exactement les étapes
 et les liens qui doivent vous être présentés.
@@ -75,7 +75,7 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 1. **[Use this template](../../generate)** → créez votre dépôt et choisissez **Private** dans le menu (recommandé pour l’argent réel).
 2. En argent réel, choisissez d'abord entre un **[sous-compte dédié](https://my.okx.com/fr-fr/account/sub-account)** avec budget limité (recommandé) et votre compte principal.
 3. **[Créez ensuite la clé API OKX](https://my.okx.com/fr-fr/account/my-api)** sur le compte choisi : **Lecture + Trading** uniquement — **jamais Retrait**.
-4. Assurez-vous d’avoir des devises disponibles sur le compte **Trading** choisi (ex. USDC) : les fonds sont souvent sur le compte **Funding** par défaut — [transférez-les vers Trading](https://my.okx.com/fr-fr/balance/transfer) si besoin.
+4. Transférez le budget du compte principal vers le sous-compte depuis [cette page OKX](https://my.okx.com/fr-fr/balance/sub-transfer), avec une petite marge pour les frais. Vérifiez ensuite qu'il est disponible sur **Trading** ; sinon, [déplacez-le de Funding vers Trading](https://my.okx.com/fr-fr/balance/transfer).
 5. Ouvrez **Settings → Environments**, cliquez sur la grande carte **`real-trading`**, puis descendez jusqu'à **Environment secrets**. Cliquez sur **Add environment secret** pour ajouter `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`) et `OKX_PASSPHRASE`, un par un. **Utilisez Environment secrets, jamais Environment variables** : le workflow ne lit pas les variables comme identifiants OKX.
 6. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 7. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
@@ -96,7 +96,7 @@ Pour comprendre le choix avant d'agir :
 [guide officiel des sous-comptes](https://www.okx.com/fr-fr/help/what-is-a-sub-account)
 et [FAQ officielle sous-comptes/API](https://www.okx.com/fr-fr/help/subaccounts-account-mode-and-api-connections-faq).
 
-Pour un premier achat réel « maintenant », suivez le [parcours en une fois](docs/GUIDE_ACHAT_REEL.md#premier-achat-immédiat--le-parcours-en-une-fois) : il évite de lancer un ancien workflow avant que le planning armé soit bien poussé.
+Pour un premier achat réel « maintenant », suivez le [parcours en une fois](docs/GUIDE_ACHAT_REEL.md#premier-achat-immédiat--le-parcours-en-une-fois) : après votre confirmation finale, l'agent active le planning, exécute immédiatement un seul achat et vérifie qu'il est bien rempli avant de vous répondre.
 
 Détails dépôt privé : [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md).
 

@@ -35,6 +35,19 @@ navigateur habituel les pages sensibles OKX (connexion, sous-compte, clé API).
 8. **Ne demande jamais une clé, un secret ou une passphrase dans le chat.** Ces
    valeurs sont saisies hors conversation dans un terminal masqué, un fichier
    local `.env` ignoré par Git, ou directement dans GitHub Actions Secrets.
+9. **N'emploie jamais « plan armé », « plan désarmé » ou « armement » avec
+   l'utilisateur.** Dis « les achats sont activés » ou « les achats sont
+   désactivés ». Les noms techniques peuvent rester dans le code, pas dans les
+   explications destinées à l'utilisateur.
+10. **« Acheter maintenant » signifie exécuter maintenant.** Ne transforme pas
+    cette demande en simple échéance affichée à l'heure UTC courante. Après la
+    confirmation finale, active les achats, pousse le plan, lance immédiatement
+    une seule exécution, attends la confirmation `filled`, puis vérifie
+    l'historique. Les achats futurs restent programmés normalement.
+11. **Termine le parcours dans la même exécution de l'agent.** Ne rends pas la
+    main après avoir seulement préparé ou poussé le planning si un achat
+    immédiat a été explicitement confirmé. Ne relance jamais le workflow après
+    un succès.
 9. **Le fusible `ALLOW_REAL_TRADING` est géré par l'agent.** Ne le présente
    jamais comme un secret que l'utilisateur doit créer, saisir, mémoriser ou
    supprimer. Après la confirmation finale, crée-le toi-même juste avant
@@ -86,7 +99,7 @@ Avant chaque question, affiche un petit bloc lisible contenant :
 
 1. **But** — pourquoi l'information est nécessaire ;
 2. **Impact** — ce que le choix change concrètement ;
-3. **Sécurité** — ce qui reste désarmé ou confidentiel ;
+3. **Sécurité** — ce qui reste désactivé ou confidentiel ;
 4. **Action** — une seule question ou un seul lien à traiter maintenant.
 
 Ne termine jamais une étape par le seul texte « Réponds simplement… ». Le
@@ -104,7 +117,7 @@ Explique d'abord :
 > confirmation finale séparée restera obligatoire.
 
 - `Démo (argent fictif)` — recommandé pour tester sans risque ;
-- `Argent réel` — ordres Spot réels, jamais armés sans confirmation finale.
+- `Argent réel` — ordres Spot réels, jamais activés sans confirmation finale.
 
 Attends la réponse avant d'afficher la question 2.
 
@@ -413,8 +426,8 @@ Avant de proposer l’argent réel à l’utilisateur, vérifie que :
 - `risk.maxOrderAmount` et `risk.maxDailyQuoteAmount` sont cohérents ;
 - un dry-run passe ;
 - un petit ordre démo passe ;
-- le workflow réel utilise l'environnement GitHub `real-trading`, avec le secret
-  d'armement et, si possible, des approbateurs obligatoires ;
+- le workflow réel utilise l'environnement GitHub `real-trading`, avec son
+  autorisation interne et, si possible, des approbateurs obligatoires ;
 - les tests d'orchestration à API factice passent ;
 - le workflow `3. Keepalive — clé API OKX` existe, tourne toutes les 48h et
   appelle uniquement un endpoint authentifié de solde, jamais l'endpoint d'ordre ;
@@ -422,7 +435,7 @@ Avant de proposer l’argent réel à l’utilisateur, vérifie que :
 
 Ne confonds pas ce projet avec des paiements bancaires : il ne fait que des achats spot OKX.
 
-## Étape 8 — Test à blanc, puis armement
+## Étape 8 — Test sans achat, puis activation
 
 Lance un test qui ne transmet rien, et **montre les logs à l'utilisateur** :
 
@@ -458,7 +471,7 @@ job qui termine pourrait réécrire un ancien état par-dessus le nouveau plan.
 2. Utilise **l'heure UTC actuelle**, pas une heure choisie arbitrairement : une
    échéance datée de l'heure UTC en cours est immédiatement due. Pour un nombre
    exact d'achats, emploie `--count <cycles>` plutôt que `--months`.
-3. Génère une seule fois le plan armé, commit et pousse-le. Vérifie que le
+3. Active une seule fois le plan, commit et pousse-le. Vérifie que le
    `git push` a réussi avant de continuer.
 4. Crée alors seulement le secret d'environnement `ALLOW_REAL_TRADING` avec la
    valeur exacte `I_CONFIRM_REAL_SPOT_BUYS`, puis lance **un seul** dispatch
@@ -471,12 +484,16 @@ Exemple : pour deux achats de 10 USDC de BTC, le premier immédiatement et le
 second 15 jours après, renseigne `--count 2 --every 15`, avec `--start` égal à
 la date UTC du jour et `--hour` égal à l'heure UTC courante.
 
+L'heure UTC sert uniquement au moteur. Dans le message destiné à l'utilisateur,
+écris **« premier achat maintenant »**, jamais « aujourd'hui à HH:00 UTC », et
+ne dis jamais que le plan est « armé » ou « désarmé ».
+
 ```bash
 node scripts/plan.mjs --instId <paires> --amount <montant> --every <jours> --count <cycles> --start <AAAA-MM-JJ-UTC> --hour <HEURE-UTC-ACTUELLE> --account reel --site <site> --live --force
 ```
 
 ```bash
-git add data/ && git commit -m "Armer le plan" && git push
+git add data/ && git commit -m "Activer les achats confirmés" && git push
 ```
 
 Puis, uniquement après un `git push` réussi :
@@ -505,7 +522,7 @@ Donne à l'utilisateur, en clair :
   N'annonce jamais un achat à partir du seul statut du workflow : il doit être
   confirmé `filled` avant de remettre ces liens.
 - **comment tout arrêter immédiatement** : l'utilisateur peut simplement
-  demander « arrête les achats ». Retire alors le fusible d'armement avant de
+  demander « arrête les achats ». Retire alors l'autorisation interne avant de
   désactiver `dca.yml`, puis confirme que les deux protections sont appliquées.
   Ne lui demande pas de manipuler le secret technique. Ne régénère pas un plan
   après un achat réel pour « arrêter » sans avoir d'abord lu son registre.
@@ -521,7 +538,7 @@ Donne à l'utilisateur, en clair :
 | `Solde insuffisant` | devise non approvisionnée | changer de paire (démo : `-USDC`) |
 | `refusing to allow an OAuth App…workflow scope` | jeton `gh` limité | `gh auth refresh -s workflow`, ou `git push` (Credential Manager) |
 | Pages : `422 plan does not support` | dépôt privé, plan gratuit | passer le dépôt en public |
-| Le cron n'achète pas | plan non armé | `plan.mjs … --live`, commit, push |
+| Le cron n'achète pas | achats désactivés | `plan.mjs … --live`, commit, push |
 
 ## Repères sur le code
 
@@ -531,12 +548,12 @@ Donne à l'utilisateur, en clair :
 | `scripts/plan.mjs` | génère `data/plan.json` |
 | `scripts/run-due.mjs` | exécute les échéances dues (idempotent) |
 | `scripts/buy-now.mjs` | voie ponctuelle désactivée pour éviter tout contournement |
-| `data/plan.json` | le planning ; `live: true` = armé |
+| `data/plan.json` | le planning ; `live: true` = achats activés |
 | `data/history.json` | les achats réalisés |
 | `site/index.html` | l'interface, sans build |
 
 Le garde-fou est dans `configure()` (`scripts/okx.mjs`) et dans le moteur :
-`DRY_RUN=1` force la simulation, tandis que `DRY_RUN=0` ne peut pas armer un plan
+`DRY_RUN=1` force la simulation, tandis que `DRY_RUN=0` ne peut pas activer un plan
 non-live. Un plan démo ne peut pas être converti en réel par l'environnement.
 
 
@@ -590,7 +607,7 @@ Si l'utilisateur veut copier le projet **sans tout exposer** :
 1. Crée **toujours** un dépôt **private** :
    `gh repo create <nom> --private --template Capetlevrai/okx-planifier-achat-github-actions`
 2. Configure les trois identifiants OKX dans l'environnement `real-trading` ;
-   le fusible d'armement reste géré séparément par l'agent.
+   l'autorisation interne reste gérée séparément par l'agent.
 3. Vérifie Actions : CI vert, puis `workflow_dispatch` du DCA avec `dry_run=1`.
 4. Tableau de bord = `RAPPORT.md` / `tableau-de-bord.html` (pas de passage en public pour Pages).
 5. Guide détaillé : [`docs/REPO_PRIVE.md`](docs/REPO_PRIVE.md).
@@ -609,10 +626,10 @@ Points à vérifier **avec l'humain**, un par un (ne les saute pas) :
 1. Fonds sur le compte **Trading** OKX, pas seulement **Funding** (piège n°1).
 2. Clé API **live** (pas démo) + site cohérent (`eea` / `global` / …).
 3. Secrets utilisateur `OKX_API_KEY`, `OKX_API_SECRET` ou `OKX_SECRET_KEY` et
-   `OKX_PASSPHRASE`. Vérifie toi-même le fusible d'armement séparé sans demander
+   `OKX_PASSPHRASE`. Vérifie toi-même l'autorisation interne sans demander
    à l'utilisateur de le créer ni de saisir sa valeur.
 4. Montant minimal confirmé ; exposition plafonnée.
-5. Après un run : lire les logs (désarmé / 401 environment / solde) **et**
+5. Après un run : lire les logs (achats désactivés / 401 environment / solde) **et**
    l’historique Spot OKX avant tout re-push ou re-run.
 6. Ne jamais committer ni coller en clair : clés, `ordId`, quantités/frais exacts
    d’ordres réels sur un dépôt public.

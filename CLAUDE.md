@@ -13,3 +13,7 @@ Deux règles qui priment sur tout le reste :
   workflow.
 - **Aucun secret dans le chat ni navigateur OKX intégré.** Donne les URLs
   officielles à ouvrir manuellement dans le navigateur habituel de l'utilisateur.
+- **« Acheter maintenant » déclenche l'achat dans la même exécution après la
+  confirmation finale.** Lance une seule fois le workflow, vérifie `filled`,
+  puis donne les URLs de contrôle. Ne dis jamais « plan armé/désarmé » ni ne
+  remplace « maintenant » par une heure UTC dans le message utilisateur.

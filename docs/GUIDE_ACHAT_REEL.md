@@ -187,7 +187,7 @@ Ce dépôt fournit un workflow de test temporaire :
    permanent dans le dépôt.
 5. Étapes typiques :
    - garde qualité (`npm test`) ;
-- vérification du verrou interne d'armement géré par l'agent ;
+- vérification de l'autorisation interne gérée par l'agent ;
    - préparation du plan live temporaire ;
    - **contrôle solde Trading** (et tentative de transfert Funding→Trading si
      la clé a la permission Transfer) ;
@@ -228,7 +228,7 @@ Dans **Actions → le run → job `sol-real-test`**, regardez les messages suiva
 
 | Message / symptôme | Signification |
 |---|---|
-| `Compte réel désarmé : … aucun nouveau POST possible` | verrou interne absent ou incorrect |
+| `Achats réels désactivés : aucun ordre envoyé` | autorisation interne absente ou incorrecte |
 | Message de fusible manquant ou incorrect | Protection active **avant** tout achat |
 | `state=prepared` qui ne devient jamais `filled` | Ordre non soumis / non rempli |
 | `solde insuffisant` | Trading sans fonds (souvent encore en Funding) |
@@ -247,7 +247,7 @@ Dans **Actions → le run → job `sol-real-test`**, regardez les messages suiva
 
 | Message | Signification |
 |---|---|
-| `ACHATS ACTIVÉS, les ordres partent` **et** plus de « désarmé » | Armement OK |
+| `ACHATS ACTIVÉS, les ordres partent` | Achats activés |
 | `… filled — montant exécuté et quantité présents` | Remplissage confirmé (sans afficher les détails privés dans le résumé) |
 | Étapes 1/2 et 2/2 **success** | Les deux ordres du test sont OK |
 | Côté OKX : historique Spot de la paire avec **2** fills récents | Confirmation indépendante |
@@ -293,17 +293,17 @@ Vous pouvez vous en inspirer pour tout premier passage en réel, même hors SOL.
 
 ### Premier achat immédiat : le parcours en une fois
 
-Pour éviter qu'un ancien workflow réécrive le planning pendant l'armement,
+Pour éviter qu'un ancien workflow réécrive le planning pendant l'activation,
 respectez cet ordre strict :
 
 1. Attendez que tous les runs **« 2. Acheter — routine automatique »** soient
    terminés ; ne modifiez pas le plan pendant un run.
-2. Pour « maintenant », générez le plan avec la **date UTC du jour** et
-   **l'heure UTC en cours**. L'échéance est alors déjà due au moment du run.
-   Utilisez `--count` pour un nombre exact d'achats.
-3. Poussez le plan armé et vérifiez que le `git push` a réussi.
-4. Donnez votre confirmation finale. L'agent applique alors le verrou
-   d'armement technique et déclenche **une seule fois** le workflow avec
+2. Pour « maintenant », l'agent prépare une échéance déjà due. Les valeurs UTC
+   sont un détail interne : il doit vous parler de **premier achat maintenant**,
+   pas vous annoncer une heure UTC à la place.
+3. L'agent active le plan et vérifie que le `git push` a réussi.
+4. Donnez votre confirmation finale. L'agent applique alors l'autorisation
+   interne et déclenche **une seule fois** le workflow avec
    `dry_run=0` ; vous n'avez aucun secret supplémentaire à saisir.
 5. Attendez le résultat ; ne cliquez pas sur **Re-run**. Vérifiez ensuite le
    statut `filled` dans le journal et dans l'historique Spot OKX.
@@ -322,7 +322,7 @@ en réconciliation, et le rejouer pourrait créer un doublon.
 
 Une fois le micro-test 1–2 USDC réussi :
 
-1. Demandez à l'agent de maintenir l'armement **uniquement** si vous voulez
+1. Demandez à l'agent de maintenir les achats activés **uniquement** si vous voulez
    vraiment l’automatisation réelle.
 2. Configurez un plan réel via le workflow de setup / votre agent, avec :
    - paires choisies ;
@@ -336,8 +336,8 @@ Une fois le micro-test 1–2 USDC réussi :
    l’activité API sans passer d’ordres.
 
 Pour arrêter immédiatement les prochains achats sans supprimer les clés,
-demandez simplement à l'agent d'arrêter le plan. Il retirera d'abord le verrou
-d'armement technique, puis désactivera le workflow `dca.yml`.
+demandez simplement à l'agent d'arrêter le plan. Il retirera d'abord
+l'autorisation interne, puis désactivera le workflow `dca.yml`.
 
 Ne régénérez pas un plan après un achat réel uniquement pour l'arrêter :
 contrôlez d'abord le registre, afin de préserver la réconciliation des ordres.
@@ -352,8 +352,8 @@ Presque toujours : l’argent est en **Funding**. Transférez vers **Trading**.
 
 ### « Le job dit compte réel mais aucun achat »
 
-Cherchez `désarmé` dans les logs et demandez à l'agent de vérifier le verrou
-d'armement avant toute nouvelle tentative.
+Cherchez `achats désactivés` dans les logs et demandez à l'agent de vérifier
+l'autorisation interne avant toute nouvelle tentative.
 
 ### « HTTP 401 APIKey does not match current environment »
 

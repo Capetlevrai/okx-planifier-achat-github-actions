@@ -33,6 +33,7 @@ const keepaliveText = read('../.github/workflows/keepalive.yml');
 const solTestText = read('../.github/workflows/sol-2min-test.yml');
 const agentProtocol = read('../AGENTS.md');
 const claudeProtocol = read('../CLAUDE.md');
+const readme = read('../README.md');
 const realUserGuide = read('../docs/GUIDE_ACHAT_REEL.md');
 const dca = parseWorkflow('../.github/workflows/dca.yml');
 const setup = parseWorkflow('../.github/workflows/setup.yml');
@@ -54,7 +55,15 @@ assert.ok(agentProtocol.includes('**utilise Environment secrets, jamais') && age
 assert.ok(!realUserGuide.includes('| `ALLOW_REAL_TRADING` |'), 'final-user secret table must not ask the user to manage the arming fuse');
 assert.ok(agentProtocol.includes("N'ouvre jamais le navigateur intégré pour OKX"), 'agent must hand off sensitive OKX pages to the user browser');
 assert.ok(agentProtocol.includes('Ne demande jamais une clé, un secret ou une passphrase dans le chat'), 'agent must not collect OKX credentials in chat');
+assert.ok(agentProtocol.includes("N'emploie jamais « plan armé », « plan désarmé » ou « armement » avec"), 'agent must use plain activation language with users');
+assert.ok(agentProtocol.includes('« Acheter maintenant » signifie exécuter maintenant'), 'buy-now intent must trigger immediate execution');
+assert.ok(agentProtocol.includes('lance immédiatement') && agentProtocol.includes('une seule exécution') && agentProtocol.includes('confirmation `filled`'), 'immediate real flow must dispatch once and verify the fill');
+assert.ok(agentProtocol.includes('jamais « aujourd\'hui à HH:00 UTC »'), 'agent must not replace now with a displayed UTC hour');
+assert.ok(agentProtocol.includes('clique sur la grande carte') && agentProtocol.includes('utilise Environment secrets') && agentProtocol.includes('Environment variables'), 'real credentials must be guided into environment secrets, not variables');
+assert.ok(readme.includes('https://my.okx.com/fr-fr/balance/sub-transfer'), 'Europe sub-account transfer URL must be directly available');
+assert.ok(readme.includes("exécute immédiatement un seul achat") && readme.includes("bien rempli"), 'README must promise one-shot execution and fill verification after confirmation');
 assert.ok(claudeProtocol.includes('choix interactifs Démo/Argent réel puis Région'), 'Claude entrypoint must preserve the interactive flow');
+assert.ok(claudeProtocol.includes('Lance une seule fois le workflow') && claudeProtocol.includes('vérifie `filled`'), 'Claude entrypoint must complete and verify immediate purchases in one shot');
 
 assert.equal(dca.concurrency.group, 'okx-dca-state');
 assert.equal(setup.concurrency.group, 'okx-dca-state');
