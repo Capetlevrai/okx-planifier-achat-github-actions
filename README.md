@@ -109,7 +109,9 @@ Sécurité détaillée : [docs/SECURITE.md](docs/SECURITE.md).
 - Secrets **uniquement** dans GitHub Actions — jamais dans le code.
 - Préférez un **[sous-compte](https://my.okx.com/fr-fr/account/sub-account)** avec un petit budget.
 - Un **keepalive** maintient la clé active (appel solde, sans ordre).
-- Une clé collée en clair doit être **révoquée**.
+- Une clé collée en clair doit être **révoquée**, idéalement avec un **[sous-compte](https://my.okx.com/fr-fr/account/sub-account)** dédié.
+
+![Créer un sous-compte OKX](docs/images/okx-sous-compte.png)
 
 ---
 
