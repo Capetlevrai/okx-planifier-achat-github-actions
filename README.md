@@ -42,6 +42,8 @@ Permissions à cocher :
 - **Secrets** : Read and write  
 - **Metadata** : Read-only
 
+![Créer un fine-grained personal access token](docs/images/creer-finegrained-token.png)
+
 ![Permissions du token fine-grained](docs/images/permissions-token.png)
 
 Révoquez le token après installation.
