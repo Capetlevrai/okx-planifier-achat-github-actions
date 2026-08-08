@@ -16,7 +16,7 @@ Pour qu’un achat Spot parte vraiment :
 
 1. clés API **réelles** (pas démo) sur le **bon site** OKX ;
 2. USDC (ou la devise d’achat) sur le compte **Trading**, pas seulement Funding ;
-3. secret d’armement exact `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS` ;
+3. confirmation finale explicite avant que l'agent active les achats ;
 4. plan `live: true` + `demo: false` + montants plafonnés ;
 5. **jamais** coller les clés dans le dépôt Git, ni republier `ordId` / quantités
    exactes / frais sur un repo public.
@@ -131,13 +131,10 @@ Ajoutez **ces secrets** (noms exacts) :
 | `OKX_API_KEY` | votre clé API **réelle** |
 | `OKX_API_SECRET` *(ou `OKX_SECRET_KEY`)* | le secret affiché **une seule fois** à la création |
 | `OKX_PASSPHRASE` | la passphrase choisie à la création de la clé |
-| `ALLOW_REAL_TRADING` | **exactement** `I_CONFIRM_REAL_SPOT_BUYS` |
 
 Règles :
 
 - même orthographe, majuscules, **aucun espace**, **aucun guillemet** ;
-- si `ALLOW_REAL_TRADING` est vide ou différent → **aucun ordre réel n’est
-  envoyé** (le bot reste en lecture seule : « compte réel désarmé ») ;
 - ne mettez **pas** ces valeurs dans le code, dans un commit, ni dans une issue.
 
 En ligne de commande (exemple, le terminal vous demandera la valeur sans la
@@ -147,8 +144,6 @@ réafficher ensuite) :
 gh secret set OKX_API_KEY --repo VOTRE_PSEUDO/VOTRE_DEPOT --env real-trading
 gh secret set OKX_API_SECRET --repo VOTRE_PSEUDO/VOTRE_DEPOT --env real-trading
 gh secret set OKX_PASSPHRASE --repo VOTRE_PSEUDO/VOTRE_DEPOT --env real-trading
-gh secret set ALLOW_REAL_TRADING --repo VOTRE_PSEUDO/VOTRE_DEPOT --env real-trading
-# puis coller exactement : I_CONFIRM_REAL_SPOT_BUYS
 ```
 
 > Selon votre copie du projet, les secrets peuvent aussi être au niveau
@@ -185,7 +180,7 @@ Ce dépôt fournit un workflow de test temporaire :
    permanent dans le dépôt.
 5. Étapes typiques :
    - garde qualité (`npm test`) ;
-   - vérif du fusible `ALLOW_REAL_TRADING` ;
+- vérification du verrou interne d'armement géré par l'agent ;
    - préparation du plan live temporaire ;
    - **contrôle solde Trading** (et tentative de transfert Funding→Trading si
      la clé a la permission Transfer) ;
@@ -226,8 +221,8 @@ Dans **Actions → le run → job `sol-real-test`**, regardez les messages suiva
 
 | Message / symptôme | Signification |
 |---|---|
-| `Compte réel désarmé : … aucun nouveau POST possible` | `ALLOW_REAL_TRADING` absent ou incorrect |
-| `ALLOW_REAL_TRADING manquant ou incorrect` | Fusible bloqué **avant** tout achat |
+| `Compte réel désarmé : … aucun nouveau POST possible` | verrou interne absent ou incorrect |
+| Message de fusible manquant ou incorrect | Protection active **avant** tout achat |
 | `state=prepared` qui ne devient jamais `filled` | Ordre non soumis / non rempli |
 | `solde insuffisant` | Trading sans fonds (souvent encore en Funding) |
 | Étape 2/2 **skipped** | L’étape 1 a échoué : normal, le 2ᵉ achat n’a pas eu lieu |
@@ -300,9 +295,9 @@ respectez cet ordre strict :
    **l'heure UTC en cours**. L'échéance est alors déjà due au moment du run.
    Utilisez `--count` pour un nombre exact d'achats.
 3. Poussez le plan armé et vérifiez que le `git push` a réussi.
-4. Ajoutez seulement alors le secret d'environnement
-   `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS` et déclenchez **une seule
-   fois** le workflow avec `dry_run=0`.
+4. Donnez votre confirmation finale. L'agent applique alors le verrou
+   d'armement technique et déclenche **une seule fois** le workflow avec
+   `dry_run=0` ; vous n'avez aucun secret supplémentaire à saisir.
 5. Attendez le résultat ; ne cliquez pas sur **Re-run**. Vérifiez ensuite le
    statut `filled` dans le journal et dans l'historique Spot OKX.
 
@@ -320,8 +315,8 @@ en réconciliation, et le rejouer pourrait créer un doublon.
 
 Une fois le micro-test 1–2 USDC réussi :
 
-1. Gardez le secret `ALLOW_REAL_TRADING` **uniquement** si vous voulez vraiment
-   l’automatisation réelle.
+1. Demandez à l'agent de maintenir l'armement **uniquement** si vous voulez
+   vraiment l’automatisation réelle.
 2. Configurez un plan réel via le workflow de setup / votre agent, avec :
    - paires choisies ;
    - montants **que vous assumez** ;
@@ -333,11 +328,9 @@ Une fois le micro-test 1–2 USDC réussi :
 5. Ne laissez pas traîner une clé qui a fuité ; le workflow keepalive maintient
    l’activité API sans passer d’ordres.
 
-Pour arrêter immédiatement les prochains achats sans supprimer les clés :
-
-- supprimez le secret `ALLOW_REAL_TRADING` de l’environnement `real-trading` ;
-  cela bloque tout nouveau POST avant l'ordre ;
-- désactivez au besoin le workflow `dca.yml`.
+Pour arrêter immédiatement les prochains achats sans supprimer les clés,
+demandez simplement à l'agent d'arrêter le plan. Il retirera d'abord le verrou
+d'armement technique, puis désactivera le workflow `dca.yml`.
 
 Ne régénérez pas un plan après un achat réel uniquement pour l'arrêter :
 contrôlez d'abord le registre, afin de préserver la réconciliation des ordres.
@@ -352,8 +345,8 @@ Presque toujours : l’argent est en **Funding**. Transférez vers **Trading**.
 
 ### « Le job dit compte réel mais aucun achat »
 
-Cherchez `désarmé` ou `ALLOW_REAL_TRADING manquant`. Le secret d’armement n’est
-pas exactement `I_CONFIRM_REAL_SPOT_BUYS`.
+Cherchez `désarmé` dans les logs et demandez à l'agent de vérifier le verrou
+d'armement avant toute nouvelle tentative.
 
 ### « HTTP 401 APIKey does not match current environment »
 
@@ -385,7 +378,7 @@ lors de la création de la clé (libellé selon l’interface OKX). Sinon, trans
 1. Sous-compte + petit budget.
 2. Lecture + Trading, **sans Retrait**.
 3. Fonds en **Trading**.
-4. Secrets GitHub uniquement ; armement `I_CONFIRM_REAL_SPOT_BUYS`.
+4. Secrets GitHub uniquement ; armement géré par l'agent après confirmation.
 5. Micro-montant d’abord, surveillance du run.
 6. Pas de clés dans le chat ; en cas de fuite → **révocation**.
 7. Pas de re-run / re-push de test sans vérifier OKX.

@@ -112,7 +112,7 @@ Points critiques :
 
 - Les fonds doivent être dispo sur votre compte de **Trading**, pas dans **Financement** (voir image) : https://my.okx.com/fr-fr/balance/transfer
 - clé API en mode **réel** (pas démo) ;
-- secret d’armement exact : `ALLOW_REAL_TRADING` = `I_CONFIRM_REAL_SPOT_BUYS` ;
+- confirmation finale distincte avant que l'agent active les achats ;
 - petit montant d’abord.
 
 Sécurité détaillée : [docs/SECURITE.md](docs/SECURITE.md).

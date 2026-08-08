@@ -35,6 +35,12 @@ navigateur habituel les pages sensibles OKX (connexion, sous-compte, clé API).
 8. **Ne demande jamais une clé, un secret ou une passphrase dans le chat.** Ces
    valeurs sont saisies hors conversation dans un terminal masqué, un fichier
    local `.env` ignoré par Git, ou directement dans GitHub Actions Secrets.
+9. **Le fusible `ALLOW_REAL_TRADING` est géré par l'agent.** Ne le présente
+   jamais comme un secret que l'utilisateur doit créer, saisir, mémoriser ou
+   supprimer. Après la confirmation finale, crée-le toi-même juste avant
+   l'exécution réelle ; lorsqu'il faut arrêter, retire-le toi-même avant de
+   désactiver le workflow. Son nom peut rester visible dans les explications
+   techniques et les diagnostics, mais pas dans la checklist utilisateur.
 9. **Donne des liens Markdown cliquables et nommés**, jamais une URL sensible
    seule ni entourée de backticks. Exemple :
    `[Ouvrir la gestion des sous-comptes OKX](https://...)`. Précise que la page
@@ -475,9 +481,10 @@ Donne à l'utilisateur, en clair :
   `https://my.okx.com/fr-fr/balance/report-center/unified/account-history`.
   N'annonce jamais un achat à partir du seul statut du workflow : il doit être
   confirmé `filled` avant de remettre ces liens.
-- **comment tout arrêter immédiatement** : supprimez d'abord le secret
-  `ALLOW_REAL_TRADING` de l'environnement `real-trading` (cela bloque tout
-  nouveau POST), puis désactivez au besoin `dca.yml`. Ne régénérez pas un plan
+- **comment tout arrêter immédiatement** : l'utilisateur peut simplement
+  demander « arrête les achats ». Retire alors le fusible d'armement avant de
+  désactiver `dca.yml`, puis confirme que les deux protections sont appliquées.
+  Ne lui demande pas de manipuler le secret technique. Ne régénère pas un plan
   après un achat réel pour « arrêter » sans avoir d'abord lu son registre.
 
 ---
@@ -542,7 +549,7 @@ Les points suivants sont obligatoires avant toute utilisation réelle :
 - le workflow de configuration conserve l'historique par défaut ; `reset_history` est explicite et refusé en compte réel ;
 - tous les appels OKX ont un timeout HTTP explicite.
 
-Pour un DCA automatique réel, créez volontairement ce secret après confirmation humaine :
+Pour un DCA automatique réel, l'agent crée lui-même ce secret après confirmation humaine :
 
 ```text
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
@@ -559,7 +566,8 @@ Si l'utilisateur veut copier le projet **sans tout exposer** :
 
 1. Crée **toujours** un dépôt **private** :
    `gh repo create <nom> --private --template Capetlevrai/okx-planifier-achat-github-actions`
-2. Configure les **mêmes secrets** + env `real-trading`.
+2. Configure les trois identifiants OKX dans l'environnement `real-trading` ;
+   le fusible d'armement reste géré séparément par l'agent.
 3. Vérifie Actions : CI vert, puis `workflow_dispatch` du DCA avec `dry_run=1`.
 4. Tableau de bord = `RAPPORT.md` / `tableau-de-bord.html` (pas de passage en public pour Pages).
 5. Guide détaillé : [`docs/REPO_PRIVE.md`](docs/REPO_PRIVE.md).
@@ -577,8 +585,9 @@ Points à vérifier **avec l'humain**, un par un (ne les saute pas) :
 
 1. Fonds sur le compte **Trading** OKX, pas seulement **Funding** (piège n°1).
 2. Clé API **live** (pas démo) + site cohérent (`eea` / `global` / …).
-3. Secrets `OKX_API_KEY`, `OKX_API_SECRET` ou `OKX_SECRET_KEY`, `OKX_PASSPHRASE`,
-   et `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS` (orthographe exacte).
+3. Secrets utilisateur `OKX_API_KEY`, `OKX_API_SECRET` ou `OKX_SECRET_KEY` et
+   `OKX_PASSPHRASE`. Vérifie toi-même le fusible d'armement séparé sans demander
+   à l'utilisateur de le créer ni de saisir sa valeur.
 4. Montant minimal confirmé ; exposition plafonnée.
 5. Après un run : lire les logs (désarmé / 401 environment / solde) **et**
    l’historique Spot OKX avant tout re-push ou re-run.

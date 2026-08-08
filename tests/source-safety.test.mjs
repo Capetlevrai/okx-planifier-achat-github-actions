@@ -33,6 +33,7 @@ const keepaliveText = read('../.github/workflows/keepalive.yml');
 const solTestText = read('../.github/workflows/sol-2min-test.yml');
 const agentProtocol = read('../AGENTS.md');
 const claudeProtocol = read('../CLAUDE.md');
+const realUserGuide = read('../docs/GUIDE_ACHAT_REEL.md');
 const dca = parseWorkflow('../.github/workflows/dca.yml');
 const setup = parseWorkflow('../.github/workflows/setup.yml');
 const pages = parseWorkflow('../.github/workflows/pages.yml');
@@ -46,6 +47,8 @@ assert.ok(agentProtocol.includes('Europe/EEE') && agentProtocol.includes('États
 assert.ok(agentProtocol.includes('Créer un sous-compte dédié') && agentProtocol.includes('Utiliser mon compte principal'), 'real flow must offer account isolation before API credentials');
 assert.ok(agentProtocol.includes('https://my.okx.com/fr-fr/balance/sub-transfer'), 'Europe sub-account flow must link directly to the main-to-sub-account transfer page');
 assert.ok(agentProtocol.includes('immédiatement après cette phrase'), 'agent must show the transfer link at the moment the user is asked to fund the sub-account');
+assert.ok(agentProtocol.includes("Le fusible `ALLOW_REAL_TRADING` est géré par l'agent"), 'agent must own the real-trading fuse lifecycle');
+assert.ok(!realUserGuide.includes('| `ALLOW_REAL_TRADING` |'), 'final-user secret table must not ask the user to manage the arming fuse');
 assert.ok(agentProtocol.includes("N'ouvre jamais le navigateur intégré pour OKX"), 'agent must hand off sensitive OKX pages to the user browser');
 assert.ok(agentProtocol.includes('Ne demande jamais une clé, un secret ou une passphrase dans le chat'), 'agent must not collect OKX credentials in chat');
 assert.ok(claudeProtocol.includes('choix interactifs Démo/Argent réel puis Région'), 'Claude entrypoint must preserve the interactive flow');

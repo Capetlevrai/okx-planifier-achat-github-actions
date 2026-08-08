@@ -127,8 +127,9 @@ Même si un plan est configuré en argent réel (`demo: false`) et armé (`live:
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
 ```
 
-Pour une vraie utilisation, mettez cette variable et tous les identifiants réels
-dans l'environnement GitHub `real-trading`, jamais comme secrets de dépôt.
+Pour une vraie utilisation, l'agent gère ce verrou dans l'environnement GitHub
+`real-trading` après confirmation finale. L'utilisateur final n'a pas à créer,
+mémoriser ou supprimer ce secret technique.
 
 ## Corrections de robustesse avant argent réel
 
@@ -142,7 +143,8 @@ Les points suivants sont obligatoires avant toute utilisation réelle :
 - le workflow de configuration conserve l'historique par défaut ; `reset_history` est explicite et refusé en compte réel ;
 - tous les appels OKX ont un timeout HTTP explicite.
 
-Pour un DCA automatique réel, créez volontairement ce secret après confirmation humaine :
+Pour un DCA automatique réel, l'agent crée volontairement ce secret après
+confirmation humaine :
 
 ```text
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS

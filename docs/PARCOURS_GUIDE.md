@@ -79,8 +79,8 @@ Dans le formulaire :
 
 GitHub Actions utilise des runners dont l'adresse IP change. Une liste IP fixe
 ne peut donc pas être fournie pour ce mode d'exécution. En contrepartie, le
-projet limite les paires et montants, exige un secret d'armement séparé et
-maintient la clé active par un appel de solde sans ordre.
+projet limite les paires et montants, utilise un verrou d'armement séparé géré
+par l'agent et maintient la clé active par un appel de solde sans ordre.
 
 Conservez localement les trois valeurs affichées par OKX — clé, secret et
 passphrase — sans les envoyer dans la conversation. Si l'une d'elles a été
@@ -129,9 +129,9 @@ Après un ordre, l'agent ne se contente pas d'un workflow vert : il vérifie que
 l'ordre est réellement `filled`, puis remet deux liens : le tableau de bord et
 [l'historique Spot OKX Europe](https://my.okx.com/fr-fr/balance/report-center/unified/account-history).
 
-Pour bloquer immédiatement tout nouvel ordre réel, supprimez d'abord le secret
-`ALLOW_REAL_TRADING` de l'environnement `real-trading`. Vous pouvez ensuite
-désactiver le workflow `dca.yml`.
+Pour bloquer immédiatement tout nouvel ordre réel, demandez à l'agent d'arrêter
+les achats. Il retire d'abord le verrou d'armement technique, puis désactive le
+workflow `dca.yml`, sans vous demander de manipuler un secret.
 
 ## Liens directs pour les autres régions
 

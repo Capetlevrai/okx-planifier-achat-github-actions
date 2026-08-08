@@ -114,4 +114,6 @@ Même si un plan est configuré en argent réel (`demo: false`) et armé (`live:
 ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS
 ```
 
-Pour une vraie utilisation, mettez cette variable dans un environnement GitHub protégé avec approbation humaine, pas comme automatisme silencieux.
+Pour une vraie utilisation, l'agent crée et retire lui-même cette variable dans
+un environnement GitHub protégé, uniquement après confirmation humaine. Il ne
+demande pas à l'utilisateur final de la saisir ou de la gérer.

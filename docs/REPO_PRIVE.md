@@ -67,14 +67,11 @@ gh repo create mon-pseudo/mon-okx-dca-prive --private --source=. --remote=origin
 | `OKX_API_KEY` | Clé API live |
 | `OKX_API_SECRET` ou `OKX_SECRET_KEY` | Secret API |
 | `OKX_PASSPHRASE` | Passphrase API |
-| `ALLOW_REAL_TRADING` | Exactement `I_CONFIRM_REAL_SPOT_BUYS` pour l’argent réel |
 
 ```bash
 gh secret set OKX_API_KEY --repo VOTRE_PSEUDO/VOTRE_DEPOT
 gh secret set OKX_API_SECRET --repo VOTRE_PSEUDO/VOTRE_DEPOT
 gh secret set OKX_PASSPHRASE --repo VOTRE_PSEUDO/VOTRE_DEPOT
-gh secret set ALLOW_REAL_TRADING --repo VOTRE_PSEUDO/VOTRE_DEPOT
-# valeur : I_CONFIRM_REAL_SPOT_BUYS
 ```
 
 Pour l’environnement :
@@ -189,8 +186,8 @@ tableau de bord via les fichiers du dépôt plutôt que Pages gratuit.
 4. Keepalive actif pour éviter l’expiration de clé trade sans IP.  
 5. Premier passage réel : montants minimaux +
    [GUIDE_ACHAT_REEL.md](./GUIDE_ACHAT_REEL.md).  
-6. Si vous quittez le mode réel : supprimez `ALLOW_REAL_TRADING` ou repassez
-   le plan en démo.
+6. Si vous quittez le mode réel, demandez à l'agent d'arrêter les achats ; il
+   retirera l'armement technique et désactivera le workflow.
 
 ---
 
