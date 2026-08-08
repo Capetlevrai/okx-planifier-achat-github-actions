@@ -310,7 +310,11 @@ export async function runPlanner({
 }) {
   const risk = validatePlanStrict(plan);
   if (plan.demo !== demo) throw new Error('Le mode de compte effectif ne correspond pas au plan; exécution refusée.');
-  const submissionsAllowed = allowNewSubmissions && (demo || realTradingArmed);
+  // Un dry-run ne franchit jamais la barrière POST (voir le `if (dryRun)`
+  // avant marketBuy). Il doit néanmoins pouvoir exécuter le préflight réel :
+  // recherche idempotente, prix et solde. Le fusible reste obligatoire dès
+  // qu'une véritable soumission est possible.
+  const submissionsAllowed = dryRun || (allowNewSubmissions && (demo || realTradingArmed));
   if (!client || typeof client.findOrderByClOrdId !== 'function' || typeof client.marketBuy !== 'function') throw new Error('Client OKX injectable invalide.');
 
   operations = initializeOperations(plan, operations);

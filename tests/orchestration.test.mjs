@@ -290,6 +290,20 @@ for (const [mode, expectedState, expectedHistoryStatus] of [
   assert.match(result.failures.join('\n'), /soumissions désarmées/);
 }
 
+// A disarmed real dry-run performs the authenticated preflight but cannot POST.
+{
+  const api = new FakeOkx();
+  const state = { plan: basePlan({ demo: false, live: false }), history: { purchases: [] }, operations: { operations: [] } };
+  const result = await runState(state, api, T0, { demo: false, realTradingArmed: false, dryRun: true });
+  assert.deepEqual(result.failures, []);
+  assert.equal(api.findCalls, 1, 'dry-run keeps the deterministic order lookup');
+  assert.equal(api.priceCalls, 1, 'dry-run validates the live market price');
+  assert.equal(api.balanceCalls, 1, 'dry-run validates the live Trading balance');
+  assert.equal(api.postCalls, 0, 'dry-run must never submit an order');
+  assert.equal(state.operations.operations[0].state, 'prepared');
+  assert.equal(state.history.purchases.length, 0);
+}
+
 // Removing the real-money arming secret is a kill switch for POST, not for
 // durable reconciliation of an operation accepted before disarming.
 {
