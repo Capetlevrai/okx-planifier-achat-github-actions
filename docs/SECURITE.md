@@ -8,6 +8,10 @@
 4. Le mode démo est le défaut.
 5. Le mode réel doit être activé volontairement et explicitement.
 6. Un dépôt public peut afficher votre planning et votre historique : ne publiez pas des montants que vous souhaitez garder privés.
+7. En argent réel, choisissez le compte principal ou un sous-compte dédié avant
+   de créer la clé API ; le sous-compte à budget limité est recommandé.
+8. Ouvrez vous-même les pages OKX dans votre navigateur habituel. Ne saisissez
+   jamais une clé, un secret ou une passphrase dans un chat ou navigateur intégré.
 
 ## Repo privé vs repo public
 

@@ -30,7 +30,7 @@ assert.ok(report.includes('${done} sur ${plan.entries.length}'), 'Markdown compl
 assert.ok(report.includes('p.demo !== undefined ? p.demo === planDemo : planDemo'), 'Markdown report must filter history by active demo/real account');
 assert.ok(dashboard.includes('p.demo!==undefined?p.demo===demo:demo'), 'Web dashboard must filter history by active demo/real account');
 assert.ok(report.includes('opération(s) à traiter'), 'Markdown must surface unresolved failures');
-const standaloneTemplate = standalone.replace(/<script>window\.__DCA__ = .*?;<\/script>\n/, '');
+const standaloneTemplate = standalone.replace(/<script>window\.__DCA__ = .*?;<\/script>\r?\n/, '');
 assert.equal(standaloneTemplate, dashboard, 'standalone dashboard must be regenerated from the current responsive template');
 
 console.log('dashboard UX source tests OK');

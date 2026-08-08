@@ -2,6 +2,20 @@
 
 Collez l’un de ces prompts dans Grok, OpenCode, Claude Code, ChatGPT, Gemini CLI, Cursor ou un autre agent de code.
 
+## Parcours interactif obligatoire
+
+Quel que soit le prompt utilisé, l'agent doit commencer par deux questions
+séparées avec boutons ou sélecteurs lorsque l'interface le permet :
+
+1. `Démo (argent fictif)` ou `Argent réel` ;
+2. `Europe/EEE`, `États-Unis`, `Turquie` ou `Ailleurs`.
+
+En argent réel, il propose ensuite `Créer un sous-compte dédié` (recommandé) ou
+`Utiliser mon compte principal`. Il ne demande une clé API qu'après ce choix.
+Il donne l'URL officielle à ouvrir manuellement dans le navigateur habituel de
+l'utilisateur et n'ouvre jamais OKX dans un navigateur intégré. Aucun secret
+OKX ne doit être collé dans la conversation.
+
 ## Exemple minimal identique à cette démo : BTC + ETH
 
 ```text

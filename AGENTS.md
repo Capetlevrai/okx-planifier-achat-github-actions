@@ -3,8 +3,9 @@
 **Ce fichier s'adresse à un agent IA** (Claude Code, Cursor, Codex, ChatGPT…) à qui
 l'utilisateur a donné l'URL de ce dépôt. Suis-le du début à la fin.
 
-Objectif : l'utilisateur ne tape aucune commande et ne va sur aucune page de
-réglages. Il répond à des questions, tu fais le reste.
+Objectif : l'utilisateur ne tape aucune commande. Il répond à des choix guidés,
+l'agent fait la partie technique, et l'utilisateur ouvre lui-même dans son
+navigateur habituel les pages sensibles OKX (connexion, sous-compte, clé API).
 
 ---
 
@@ -18,8 +19,18 @@ réglages. Il répond à des questions, tu fais le reste.
    dans `.gitignore`) en local, et dans les secrets GitHub Actions.
 4. **Refuse une clé qui a la permission de retrait.** Lecture + Trading suffit.
 5. **Parle la langue de l'utilisateur** et explique chaque étape en une phrase.
-6. **Une question à la fois** si l'interface le permet, sinon groupe-les. Propose
-   toujours une valeur par défaut pour que l'utilisateur puisse dire « ok ».
+6. **Une question à la fois.** Quand l'interface sait afficher des boutons, une
+   liste de choix ou un sélecteur (par exemple son outil natif de question
+   structurée), utilise impérativement ce composant : ne
+   demande pas à l'utilisateur de retaper une option au clavier. Si aucun choix
+   interactif n'est disponible, affiche les options numérotées et accepte le
+   numéro ou le libellé. Propose toujours une valeur recommandée.
+7. **N'ouvre jamais le navigateur intégré pour OKX.** Donne l'URL officielle
+   correspondant à la région et demande à l'utilisateur de l'ouvrir lui-même
+   dans son navigateur habituel, où il est déjà connecté.
+8. **Ne demande jamais une clé, un secret ou une passphrase dans le chat.** Ces
+   valeurs sont saisies hors conversation dans un terminal masqué, un fichier
+   local `.env` ignoré par Git, ou directement dans GitHub Actions Secrets.
 
 ---
 
@@ -45,22 +56,63 @@ npm install -g @okx_ai/okx-trade-mcp @okx_ai/okx-trade-cli
 
 ---
 
-## Étape 2 — L'entretien
+## Étape 2 — L'entretien interactif
 
-Pose ces questions. Les valeurs entre crochets sont les défauts à proposer.
+Les **deux premières questions sont obligatoirement posées en premier, dans cet
+ordre, une par une et sous forme de choix cliquables/sélectionnables** lorsque
+l'interface le permet.
+
+**Question 1 — mode du compte**
+
+- `Démo (argent fictif)` — recommandé pour tester sans risque ;
+- `Argent réel` — ordres Spot réels, jamais armés sans confirmation finale.
+
+Attends la réponse avant d'afficher la question 2.
+
+**Question 2 — région du compte OKX**
+
+- `Europe/EEE` — recommandé si le compte est sur `my.okx.com` ;
+- `États-Unis` ;
+- `Turquie` ;
+- `Ailleurs`.
+
+Attends la réponse avant de poursuivre. N'infère pas la région depuis le fuseau
+horaire ou l'adresse IP.
+
+**Question 3 — isolation du budget (argent réel uniquement)**
+
+Avant de parler de clé API, propose un nouveau choix cliquable :
+
+- `Créer un sous-compte dédié` — recommandé ; limite le budget exposé au bot ;
+- `Utiliser mon compte principal` — aucun sous-compte.
+
+Si l'utilisateur choisit le sous-compte, donne l'URL régionale de sous-compte,
+demande-lui de l'ouvrir dans son propre navigateur, puis guide-le pour créer le
+sous-compte et lui transférer uniquement le budget prévu. Ensuite seulement,
+donne l'URL régionale de création de clé et demande une clé rattachée à ce
+sous-compte.
+
+S'il choisit le compte principal, ne crée rien : donne directement l'URL
+régionale de création de clé. Explique que cette clé accédera au solde Trading
+du compte principal et recommande de n'y laisser que le budget accepté.
+
+En mode démo, explique qu'un sous-compte de budget n'est pas nécessaire puisque
+les fonds sont fictifs, puis donne l'URL API régionale et demande de créer la clé
+depuis *Trading démo*.
+
+Dans tous les cas, l'utilisateur ouvre lui-même l'URL dans son navigateur
+habituel. Ne prends pas le contrôle du navigateur et ne demande jamais les
+identifiants API dans le chat.
+
+Pose ensuite, une par une :
 
 | # | Question | Défaut |
 |---|---|---|
-| 1 | Compte **démo** (argent fictif) ou **réel** ? | démo |
-| 2 | Tu es en Europe, aux US, en Turquie, ou ailleurs ? | Europe |
-| 3 | Ta clé API OKX ? | — |
-| 4 | Ton secret ? | — |
-| 5 | Ta passphrase ? | — |
-| 6 | Quelle(s) crypto acheter ? | BTC-USDC,ETH-USDC |
-| 7 | Combien à chaque achat ? | 50 |
-| 8 | Tous les combien de jours ? | 15 |
-| 9 | Pendant combien de mois ? | 3 |
-| 10 | Nom du dépôt à créer sur son compte ? | mes-achats-crypto |
+| 4 | Quelle(s) crypto acheter ? | BTC-USDC,ETH-USDC |
+| 5 | Combien à chaque achat ? | 50 |
+| 6 | Tous les combien de jours ? | 15 |
+| 7 | Pendant combien de mois ? | 3 |
+| 8 | Nom du dépôt à créer sur son compte ? | mes-achats-crypto |
 
 **Question 2 → paramètre `site` et devise :**
 
@@ -71,11 +123,21 @@ Pose ces questions. Les valeurs entre crochets sont les défauts à proposer.
 | Turquie | `tr` | tr.okx.com | `-TRY` |
 | Ailleurs | `global` | www.okx.com | `-USDT` |
 
-Si l'utilisateur n'a pas encore de clés, guide-le : OKX → Profil → API → Créer
-une clé API → permissions **Lecture + Trading**, jamais Retrait. Pour le mode
-démo, il doit d'abord basculer sur *Trading démo* puis créer une clé démo.
+**URLs à remettre à l'utilisateur (ouverture manuelle uniquement) :**
 
-**Question 6 :** n'importe quelle paire au comptant d'OKX fonctionne. Plusieurs
+| Région | Sous-comptes | Clés API |
+|---|---|---|
+| Europe/EEE | `https://my.okx.com/fr-fr/account/sub-account` | `https://my.okx.com/fr-fr/account/my-api` |
+| États-Unis | `https://us.okx.com/account/sub-account` | `https://us.okx.com/account/my-api` |
+| Turquie | `https://tr.okx.com/account/sub-account` | `https://tr.okx.com/account/my-api` |
+| Ailleurs | `https://www.okx.com/account/sub-account` | `https://www.okx.com/account/my-api` |
+
+Pour toute clé : permissions **Lecture + Trading**, jamais Retrait. Pour le mode
+démo, l'utilisateur doit d'abord basculer sur *Trading démo* puis créer une clé
+démo. Pour GitHub Actions, explique l'absence de restriction IP avant qu'il
+valide la clé, car les runners utilisent des adresses variables.
+
+**Question 4 :** n'importe quelle paire au comptant d'OKX fonctionne. Plusieurs
 sont possibles, séparées par des virgules, à condition de partager la même devise
 de cotation (`BTC-USDC,ETH-USDC` ✅ · `BTC-EUR,ETH-USDC` ❌ si les devises sont mélangées).
 
@@ -85,6 +147,11 @@ mode démo, propose d’abord des paires en `-USDC` comme `BTC-USDC,ETH-USDC`.
 ---
 
 ## Étape 3 — Configurer OKX en local
+
+Ne récupère pas les secrets dans le chat. Fais-les saisir par l'utilisateur via
+une saisie locale masquée ou demande-lui de remplir `.env` localement, sans
+jamais afficher ensuite son contenu. Si ce canal sûr n'est pas disponible,
+saute la configuration locale et guide l'utilisateur vers les Secrets GitHub.
 
 ```bash
 okx config add-profile AK=<clé> SK=<secret> PP=<passphrase> site=<site> demo=<true|false>

@@ -31,12 +31,22 @@ const pagesText = read('../.github/workflows/pages.yml');
 const ciText = read('../.github/workflows/ci.yml');
 const keepaliveText = read('../.github/workflows/keepalive.yml');
 const solTestText = read('../.github/workflows/sol-2min-test.yml');
+const agentProtocol = read('../AGENTS.md');
+const claudeProtocol = read('../CLAUDE.md');
 const dca = parseWorkflow('../.github/workflows/dca.yml');
 const setup = parseWorkflow('../.github/workflows/setup.yml');
 const pages = parseWorkflow('../.github/workflows/pages.yml');
 const ci = parseWorkflow('../.github/workflows/ci.yml');
 const keepalive = parseWorkflow('../.github/workflows/keepalive.yml');
 const solTest = parseWorkflow('../.github/workflows/sol-2min-test.yml');
+
+assert.ok(agentProtocol.includes('Les **deux premières questions sont obligatoirement posées en premier'), 'agent flow must start with mode and region');
+assert.ok(agentProtocol.includes('Démo (argent fictif)') && agentProtocol.includes('Argent réel'), 'mode choices must be explicit');
+assert.ok(agentProtocol.includes('Europe/EEE') && agentProtocol.includes('États-Unis') && agentProtocol.includes('Turquie') && agentProtocol.includes('Ailleurs'), 'region choices must be explicit');
+assert.ok(agentProtocol.includes('Créer un sous-compte dédié') && agentProtocol.includes('Utiliser mon compte principal'), 'real flow must offer account isolation before API credentials');
+assert.ok(agentProtocol.includes("N'ouvre jamais le navigateur intégré pour OKX"), 'agent must hand off sensitive OKX pages to the user browser');
+assert.ok(agentProtocol.includes('Ne demande jamais une clé, un secret ou une passphrase dans le chat'), 'agent must not collect OKX credentials in chat');
+assert.ok(claudeProtocol.includes('choix interactifs Démo/Argent réel puis Région'), 'Claude entrypoint must preserve the interactive flow');
 
 assert.equal(dca.concurrency.group, 'okx-dca-state');
 assert.equal(setup.concurrency.group, 'okx-dca-state');

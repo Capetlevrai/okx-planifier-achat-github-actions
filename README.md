@@ -25,10 +25,15 @@ Ouvrez **ChatGPT**, **Grok**, **Claude**, **Cursor** sur votre ordinateur ou dan
 Installe ce projet pour moi et guide moi : https://github.com/Capetlevrai/okx-planifier-achat-github-actions
 ```
 
-L’agent lit [AGENTS.md](AGENTS.md), vous pose les questions une par une  
-(crypto, montant, rythme, démo ou réel), crée **obligatoirement un dépôt privé**  
-à partir de ce template, configure les secrets,  
+L’agent lit [AGENTS.md](AGENTS.md), commence par deux choix cliquables —
+**Démo ou Argent réel**, puis **Europe/EEE, États-Unis, Turquie ou Ailleurs** —
+et, en argent réel, propose un **sous-compte dédié** avant toute clé API. Il
+crée **obligatoirement un dépôt privé** à partir de ce template, configure les secrets,
 et **demande confirmation avant tout achat réel**.
+
+Les pages OKX sensibles ne sont pas ouvertes dans un navigateur intégré :
+l'agent vous donne l'URL officielle à ouvrir vous-même dans votre navigateur
+habituel. Ne transmettez jamais clé, secret ou passphrase dans le chat.
 
 Parcours agent (dépôt **privé pour plus de sécurité**) :
 
@@ -61,11 +66,12 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 ## Si vous souhaitez procéder à la main sans IA
 
 1. **[Use this template](../../generate)** → créez votre dépôt et choisissez **Private** dans le menu (recommandé pour l’argent réel).
-2. **[Créez une clé API OKX](https://my.okx.com/fr-fr/account/my-api)** : **Lecture + Trading** uniquement — **jamais Retrait**.
-3. Assurez-vous d’avoir des devises disponibles sur votre compte **Trading** (ex. USDC) : les fonds sont souvent sur le compte **Funding** par défaut — [transférez-les vers Trading](https://my.okx.com/fr-fr/balance/transfer) si besoin. Pour plus de sécurité, utilisez un **[sous-compte](https://my.okx.com/fr-fr/account/sub-account)** dédié.
-4. Collez les secrets dans GitHub : `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`), `OKX_PASSPHRASE`.
-5. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
-6. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
+2. En argent réel, choisissez d'abord entre un **[sous-compte dédié](https://my.okx.com/fr-fr/account/sub-account)** avec budget limité (recommandé) et votre compte principal.
+3. **[Créez ensuite la clé API OKX](https://my.okx.com/fr-fr/account/my-api)** sur le compte choisi : **Lecture + Trading** uniquement — **jamais Retrait**.
+4. Assurez-vous d’avoir des devises disponibles sur le compte **Trading** choisi (ex. USDC) : les fonds sont souvent sur le compte **Funding** par défaut — [transférez-les vers Trading](https://my.okx.com/fr-fr/balance/transfer) si besoin.
+5. Collez les secrets dans GitHub : `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`), `OKX_PASSPHRASE`.
+6. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
+7. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
 
 Détails dépôt privé : [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md).
 

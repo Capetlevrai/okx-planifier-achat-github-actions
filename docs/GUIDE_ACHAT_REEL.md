@@ -50,8 +50,13 @@ n’est pas OK.
 
 ### A. Compte et fonds OKX
 
-- [ ] Vous utilisez de préférence un **sous-compte dédié** au bot, avec un
-      **petit solde** (ex. 20–50 USDC), pas le compte principal plein.
+- [ ] Vous avez choisi entre un **sous-compte dédié** au bot (recommandé) et le
+      compte principal **avant** de créer la clé API.
+- [ ] Si vous avez choisi le sous-compte, créez-le depuis l'URL officielle de
+      votre région, ouverte vous-même dans votre navigateur habituel, puis
+      allouez-lui seulement le budget du plan (+ une petite marge).
+- [ ] Si vous avez choisi le compte principal, vous acceptez que la clé accède à
+      son solde Trading et vous n'y laissez que le budget que vous assumez.
 - [ ] La devise d’achat est bien sur le compte (**USDC**, **EUR**, etc. selon
       votre plan).
 - [ ] **Point le plus oublié** : les fonds sont sur **Trading**, pas seulement
@@ -73,6 +78,10 @@ n’est pas OK.
 
 ### B. Clé API
 
+- [ ] Créez la clé **après** le choix du compte, afin qu'elle soit rattachée au
+      sous-compte dédié ou au compte principal voulu.
+- [ ] Ouvrez vous-même la page API officielle dans votre navigateur habituel ;
+      ne transmettez jamais vos identifiants à un navigateur intégré ou au chat.
 - [ ] Clé créée en mode **réel** (pas depuis l’onglet *Trading démo*).
 - [ ] Permissions : **Lecture + Trading**.  
       ❌ **Pas Retrait**.  
