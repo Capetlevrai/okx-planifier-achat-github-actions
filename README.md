@@ -117,6 +117,12 @@ Sécurité détaillée : [docs/SECURITE.md](docs/SECURITE.md).
 - Historique OKX (compte réel) :  
   https://my.okx.com/fr-fr/balance/report-center/unified/account-history
 
+Après chaque achat, l'agent doit remettre à l'utilisateur **deux liens** : le
+tableau de bord et l'historique OKX. Pour une copie privée, le tableau de bord
+est le rapport GitHub `https://github.com/<pseudo>/<dépôt>/blob/main/RAPPORT.md`.
+Pour une copie publique dont GitHub Pages est activé, c'est
+`https://<pseudo>.github.io/<dépôt>/` comme dans l'exemple ci-dessus.
+
 ---
 
 ## Sécurité (essentiel)

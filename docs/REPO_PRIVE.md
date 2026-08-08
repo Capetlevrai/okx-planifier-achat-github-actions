@@ -134,6 +134,16 @@ Sur un dépôt **privé Free**, l’historique et le planning se consultent ains
 Ces fichiers sont mis à jour par le workflow **2. Acheter** après chaque run
 (commit bot `[skip ci]`).
 
+Après un achat rempli, l'agent doit donner ce lien directement à l'utilisateur :
+
+```text
+https://github.com/<VOTRE_PSEUDO>/<VOTRE_DEPOT>/blob/main/RAPPORT.md
+```
+
+Il s'agit du tableau de bord consultable de la copie privée. L'agent doit aussi
+donner le lien d'historique OKX de la région du compte (Europe/EEE :
+`https://my.okx.com/fr-fr/balance/report-center/unified/account-history`).
+
 En local :
 
 ```bash

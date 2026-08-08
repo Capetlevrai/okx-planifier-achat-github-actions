@@ -265,6 +265,16 @@ dis-lui qu'il peut consulter l'interface en local avec ``npm run site -- -l tcp:
 gh workflow disable pages.yml --repo <pseudo>/<nom-du-dépôt>
 ```
 
+**URL du tableau de bord à communiquer :**
+
+- dépôt public avec Pages activées : `https://<pseudo>.github.io/<nom-du-dépôt>/` ;
+- dépôt privé ou Pages indisponibles :
+  `https://github.com/<pseudo>/<nom-du-dépôt>/blob/main/RAPPORT.md`.
+
+Ne présente jamais une URL Pages comme disponible si elle ne l'est pas. Un dépôt
+privé reste le défaut ; passer en public uniquement pour obtenir Pages exige une
+demande explicite de l'utilisateur.
+
 ---
 
 ## Sécurité obligatoire avant argent réel
@@ -360,6 +370,14 @@ Donne à l'utilisateur, en clair :
 - l'URL de son dépôt et celle de son interface ;
 - ce qui va être acheté, quand, combien de fois, pour quel total ;
 - s'il est en démo ou en réel ;
+- **après chaque achat effectivement rempli**, exactement ces deux liens pour
+  qu'il puisse vérifier lui-même :
+  - `Tableau de bord : <URL Pages si activée, sinon URL RAPPORT.md>` ;
+  - `Historique des achats OKX : <URL de la région du compte>`.
+  Pour Europe/EEE, l'URL OKX est
+  `https://my.okx.com/fr-fr/balance/report-center/unified/account-history`.
+  N'annonce jamais un achat à partir du seul statut du workflow : il doit être
+  confirmé `filled` avant de remettre ces liens.
 - **comment tout arrêter immédiatement** : supprimez d'abord le secret
   `ALLOW_REAL_TRADING` de l'environnement `real-trading` (cela bloque tout
   nouveau POST), puis désactivez au besoin `dca.yml`. Ne régénérez pas un plan
