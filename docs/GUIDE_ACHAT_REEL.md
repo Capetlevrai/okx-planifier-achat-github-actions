@@ -97,7 +97,14 @@ n’est pas OK.
 ### C. Secrets GitHub (environnement `real-trading`)
 
 Allez dans votre dépôt → **Settings → Environments → `real-trading`**  
-(créez l’environnement s’il n’existe pas).
+(créez l’environnement s’il n’existe pas), puis ajoutez les valeurs dans la
+section **Environment secrets**.
+
+> **Attention : ne les ajoutez jamais dans _Environment variables_.** Ces
+> variables ne sont pas chiffrées et le workflow ne les utilise pas pour les
+> identifiants OKX. Cherchez le bouton **Add environment secret**.
+
+![Section GitHub « Environment secrets », où ajouter les identifiants OKX](images/github-environment-secrets.png)
 
 Ajoutez **ces secrets** (noms exacts) :
 

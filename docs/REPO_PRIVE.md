@@ -56,8 +56,11 @@ gh repo create mon-pseudo/mon-okx-dca-prive --private --source=. --remote=origin
 1. **Settings → Environments → New environment** : nommez-le `real-trading`  
    (sans approbateurs si vous voulez un cron 100 % automatique).
 
-2. **Settings → Secrets and variables → Actions** (et/ou secrets de
-   l’environnement `real-trading`) :
+2. Ouvrez l’environnement `real-trading`, puis sa section **Environment
+   secrets** — pas **Environment variables**. Les identifiants OKX doivent être
+   chiffrés et le workflow les lit uniquement depuis `secrets.*` :
+
+   ![Section GitHub « Environment secrets », où ajouter les identifiants OKX](images/github-environment-secrets.png)
 
 | Secret | Rôle |
 |---|---|
