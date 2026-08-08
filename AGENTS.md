@@ -332,3 +332,22 @@ Le job utilise déjà `environment: real-trading`. Configure cet environnement a
 les secrets réels et des approbateurs. N'annonce jamais la sûreté réelle sur les
 seuls tests : exige une validation démo prolongée puis un premier montant réel
 minimal explicitement confirmé.
+
+## Premier achat réel — guider l'utilisateur (obligatoire)
+
+Avant tout micro-test ou DCA réel, **fais lire ou résume** le guide utilisateur :
+
+- [`docs/GUIDE_ACHAT_REEL.md`](docs/GUIDE_ACHAT_REEL.md)
+
+Points à vérifier **avec l'humain**, un par un (ne les saute pas) :
+
+1. Fonds sur le compte **Trading** OKX, pas seulement **Funding** (piège n°1).
+2. Clé API **live** (pas démo) + site cohérent (`eea` / `global` / …).
+3. Secrets `OKX_API_KEY`, `OKX_API_SECRET` ou `OKX_SECRET_KEY`, `OKX_PASSPHRASE`,
+   et `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS` (orthographe exacte).
+4. Montant minimal confirmé ; exposition plafonnée.
+5. Après un run : lire les logs (désarmé / 401 environment / solde) **et**
+   l’historique Spot OKX avant tout re-push ou re-run.
+6. Ne jamais committer ni coller en clair : clés, `ordId`, quantités/frais exacts
+   d’ordres réels sur un dépôt public.
+7. En cas de clés collées dans le chat : exiger **révocation** + nouveaux secrets.

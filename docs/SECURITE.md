@@ -21,15 +21,48 @@ Avant d’activer l’argent réel, vérifiez :
 
 - compte OKX correct ;
 - paires correctes ;
-- devise de cotation approvisionnée ;
+- devise de cotation approvisionnée **sur le compte Trading** (pas seulement
+  Funding — voir ci-dessous) ;
 - montant total engagé ;
 - `plan.live=true` seulement après confirmation ;
 - `plan.demo=false` seulement pour compte réel ;
+- clé API créée en mode **réel** (une clé *Trading démo* provoque
+  `APIKey does not match current environment` sur le live) ;
 - `DRY_RUN=1` pour forcer une simulation ; `DRY_RUN=0` ne peut pas armer un plan
   dont `live` vaut `false`.
 - tous les identifiants OKX réels et le secret
   `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS` dans l'environnement GitHub
   `real-trading`, idéalement protégé par approbateurs.
+
+Guide pas à pas pour le premier test réel (checklist, logs, cas 1+1 USDC SOL) :
+**[GUIDE_ACHAT_REEL.md](./GUIDE_ACHAT_REEL.md)**.
+
+## Funding vs Trading (piège n°1)
+
+OKX sépare souvent :
+
+| Compte | Rôle |
+|---|---|
+| **Funding** (Financement) | dépôt / retrait / stockage hors trading Spot API |
+| **Trading** (Transaction) | solde utilisé par les ordres Spot de ce bot |
+
+L’API d’achat (`/api/v5/trade/order`) et le contrôle de solde
+(`/api/v5/account/balance`) regardent le **Trading**.  
+Un solde confortable en Funding avec Trading à zéro → échec « solde
+insuffisant » ou préflight bloqué, **sans** que l’appli OKX « ait l’air vide ».
+
+**Correctif utilisateur** : Actifs → Transfert → Funding → Trading, devise du
+plan (ex. USDC), montant ≥ exposition prévue.
+
+**Automatisation optionnelle** : permission Transfer sur la clé + script
+`scripts/ensure-trading-usdc.mjs` (logs en buckets, jamais le solde exact).
+
+## Ne pas publier les détails d’ordres réels
+
+Sur un dépôt **public**, évitez de committer volontairement pour des fills
+réels : `ordId`, `clOrdId`, quantités exactes, prix moyen, frais, dumps
+d’historique. Le workflow de micro-test SOL utilise `permissions: contents: read`
+précisément pour ne pas pousser cet état.
 
 ## Idempotence et interruptions GitHub Actions
 

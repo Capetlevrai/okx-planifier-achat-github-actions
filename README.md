@@ -46,6 +46,19 @@ réels valides et le verrou d'armement dans l'environnement protégé.
 
 Ce dépôt automatise uniquement des **ordres spot OKX au marché**. Il ne fait pas de virements bancaires, retraits, paiements carte ou transferts sortants.
 
+### Premier achat réel : lisez ceci avant
+
+Un cas réel minimal a été validé (**1 USDC de SOL, puis encore 1 USDC ~2 min
+plus tard**, sous-compte dédié). Les pièges qui bloquent la plupart des
+premiers essais — fonds en **Funding** au lieu de **Trading**, clé démo vs plan
+réel, secret `ALLOW_REAL_TRADING` manquant, re-run dangereux — sont documentés
+pour les utilisateurs finaux :
+
+👉 **[docs/GUIDE_ACHAT_REEL.md](docs/GUIDE_ACHAT_REEL.md)** — checklist,
+lancement du micro-test, lecture des logs, FAQ.
+
+Complément sécurité : [docs/SECURITE.md](docs/SECURITE.md).
+
 ---
 ## 🤖 La façon la plus simple : donnez cette URL à votre agent
 
@@ -97,6 +110,8 @@ Cliquez sur **[Use this template](../../generate)** en haut de cette page →
 Sur [my.okx.com](https://my.okx.com) → Profil → API → **Créer une clé API**.
 
 - Permissions : **Lecture + Trading**. ❌ **Jamais Retrait.**
+- Placez la devise d’achat (ex. USDC) sur le compte **Trading**, pas seulement
+  **Funding** — voir [docs/GUIDE_ACHAT_REEL.md](docs/GUIDE_ACHAT_REEL.md).
 - Pour GitHub Actions, ne liez pas la clé à une IP GitHub : les runners GitHub
   utilisent de nombreuses plages IP variables. Préférez un **sous-compte dédié**
   avec petit budget, sans retrait ni transfert.
@@ -384,6 +399,10 @@ les identifiants du compte réel, et le secret d'environnement protégé
 `ALLOW_REAL_TRADING=I_CONFIRM_REAL_SPOT_BUYS`. Commencez ensuite par un montant
 réel minimal explicitement confirmé et surveillé.
 
+**10. Avant le premier euro réel**, suivez le guide utilisateur :
+[docs/GUIDE_ACHAT_REEL.md](docs/GUIDE_ACHAT_REEL.md)
+(surtout **Funding → Trading**, clés live, fusible d’armement, ne pas re-run).
+
 ---
 
 ## Variables locales optionnelles
@@ -458,11 +477,14 @@ workflow commitant lui-même ses résultats, le problème ne se pose pas en prat
 ## Sécurité
 
 - **Jamais la permission « Retrait »** sur votre clé API. Lecture + Trading suffit.
+- Les fonds d’achat doivent être sur le compte **Trading** OKX, pas seulement
+  **Funding** (sinon le bot voit un solde à zéro).
 - `.env` est dans `.gitignore`. Vérifiez avec `git status` avant chaque commit.
 - Les secrets GitHub sont chiffrés et masqués dans les logs. Sur un dépôt public,
   ils ne sont **pas** exposés aux forks ni aux pull requests externes.
 - Entraînez-vous longtemps sur un **plan démo** (`demo: true`) avant tout passage en réel.
-- Premier passage en réel : un petit montant, et surveillez le premier run.
+- Premier passage en réel : un petit montant, et surveillez le premier run —
+  voir [docs/GUIDE_ACHAT_REEL.md](docs/GUIDE_ACHAT_REEL.md).
 - Une clé qui a circulé en clair (chat, capture d'écran, log) doit être révoquée.
 
 ---
