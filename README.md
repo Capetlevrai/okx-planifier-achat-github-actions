@@ -30,7 +30,7 @@ L’agent lit [AGENTS.md](AGENTS.md), vous pose les questions une par une
 à partir de ce template, configure les secrets,  
 et **demande confirmation avant tout achat réel**.
 
-Parcours agent (dépôt **toujours privé**) :
+Parcours agent (dépôt **privé pour plus de sécurité**) :
 
 ```bash
 gh repo create <nom-du-dépôt> --private --template Capetlevrai/okx-planifier-achat-github-actions
