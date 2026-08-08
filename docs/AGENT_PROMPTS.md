@@ -16,6 +16,23 @@ Il donne l'URL officielle à ouvrir manuellement dans le navigateur habituel de
 l'utilisateur et n'ouvre jamais OKX dans un navigateur intégré. Aucun secret
 OKX ne doit être collé dans la conversation.
 
+Chaque question doit être précédée de **2 à 5 phrases simples** expliquant le
+but de l'étape, l'effet du choix, ce qui restera désarmé et l'action attendue.
+Une réponse sèche comme « Réponds simplement : Europe, US… » n'est pas un
+parcours guidé. Après chaque réponse, l'agent résume ce qui est acquis et annonce
+la prochaine étape. Les liens OKX doivent être des liens Markdown cliquables et
+nommés, pas des URLs affichées comme du code.
+
+En cas de choix réel + sous-compte, l'ordre obligatoire est :
+
+1. expliquer le rôle du sous-compte et demander le choix ;
+2. donner le lien régional de création du sous-compte ;
+3. guider la création d'un sous-compte **Standard** ;
+4. donner le lien de transfert et faire isoler le budget ;
+5. seulement ensuite donner le lien API et faire choisir ce sous-compte dans le
+   champ **Compte** ;
+6. faire saisir les secrets hors du chat.
+
 ## Exemple minimal identique à cette démo : BTC + ETH
 
 ```text
@@ -57,6 +74,12 @@ Avant tout ordre réel, affiche-moi clairement :
 
 Ne passe l’ordre réel que si je réponds explicitement :
 « Je confirme l’activation en argent réel ».
+
+Avant chaque question, donne-moi assez de contexte pour comprendre le choix :
+pourquoi l'étape existe, ce qu'elle change et ce qui ne sera pas encore exécuté.
+En argent réel, propose obligatoirement un sous-compte dédié avant de parler de
+clé API, puis fournis les liens régionaux cliquables vers Sous-comptes,
+Transferts et API. Ne me demande jamais de coller une clé dans le chat.
 
 Mes clés API ne doivent jamais être commit : seulement GitHub Actions Secrets.
 La clé OKX ne doit jamais avoir la permission Retrait. Lecture + Trading seulement.

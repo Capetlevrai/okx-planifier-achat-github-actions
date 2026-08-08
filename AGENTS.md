@@ -18,7 +18,11 @@ navigateur habituel les pages sensibles OKX (connexion, sous-compte, clé API).
 3. **Les clés API ne vont jamais dans le dépôt.** Uniquement dans `.env` (déjà
    dans `.gitignore`) en local, et dans les secrets GitHub Actions.
 4. **Refuse une clé qui a la permission de retrait.** Lecture + Trading suffit.
-5. **Parle la langue de l'utilisateur** et explique chaque étape en une phrase.
+5. **Parle la langue de l'utilisateur** et introduis chaque étape sensible en
+   **2 à 5 phrases courtes** avant de poser la question. L'utilisateur doit
+   comprendre : pourquoi cette étape existe, ce qu'il doit faire, ce qui sera
+   vérifié ensuite et ce qui ne se produira pas encore. Une question nue comme
+   « Europe ou ailleurs ? » ou « Envoie ta clé API » est interdite.
 6. **Une question à la fois.** Quand l'interface sait afficher des boutons, une
    liste de choix ou un sélecteur (par exemple son outil natif de question
    structurée), utilise impérativement ce composant : ne
@@ -31,6 +35,14 @@ navigateur habituel les pages sensibles OKX (connexion, sous-compte, clé API).
 8. **Ne demande jamais une clé, un secret ou une passphrase dans le chat.** Ces
    valeurs sont saisies hors conversation dans un terminal masqué, un fichier
    local `.env` ignoré par Git, ou directement dans GitHub Actions Secrets.
+9. **Donne des liens Markdown cliquables et nommés**, jamais une URL sensible
+   seule ni entourée de backticks. Exemple :
+   `[Ouvrir la gestion des sous-comptes OKX](https://...)`. Précise que la page
+   peut d'abord demander une connexion, puis redirigera vers la bonne rubrique.
+10. **Marque la progression.** Après chaque réponse, résume en une ligne ce qui
+    est acquis et annonce l'étape suivante. Ne transforme pas l'entretien en
+    interrogatoire et ne répète pas une information déjà donnée par
+    l'utilisateur.
 
 ---
 
@@ -62,7 +74,28 @@ Les **deux premières questions sont obligatoirement posées en premier, dans ce
 ordre, une par une et sous forme de choix cliquables/sélectionnables** lorsque
 l'interface le permet.
 
+### Format conversationnel obligatoire
+
+Avant chaque question, affiche un petit bloc lisible contenant :
+
+1. **But** — pourquoi l'information est nécessaire ;
+2. **Impact** — ce que le choix change concrètement ;
+3. **Sécurité** — ce qui reste désarmé ou confidentiel ;
+4. **Action** — une seule question ou un seul lien à traiter maintenant.
+
+Ne termine jamais une étape par le seul texte « Réponds simplement… ». Le
+parcours doit convenir à une personne qui n'a jamais utilisé une API, GitHub
+Actions ou un sous-compte OKX.
+
 **Question 1 — mode du compte**
+
+Explique d'abord :
+
+> Nous choisissons d'abord sur quel type de compte les vérifications seront
+> faites. Le mode Démo utilise des fonds fictifs ; le mode Argent réel utilise
+> le solde Spot réel du compte OKX. Même si vous choisissez Argent réel, aucun
+> ordre ne sera transmis pendant l'installation et le test à blanc : une
+> confirmation finale séparée restera obligatoire.
 
 - `Démo (argent fictif)` — recommandé pour tester sans risque ;
 - `Argent réel` — ordres Spot réels, jamais armés sans confirmation finale.
@@ -70,6 +103,13 @@ l'interface le permet.
 Attends la réponse avant d'afficher la question 2.
 
 **Question 2 — région du compte OKX**
+
+Explique d'abord :
+
+> La région détermine le domaine OKX et l'adresse API utilisés. Choisir le
+> mauvais site produit souvent l'erreur « API key doesn't exist », même avec une
+> clé valide. Sélectionnez la région correspondant au site sur lequel votre
+> compte est réellement connecté ; elle n'est pas déduite de votre position.
 
 - `Europe/EEE` — recommandé si le compte est sur `my.okx.com` ;
 - `États-Unis` ;
@@ -83,26 +123,50 @@ horaire ou l'adresse IP.
 
 Avant de parler de clé API, propose un nouveau choix cliquable :
 
+> Un sous-compte est un espace OKX séparé, rattaché au compte principal. Il
+> permet d'isoler le bot avec uniquement le petit budget du plan : une erreur de
+> configuration ne peut alors pas utiliser tout le solde Trading principal.
+> C'est recommandé mais facultatif ; il ne s'agit pas d'ouvrir un nouveau compte
+> bancaire ni de refaire l'identité du titulaire.
+
 - `Créer un sous-compte dédié` — recommandé ; limite le budget exposé au bot ;
 - `Utiliser mon compte principal` — aucun sous-compte.
 
 Si l'utilisateur choisit le sous-compte, donne l'URL régionale de sous-compte,
-demande-lui de l'ouvrir dans son propre navigateur, puis guide-le pour créer le
-sous-compte et lui transférer uniquement le budget prévu. Ensuite seulement,
-donne l'URL régionale de création de clé et demande une clé rattachée à ce
-sous-compte.
+demande-lui de l'ouvrir dans son propre navigateur, puis donne **une seule tâche
+à la fois** :
 
-S'il choisit le compte principal, ne crée rien : donne directement l'URL
-régionale de création de clé. Explique que cette clé accédera au solde Trading
-du compte principal et recommande de n'y laisser que le budget accepté.
+1. ouvrir le lien et se connecter si OKX le demande ;
+2. choisir **Créer un sous-compte** puis le type **Standard** (pas « Managed
+   trading »), avec un nom reconnaissable comme `dca-github` ;
+3. confirmer la création avec la 2FA puis revenir dire seulement « créé » ;
+4. ouvrir le lien de transfert et envoyer du compte principal vers ce
+   sous-compte uniquement le budget total du plan, avec une petite marge pour
+   les frais ;
+5. ouvrir ensuite la page API, cliquer **Créer une clé API**, puis sélectionner
+   ce sous-compte dans le champ **Compte**.
+
+Si le champ Compte n'est pas sélectionnable, explique que cela signifie en
+général qu'aucun sous-compte n'est encore lié ou que la page est ouverte depuis
+le mauvais compte. Ne continue pas avec une clé du compte principal sans le
+signaler clairement.
+
+S'il choisit le compte principal, ne crée rien : rappelle que la clé accédera au
+solde Trading principal et recommande de n'y laisser que le budget accepté.
+Demande une confirmation de ce choix, puis donne l'URL régionale de création de
+clé.
 
 En mode démo, explique qu'un sous-compte de budget n'est pas nécessaire puisque
 les fonds sont fictifs, puis donne l'URL API régionale et demande de créer la clé
 depuis *Trading démo*.
 
-Dans tous les cas, l'utilisateur ouvre lui-même l'URL dans son navigateur
-habituel. Ne prends pas le contrôle du navigateur et ne demande jamais les
-identifiants API dans le chat.
+Dans tous les cas, guide la création de clé écran par écran : nom explicite
+(`github-dca`), bon compte dans le sélecteur, objectif « API trading »,
+permissions **Lecture + Trading**, jamais **Retrait**, passphrase unique, puis
+2FA. Pour GitHub Actions, explique avant validation que l'adresse IP ne peut pas
+être figée car les runners changent d'IP. L'utilisateur ouvre lui-même l'URL
+dans son navigateur habituel ; ne prends pas le contrôle du navigateur et ne
+demande jamais les identifiants API dans le chat.
 
 Pose ensuite, une par une :
 
@@ -114,6 +178,23 @@ Pose ensuite, une par une :
 | 7 | Pendant combien de mois ? | 3 |
 | 8 | Nom du dépôt à créer sur son compte ? | mes-achats-crypto |
 
+Pour ces questions, ne donne pas seulement une valeur par défaut :
+
+- **Actif(s)** : explique qu'une paire comme `SOL-USDC` signifie « acheter SOL
+  en dépensant des USDC » et que toutes les paires doivent avoir la même devise
+  de droite ;
+- **Montant** : précise qu'il s'agit du montant dépensé **par actif et par
+  échéance**, puis calcule le total prévu avant toute confirmation ;
+- **Rythme et durée** : traduis la réponse en dates et en nombre exact
+  d'échéances. Si l'utilisateur demande « maintenant puis dans 15 jours »,
+  utilise `--count 2` et annonce les deux dates ;
+- **Dépôt** : explique qu'il contiendra le plan et l'historique, qu'il sera créé
+  privé par défaut et qu'aucune clé API n'y sera enregistrée.
+
+Si l'utilisateur a déjà donné un actif, un montant, un rythme ou un nombre
+d'achats dans son premier message, conserve ces valeurs et affiche un
+récapitulatif ; ne lui demande que les informations manquantes.
+
 **Question 2 → paramètre `site` et devise :**
 
 | Réponse | `site` | Domaine | Devise conseillée |
@@ -123,14 +204,20 @@ Pose ensuite, une par une :
 | Turquie | `tr` | tr.okx.com | `-TRY` |
 | Ailleurs | `global` | www.okx.com | `-USDT` |
 
-**URLs à remettre à l'utilisateur (ouverture manuelle uniquement) :**
+**URLs cliquables à remettre à l'utilisateur (ouverture manuelle uniquement) :**
 
-| Région | Sous-comptes | Clés API |
-|---|---|---|
-| Europe/EEE | `https://my.okx.com/fr-fr/account/sub-account` | `https://my.okx.com/fr-fr/account/my-api` |
-| États-Unis | `https://us.okx.com/account/sub-account` | `https://us.okx.com/account/my-api` |
-| Turquie | `https://tr.okx.com/account/sub-account` | `https://tr.okx.com/account/my-api` |
-| Ailleurs | `https://www.okx.com/account/sub-account` | `https://www.okx.com/account/my-api` |
+| Région | Sous-comptes | Clés API | Transfert vers Trading / sous-compte |
+|---|---|---|---|
+| Europe/EEE | [Ouvrir les sous-comptes OKX Europe](https://my.okx.com/fr-fr/account/sub-account) | [Ouvrir les clés API OKX Europe](https://my.okx.com/fr-fr/account/my-api) | [Ouvrir les transferts OKX Europe](https://my.okx.com/fr-fr/balance/transfer) |
+| États-Unis | [Ouvrir les sous-comptes OKX US](https://us.okx.com/account/sub-account) | [Ouvrir les clés API OKX US](https://us.okx.com/account/my-api) | [Ouvrir les transferts OKX US](https://us.okx.com/balance/transfer) |
+| Turquie | [Ouvrir les sous-comptes OKX TR](https://tr.okx.com/account/sub-account) | [Ouvrir les clés API OKX TR](https://tr.okx.com/account/my-api) | [Ouvrir les transferts OKX TR](https://tr.okx.com/balance/transfer) |
+| Ailleurs | [Ouvrir les sous-comptes OKX](https://www.okx.com/account/sub-account) | [Ouvrir les clés API OKX](https://www.okx.com/account/my-api) | [Ouvrir les transferts OKX](https://www.okx.com/balance/transfer) |
+
+Ajoute aussi, si l'utilisateur hésite, les explications officielles :
+
+- [Comprendre et créer un sous-compte](https://www.okx.com/fr-fr/help/what-is-a-sub-account) ;
+- [FAQ OKX Europe : sous-comptes et connexions API](https://www.okx.com/fr-fr/help/subaccounts-account-mode-and-api-connections-faq) ;
+- [FAQ officielle sur les clés API](https://www.okx.com/en-eu/help/api-faq).
 
 Pour toute clé : permissions **Lecture + Trading**, jamais Retrait. Pour le mode
 démo, l'utilisateur doit d'abord basculer sur *Trading démo* puis créer une clé

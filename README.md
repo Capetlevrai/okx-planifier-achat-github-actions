@@ -31,6 +31,13 @@ et, en argent réel, propose un **sous-compte dédié** avant toute clé API. Il
 crée **obligatoirement un dépôt privé** à partir de ce template, configure les secrets,
 et **demande confirmation avant tout achat réel**.
 
+Le parcours ne doit pas se limiter à une succession de questions. Avant chaque
+choix, l'agent explique en quelques phrases **pourquoi l'étape existe**, ce que
+votre réponse change, ce qui reste désarmé et ce que vous devez faire. Il ne vous
+demande jamais de coller une clé API dans le chat. Consultez le
+[parcours guidé détaillé](docs/PARCOURS_GUIDE.md) pour voir exactement les étapes
+et les liens qui doivent vous être présentés.
+
 Les pages OKX sensibles ne sont pas ouvertes dans un navigateur intégré :
 l'agent vous donne l'URL officielle à ouvrir vous-même dans votre navigateur
 habituel. Ne transmettez jamais clé, secret ou passphrase dans le chat.
@@ -72,6 +79,21 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 5. Dans **Settings → Environments → `real-trading` → Environment secrets**, ajoutez `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`) et `OKX_PASSPHRASE`. **N'utilisez pas la section _Environment variables_** : le workflow lit des secrets et ne recevra pas de variables.
 6. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 7. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
+
+### Accès directs OKX Europe/EEE
+
+Ouvrez ces pages vous-même dans votre navigateur habituel. Si vous n'êtes pas
+connecté, OKX affiche d'abord la connexion puis revient automatiquement à la
+rubrique demandée.
+
+1. [Créer ou gérer un sous-compte dédié](https://my.okx.com/fr-fr/account/sub-account)
+2. [Transférer le budget vers le sous-compte ou le compte Trading](https://my.okx.com/fr-fr/balance/transfer)
+3. [Créer la clé API sur le compte choisi](https://my.okx.com/fr-fr/account/my-api)
+4. [Consulter ensuite l'historique Spot](https://my.okx.com/fr-fr/balance/report-center/unified/account-history)
+
+Pour comprendre le choix avant d'agir :
+[guide officiel des sous-comptes](https://www.okx.com/fr-fr/help/what-is-a-sub-account)
+et [FAQ officielle sous-comptes/API](https://www.okx.com/fr-fr/help/subaccounts-account-mode-and-api-connections-faq).
 
 Pour un premier achat réel « maintenant », suivez le [parcours en une fois](docs/GUIDE_ACHAT_REEL.md#premier-achat-immédiat--le-parcours-en-une-fois) : il évite de lancer un ancien workflow avant que le planning armé soit bien poussé.
 
@@ -142,6 +164,7 @@ Pour une copie publique dont GitHub Pages est activé, c'est
 | Doc | Contenu |
 |---|---|
 | [AGENTS.md](AGENTS.md) | Protocole complet pour les agents IA |
+| [docs/PARCOURS_GUIDE.md](docs/PARCOURS_GUIDE.md) | Parcours expliqué, étape par étape, avec liens directs |
 | [docs/GUIDE_ACHAT_REEL.md](docs/GUIDE_ACHAT_REEL.md) | Checklist premier achat réel |
 | [docs/REPO_PRIVE.md](docs/REPO_PRIVE.md) | Utilisation en dépôt privé |
 | [docs/SECURITE.md](docs/SECURITE.md) | Règles de sécurité |

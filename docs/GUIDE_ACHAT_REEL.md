@@ -50,6 +50,15 @@ n’est pas OK.
 
 ### A. Compte et fonds OKX
 
+Pour un compte Europe/EEE, commencez ici :
+
+- [Ouvrir la gestion des sous-comptes OKX Europe](https://my.okx.com/fr-fr/account/sub-account) ;
+- [Ouvrir les transferts OKX Europe](https://my.okx.com/fr-fr/balance/transfer).
+
+La page peut d'abord vous demander de vous connecter. Après connexion, OKX vous
+ramène à la rubrique demandée. Pour ce projet, choisissez un sous-compte
+**Standard**, pas un sous-compte « Managed trading ».
+
 - [ ] Vous avez choisi entre un **sous-compte dédié** au bot (recommandé) et le
       compte principal **avant** de créer la clé API.
 - [ ] Si vous avez choisi le sous-compte, créez-le depuis l'URL officielle de
@@ -77,6 +86,12 @@ n’est pas OK.
 > insuffisant » alors que l’appli montre « 30 USDC ».
 
 ### B. Clé API
+
+Créez la clé seulement après avoir choisi le compte qui portera le budget :
+[ouvrir les clés API OKX Europe](https://my.okx.com/fr-fr/account/my-api).
+Dans le formulaire, vérifiez le champ **Compte** : il doit afficher le
+sous-compte dédié si vous en avez créé un, sinon le compte principal. Ne
+continuez pas machinalement si ce champ ne correspond pas à votre choix.
 
 - [ ] Créez la clé **après** le choix du compte, afin qu'elle soit rattachée au
       sous-compte dédié ou au compte principal voulu.
