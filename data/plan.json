@@ -34,14 +34,29 @@
       "dueAt": "2026-08-08T09:00:00.000Z",
       "instId": "BTC-USDC",
       "amount": 10,
-      "status": "pending"
+      "status": "failed",
+      "operationId": "op_92b388bcdb9764bdc15089d7",
+      "clOrdId": "dca3988bc8fe2a45229476c9c6e",
+      "attempts": 0,
+      "reconciliationAttempts": 1,
+      "preflightFailures": 1,
+      "error": "OKX GET /api/v5/trade/order?instId=BTC-USDC&clOrdId=dca3988bc8fe2a45229476c9c6e — HTTP 401 : API key doesn't exist",
+      "errorClass": "Erreur définitive de paire/marché",
+      "retryable": false,
+      "failedAt": "2026-08-08T11:20:56.140Z"
     },
     {
       "id": "dca-2-BTC-USDC",
       "dueAt": "2026-08-23T09:00:00.000Z",
       "instId": "BTC-USDC",
       "amount": 10,
-      "status": "pending"
+      "status": "pending",
+      "operationId": "op_cceea6fb720360b598f39233",
+      "clOrdId": "dca8ddeb8b01da591966b009565",
+      "attempts": 0,
+      "reconciliationAttempts": 0,
+      "preflightFailures": 0
     }
-  ]
+  ],
+  "updatedAt": "2026-08-08T11:20:56.449Z"
 }

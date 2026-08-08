@@ -1,4 +1,63 @@
 {
   "schemaVersion": 1,
-  "operations": []
+  "operations": [
+    {
+      "operationId": "op_92b388bcdb9764bdc15089d7",
+      "entryId": "dca-1-BTC-USDC",
+      "planCreatedAt": "2026-08-08T11:07:10.026Z",
+      "demo": true,
+      "instId": "BTC-USDC",
+      "quoteCcy": "USDC",
+      "baseCcy": "BTC",
+      "requestedQuoteAmount": 10,
+      "dueAt": "2026-08-08T09:00:00.000Z",
+      "clOrdId": "dca3988bc8fe2a45229476c9c6e",
+      "state": "prepared",
+      "terminalState": null,
+      "okxState": "prepared",
+      "ordId": null,
+      "submissionAttempts": 0,
+      "reconciliationAttempts": 1,
+      "preflightFailures": 1,
+      "filledQty": null,
+      "avgPrice": null,
+      "events": [
+        {
+          "at": "2026-08-08T11:20:56.140Z",
+          "type": "reconcile_attempt"
+        },
+        {
+          "at": "2026-08-08T11:20:56.140Z",
+          "type": "error",
+          "error": "OKX GET /api/v5/trade/order?instId=BTC-USDC&clOrdId=dca3988bc8fe2a45229476c9c6e — HTTP 401 : API key doesn't exist",
+          "retryable": false
+        }
+      ],
+      "createdAt": "2026-08-08T11:07:10.026Z"
+    },
+    {
+      "operationId": "op_cceea6fb720360b598f39233",
+      "entryId": "dca-2-BTC-USDC",
+      "planCreatedAt": "2026-08-08T11:07:10.026Z",
+      "demo": true,
+      "instId": "BTC-USDC",
+      "quoteCcy": "USDC",
+      "baseCcy": "BTC",
+      "requestedQuoteAmount": 10,
+      "dueAt": "2026-08-23T09:00:00.000Z",
+      "clOrdId": "dca8ddeb8b01da591966b009565",
+      "state": "prepared",
+      "terminalState": null,
+      "okxState": "prepared",
+      "ordId": null,
+      "submissionAttempts": 0,
+      "reconciliationAttempts": 0,
+      "preflightFailures": 0,
+      "filledQty": null,
+      "avgPrice": null,
+      "events": [],
+      "createdAt": "2026-08-08T11:07:10.026Z"
+    }
+  ],
+  "updatedAt": "2026-08-08T11:20:56.449Z"
 }
