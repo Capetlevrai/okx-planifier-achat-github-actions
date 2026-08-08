@@ -56,7 +56,7 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 
 1. **[Use this template](../../generate)** → créez votre dépôt (de préférence **Private** pour l’argent réel).
 2. **[Créez une clé API OKX](https://my.okx.com/fr-fr/account/my-api)** : **Lecture + Trading** uniquement — **jamais Retrait**.
-3. **[Mettez la devise d’achat (ex. USDC) sur le compte Trading](https://my.okx.com/fr-fr/balance/transfer)** (pas seulement Funding).
+3. Assurez-vous d’avoir des devises disponibles sur votre compte **Trading** (ex. USDC) : les fonds sont souvent sur le compte **Funding** par défaut — [transférez-les vers Trading](https://my.okx.com/fr-fr/balance/transfer) si besoin. Pour plus de sécurité, utilisez un **[sous-compte](https://my.okx.com/fr-fr/account/sub-account)** dédié.
 4. Collez les secrets dans GitHub : `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`), `OKX_PASSPHRASE`.
 5. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 6. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
@@ -107,7 +107,7 @@ Sécurité détaillée : [docs/SECURITE.md](docs/SECURITE.md).
 
 - **Jamais** la permission Retrait sur la clé API.
 - Secrets **uniquement** dans GitHub Actions — jamais dans le code.
-- Préférez un **sous-compte** avec un petit budget.
+- Préférez un **[sous-compte](https://my.okx.com/fr-fr/account/sub-account)** avec un petit budget.
 - Un **keepalive** maintient la clé active (appel solde, sans ordre).
 - Une clé collée en clair doit être **révoquée**.
 
