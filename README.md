@@ -34,8 +34,10 @@ et **demande confirmation avant tout achat réel**.
 
 Créez un **fine-grained personal access token** limité à **votre** dépôt :
 
-- Contents, Workflows, Secrets : **Read and write**
-- Metadata : **Read-only**
+- **Contents** : Read and write  
+- **Workflows** : Read and write  
+- **Secrets** : Read and write  
+- **Metadata** : Read-only
 
 Révoquez le token après installation.
 
