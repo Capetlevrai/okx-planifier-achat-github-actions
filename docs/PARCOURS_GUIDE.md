@@ -107,6 +107,11 @@ Le dépôt privé contient le planning, les scripts et l'historique généré. I
 contient jamais les clés. Les identifiants OKX sont ajoutés comme secrets de
 l'environnement GitHub protégé `real-trading`.
 
+L'agent doit détailler les clics : **Settings → Environments**, cliquer sur la
+carte **`real-trading`**, descendre jusqu'à **Environment secrets**, puis cliquer
+sur **Add environment secret** pour chaque identifiant. Il rappelle toujours :
+**Environment secrets, jamais Environment variables**.
+
 L'agent donne ensuite le lien du dépôt et explique où consulter `RAPPORT.md`.
 Il ne rend pas le dépôt public sans demande explicite.
 

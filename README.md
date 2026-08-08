@@ -76,7 +76,7 @@ Autres prompts : [docs/AGENT_PROMPTS.md](docs/AGENT_PROMPTS.md).
 2. En argent réel, choisissez d'abord entre un **[sous-compte dédié](https://my.okx.com/fr-fr/account/sub-account)** avec budget limité (recommandé) et votre compte principal.
 3. **[Créez ensuite la clé API OKX](https://my.okx.com/fr-fr/account/my-api)** sur le compte choisi : **Lecture + Trading** uniquement — **jamais Retrait**.
 4. Assurez-vous d’avoir des devises disponibles sur le compte **Trading** choisi (ex. USDC) : les fonds sont souvent sur le compte **Funding** par défaut — [transférez-les vers Trading](https://my.okx.com/fr-fr/balance/transfer) si besoin.
-5. Dans **Settings → Environments → `real-trading` → Environment secrets**, ajoutez `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`) et `OKX_PASSPHRASE`. **N'utilisez pas la section _Environment variables_** : le workflow lit des secrets et ne recevra pas de variables.
+5. Ouvrez **Settings → Environments**, cliquez sur la grande carte **`real-trading`**, puis descendez jusqu'à **Environment secrets**. Cliquez sur **Add environment secret** pour ajouter `OKX_API_KEY`, `OKX_API_SECRET` (ou `OKX_SECRET_KEY`) et `OKX_PASSPHRASE`, un par un. **Utilisez Environment secrets, jamais Environment variables** : le workflow ne lit pas les variables comme identifiants OKX.
 6. Actions → **1. Configurer mon plan** → choisissez paires, montants, rythme.
 7. Testez d’abord en **démo**, puis un **tout petit** montant réel si vous le souhaitez.
 

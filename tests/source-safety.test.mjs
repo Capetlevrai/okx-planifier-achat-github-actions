@@ -48,6 +48,9 @@ assert.ok(agentProtocol.includes('Créer un sous-compte dédié') && agentProtoc
 assert.ok(agentProtocol.includes('https://my.okx.com/fr-fr/balance/sub-transfer'), 'Europe sub-account flow must link directly to the main-to-sub-account transfer page');
 assert.ok(agentProtocol.includes('immédiatement après cette phrase'), 'agent must show the transfer link at the moment the user is asked to fund the sub-account');
 assert.ok(agentProtocol.includes("Le fusible `ALLOW_REAL_TRADING` est géré par l'agent"), 'agent must own the real-trading fuse lifecycle');
+assert.ok(agentProtocol.includes('clique sur la grande carte') && agentProtocol.includes('**`real-trading`**'), 'agent must tell the user to open the real-trading environment card');
+assert.ok(agentProtocol.includes('**Add environment secret**'), 'agent must name the GitHub button used to add each secret');
+assert.ok(agentProtocol.includes('**utilise Environment secrets, jamais') && agentProtocol.includes('Environment variables**'), 'agent must explicitly forbid Environment variables for OKX credentials');
 assert.ok(!realUserGuide.includes('| `ALLOW_REAL_TRADING` |'), 'final-user secret table must not ask the user to manage the arming fuse');
 assert.ok(agentProtocol.includes("N'ouvre jamais le navigateur intégré pour OKX"), 'agent must hand off sensitive OKX pages to the user browser');
 assert.ok(agentProtocol.includes('Ne demande jamais une clé, un secret ou une passphrase dans le chat'), 'agent must not collect OKX credentials in chat');

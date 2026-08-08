@@ -114,13 +114,20 @@ continuez pas machinalement si ce champ ne correspond pas à votre choix.
 
 ### C. Secrets GitHub (environnement `real-trading`)
 
-Allez dans votre dépôt → **Settings → Environments → `real-trading`**  
-(créez l’environnement s’il n’existe pas), puis ajoutez les valeurs dans la
-section **Environment secrets**.
+Allez dans votre dépôt → **Settings → Environments**. Sur la page qui apparaît :
 
-> **Attention : ne les ajoutez jamais dans _Environment variables_.** Ces
+1. cliquez sur la grande carte **`real-trading`** au milieu de la page, pas sur
+   l'icône corbeille située à droite ;
+2. sur la page suivante, descendez jusqu'à **Environment secrets** ;
+3. cliquez sur **Add environment secret** et ajoutez les trois identifiants un
+   par un.
+
+Si la carte `real-trading` n'existe pas, créez d'abord cet environnement avec
+**New environment**, puis ouvrez sa carte.
+
+> **Utilisez Environment secrets, jamais Environment variables.** Ces
 > variables ne sont pas chiffrées et le workflow ne les utilise pas pour les
-> identifiants OKX. Cherchez le bouton **Add environment secret**.
+> identifiants OKX.
 
 ![Section GitHub « Environment secrets », où ajouter les identifiants OKX](images/github-environment-secrets.png)
 

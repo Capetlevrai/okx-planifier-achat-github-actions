@@ -314,11 +314,34 @@ passer du compte démo au compte réel, et `OKX_BASE_URL` doit correspondre au
 
 ## Étape 5 — Enregistrer les secrets sur GitHub
 
-```bash
-gh secret set OKX_API_KEY --body "<clé>" --repo <pseudo>/<nom-du-dépôt>
-```
+Ne te contente jamais de donner le lien général **Settings → Environments**.
+Guide l'utilisateur écran par écran, une action à la fois :
 
-Idem pour `OKX_SECRET_KEY` et `OKX_PASSPHRASE`.
+1. ouvre `https://github.com/<pseudo>/<nom-du-dépôt>/settings/environments` ;
+2. sur la page qui liste les environnements, clique sur la grande carte
+   **`real-trading`** (pas sur l'icône corbeille) ;
+3. sur la page suivante, descends jusqu'à **Environment secrets** ;
+4. clique sur **Add environment secret** pour ajouter, un par un,
+   `OKX_API_KEY`, `OKX_SECRET_KEY` et `OKX_PASSPHRASE` ;
+5. précise systématiquement : **utilise Environment secrets, jamais
+   Environment variables**. Les variables ne sont pas lues comme identifiants
+   OKX par le workflow et provoqueraient un échec difficile à comprendre ;
+6. demande seulement « indique-moi quand les trois secrets sont ajoutés ».
+   Ne demande jamais leurs valeurs dans la conversation.
+
+Si `real-trading` n'existe pas, crée d'abord cet environnement, puis fais
+revenir l'utilisateur sur la liste et demande-lui de cliquer sur sa carte.
+Lorsque la saisie est terminée, vérifie uniquement les **noms** via l'API GitHub,
+jamais les valeurs.
+
+Si une saisie locale sûre est disponible, l'équivalent CLI doit toujours cibler
+l'environnement :
+
+```bash
+gh secret set OKX_API_KEY --repo <pseudo>/<nom-du-dépôt> --env real-trading
+gh secret set OKX_SECRET_KEY --repo <pseudo>/<nom-du-dépôt> --env real-trading
+gh secret set OKX_PASSPHRASE --repo <pseudo>/<nom-du-dépôt> --env real-trading
+```
 
 Le mode démo/réel et le domaine viennent du plan versionné. N'utilise pas une
 variable de dépôt pour convertir un plan démo en réel ou changer silencieusement
