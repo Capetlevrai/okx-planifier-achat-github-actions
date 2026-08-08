@@ -1,6 +1,7 @@
+import { pathToFileURL } from 'node:url';
 import { PLAN_FILE, availableBalance, configure, currentBaseUrl, isDemo, log, quoteCurrency, readJson, requireCredentials } from './okx.mjs';
 
-function keepaliveCurrency(plan) {
+export function keepaliveCurrency(plan) {
   const configured = plan?.strategy?.quoteCcy;
   if (typeof configured === 'string' && configured.trim()) return configured.trim().toUpperCase();
 
@@ -9,21 +10,26 @@ function keepaliveCurrency(plan) {
   return quoteCurrency(firstPair).toUpperCase();
 }
 
-async function main() {
-  const plan = readJson(PLAN_FILE, null);
-  if (!plan) throw new Error('Plan introuvable : lancez d’abord le workflow de configuration.');
-
+export async function runKeepalive(plan) {
   configure(plan);
   requireCredentials();
 
   const ccy = keepaliveCurrency(plan);
   const accountLabel = isDemo() ? 'DÉMO (argent fictif)' : 'RÉEL (argent réel)';
   log(`Keepalive OKX — compte ${accountLabel} · ${currentBaseUrl().replace('https://', '')} — appel authentifié solde ${ccy}, aucun ordre envoyé.`);
-  const balance = await availableBalance(ccy);
-  log(`Keepalive OKX réussi — endpoint authentifié /api/v5/account/balance?ccy=${ccy} — solde disponible lu : ${balance} ${ccy}.`);
+  await availableBalance(ccy);
+  log(`Keepalive OKX réussi — endpoint authentifié /api/v5/account/balance?ccy=${ccy} — aucun ordre envoyé.`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+async function main() {
+  const plan = readJson(PLAN_FILE, null);
+  if (!plan) throw new Error('Plan introuvable : lancez d’abord le workflow de configuration.');
+  await runKeepalive(plan);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

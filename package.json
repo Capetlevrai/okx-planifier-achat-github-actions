@@ -12,7 +12,7 @@
     "run-due": "node --env-file=.env scripts/run-due.mjs",
     "keepalive": "node --env-file=.env scripts/keepalive.mjs",
     "site": "npx --yes serve .",
-    "test": "node tests/safety.test.mjs && node tests/configuration.test.mjs && node tests/okx-client.test.mjs && node tests/orchestration.test.mjs && node tests/dashboard.test.mjs && node tests/source-safety.test.mjs"
+    "test": "node tests/safety.test.mjs && node tests/configuration.test.mjs && node tests/okx-client.test.mjs && node tests/orchestration.test.mjs && node tests/keepalive.test.mjs && node tests/dashboard.test.mjs && node tests/source-safety.test.mjs"
   },
   "devDependencies": {
     "@okx_ai/okx-trade-cli": "^1.4.2",

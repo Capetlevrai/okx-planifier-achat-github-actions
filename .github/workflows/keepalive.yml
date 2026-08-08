@@ -4,7 +4,6 @@ on:
   schedule:
     # Toutes les 48h environ : garde active une clé OKX non liée à une IP sans passer d'ordre.
     - cron: '0 6 */2 * *'
-  workflow_dispatch:
 
 permissions:
   contents: read
