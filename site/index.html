@@ -168,7 +168,9 @@ const cadence=Number(plan.strategy.everyDays)===1?'chaque jour':`tous les ${plan
 const explainError=value=>{const text=String(value||'');const market=text.match(/^No market data available for (.+)$/);return market?`Données de marché indisponibles pour ${esc(market[1])}`:esc(text)};
 document.title=`OKX DCA ${demo?'Démo':'Réel'} — ${assets.join(' + ') || 'plan'}`;
 $('page-title').textContent=`Plan d’achat OKX ${modeName}`;
-$('page-lead').textContent=`${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`;
+$('page-lead').textContent=entries.length
+  ? `${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`
+  : 'Aucun achat configuré. Ouvrez Actions → 1. 🗓️ PLANNING — Créer ou modifier mes achats pour commencer.';
 const OKX_ACCOUNT_HISTORY_URL='https://my.okx.com/fr-fr/balance/report-center/unified/account-history';
 const okxHistoryAnchor=`<a href="${OKX_ACCOUNT_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Historique d’achats sur OKX</a>`;
 const yearEl=document.getElementById('year');

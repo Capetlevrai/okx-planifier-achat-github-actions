@@ -36,6 +36,9 @@ const agentProtocol = read('../AGENTS.md');
 const claudeProtocol = read('../CLAUDE.md');
 const readme = read('../README.md');
 const realUserGuide = read('../docs/GUIDE_ACHAT_REEL.md');
+const templatePlan = JSON.parse(read('../data/plan.json'));
+const templateOperations = JSON.parse(read('../data/operations.json'));
+const templateHistory = JSON.parse(read('../data/history.json'));
 const dca = parseWorkflow('../.github/workflows/dca.yml');
 const setup = parseWorkflow('../.github/workflows/setup.yml');
 const pages = parseWorkflow('../.github/workflows/pages.yml');
@@ -66,6 +69,11 @@ assert.ok(readme.includes('https://my.okx.com/fr-fr/balance/sub-transfer'), 'Eur
 assert.ok(readme.includes("exécute immédiatement un seul achat") && readme.includes("bien rempli"), 'README must promise one-shot execution and fill verification after confirmation');
 assert.ok(claudeProtocol.includes('choix interactifs Démo/Argent réel puis Région'), 'Claude entrypoint must preserve the interactive flow');
 assert.ok(claudeProtocol.includes('Lance une seule fois le workflow') && claudeProtocol.includes('vérifie `filled`'), 'Claude entrypoint must complete and verify immediate purchases in one shot');
+assert.equal(templatePlan.live, false, 'public template must start with purchases disabled');
+assert.equal(templatePlan.demo, true, 'public template must start in demo mode');
+assert.deepEqual(templatePlan.entries, [], 'public template must not ship stale scheduled entries');
+assert.deepEqual(templateOperations.operations, [], 'public template must not ship an execution registry');
+assert.deepEqual(templateHistory.purchases, [], 'public template must not ship purchase history');
 
 assert.equal(dca.concurrency.group, 'okx-dca-state');
 assert.equal(setup.concurrency.group, 'okx-dca-state');

@@ -58,6 +58,10 @@ out.push('# Tableau de bord');
 out.push('');
 out.push(`> **Compte ${plan.demo === false ? 'RÉEL — argent réel' : 'démo — argent fictif'}** · ` +
   `${plan.live === true ? '**achats armés**, les ordres partent' : 'simulation, aucun ordre transmis'}`);
+if (!plan.entries.length) {
+  out.push('>');
+  out.push('> 🗓️ **Aucun achat configuré.** Ouvrez **Actions → 1. 🗓️ PLANNING — Créer ou modifier mes achats** pour commencer.');
+}
 if (plan.demo === false && plan.live === true) {
   out.push('>');
   out.push('> 🔗 [Historique d’achats sur OKX (app / site)](https://my.okx.com/fr-fr/balance/report-center/unified/account-history) — connexion requise');

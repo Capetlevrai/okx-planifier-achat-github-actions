@@ -138,7 +138,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);background:var(--card)}
   </div>
 </footer>
 
-<script>window.__DCA__ = {"plan":{"createdAt":"2026-08-08T11:07:10.026Z","live":false,"demo":true,"site":"eea","baseUrl":"https://my.okx.com","strategy":{"label":"10 USDC par actif tous les 15 jours","instIds":["BTC-USDC"],"quoteCcy":"USDC","amountPerAsset":10,"everyDays":15,"cycles":2,"hourUtc":9},"risk":{"allowedInstIds":["BTC-USDC"],"maxOrderAmount":10,"maxDailyQuoteAmount":10,"maxPlanQuoteAmount":20,"maxLifetimeQuoteAmount":20,"maxAttempts":3,"retryDelayMinutes":60,"orderPollAttempts":10,"orderPollDelayMs":1500},"entries":[{"id":"dca-1-BTC-USDC","dueAt":"2026-08-08T09:00:00.000Z","instId":"BTC-USDC","amount":10,"status":"failed","operationId":"op_92b388bcdb9764bdc15089d7","clOrdId":"dca3988bc8fe2a45229476c9c6e","attempts":0,"reconciliationAttempts":1,"preflightFailures":1,"error":"OKX GET /api/v5/trade/order?instId=BTC-USDC&clOrdId=dca3988bc8fe2a45229476c9c6e — HTTP 401 : API key doesn't exist","errorClass":"Erreur définitive de paire/marché","retryable":false,"failedAt":"2026-08-08T11:20:56.140Z"},{"id":"dca-2-BTC-USDC","dueAt":"2026-08-23T09:00:00.000Z","instId":"BTC-USDC","amount":10,"status":"pending","operationId":"op_cceea6fb720360b598f39233","clOrdId":"dca8ddeb8b01da591966b009565","attempts":0,"reconciliationAttempts":0,"preflightFailures":0}],"updatedAt":"2026-08-08T11:20:56.449Z"},"history":{"purchases":[],"updatedAt":"2026-08-08T11:20:56.449Z"},"instruments":{"instruments":[],"byQuote":{}}};</script>
+<script>window.__DCA__ = {"plan":{"createdAt":"2026-08-08T12:20:00.000Z","live":false,"demo":true,"site":"eea","baseUrl":"https://my.okx.com","strategy":{"label":"Aucun achat configuré","instIds":[],"quoteCcy":"USDC","amountPerAsset":0,"everyDays":15,"cycles":0,"hourUtc":9},"risk":{"allowedInstIds":[],"maxOrderAmount":0,"maxDailyQuoteAmount":0,"maxPlanQuoteAmount":0,"maxLifetimeQuoteAmount":0,"maxAttempts":3,"retryDelayMinutes":60,"orderPollAttempts":10,"orderPollDelayMs":1500},"entries":[]},"history":{"purchases":[]},"instruments":{"instruments":[],"byQuote":{}}};</script>
 <script type="module">
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -169,7 +169,9 @@ const cadence=Number(plan.strategy.everyDays)===1?'chaque jour':`tous les ${plan
 const explainError=value=>{const text=String(value||'');const market=text.match(/^No market data available for (.+)$/);return market?`Données de marché indisponibles pour ${esc(market[1])}`:esc(text)};
 document.title=`OKX DCA ${demo?'Démo':'Réel'} — ${assets.join(' + ') || 'plan'}`;
 $('page-title').textContent=`Plan d’achat OKX ${modeName}`;
-$('page-lead').textContent=`${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`;
+$('page-lead').textContent=entries.length
+  ? `${assets.join(' + ')} · ${money(plan.strategy.amountPerAsset,quote)} par actif · ${cadence}. Exécution automatisée par GitHub Actions.`
+  : 'Aucun achat configuré. Ouvrez Actions → 1. 🗓️ PLANNING — Créer ou modifier mes achats pour commencer.';
 const OKX_ACCOUNT_HISTORY_URL='https://my.okx.com/fr-fr/balance/report-center/unified/account-history';
 const okxHistoryAnchor=`<a href="${OKX_ACCOUNT_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Historique d’achats sur OKX</a>`;
 const yearEl=document.getElementById('year');
