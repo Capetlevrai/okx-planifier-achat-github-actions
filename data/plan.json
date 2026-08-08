@@ -34,14 +34,25 @@
       "dueAt": "2026-08-23T09:00:00.000Z",
       "instId": "SOL-USDC",
       "amount": 2,
-      "status": "pending"
+      "status": "pending",
+      "operationId": "op_d72bf31f5ec2c319b051f11d",
+      "clOrdId": "dca004e7180823dd17231900868",
+      "attempts": 0,
+      "reconciliationAttempts": 0,
+      "preflightFailures": 0
     },
     {
       "id": "dca-2-SOL-USDC",
       "dueAt": "2026-09-07T09:00:00.000Z",
       "instId": "SOL-USDC",
       "amount": 2,
-      "status": "pending"
+      "status": "pending",
+      "operationId": "op_36b2a8ee2cfdcdd69a7a0a5c",
+      "clOrdId": "dca4c45646b69af1debb5894580",
+      "attempts": 0,
+      "reconciliationAttempts": 0,
+      "preflightFailures": 0
     }
-  ]
+  ],
+  "updatedAt": "2026-08-08T08:29:08.742Z"
 }
