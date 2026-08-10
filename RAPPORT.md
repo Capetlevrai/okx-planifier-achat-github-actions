@@ -51,4 +51,4 @@ _Plan terminé._
 - [capetlevrai.com](https://capetlevrai.com) · [coinacademy.fr](https://coinacademy.fr/) · [vibecrypto.org](https://vibecrypto.org)
 - Réseaux : [X](https://x.com/capetlevrai) · [Discord](https://discord.gg/VmBa7f9ZAt) · [Twitch](https://www.twitch.tv/capetlevrai) · [YouTube](https://www.youtube.com/@CAPETCRYPTO)
 
-<sub>Généré le 10/08/2026 15:51:38 UTC · mis à jour automatiquement après chaque achat · Réalisé par <a href="https://x.com/capetlevrai">Capetlevrai</a> · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a><br>Données fournies à titre informatif uniquement. Ceci n’est pas un conseil financier.</sub>
+<sub>Généré le 10/08/2026 16:43:41 UTC · mis à jour automatiquement après chaque achat · Réalisé par <a href="https://x.com/capetlevrai">Capetlevrai</a> · <a href="https://github.com/Capetlevrai/okx-planifier-achat-github-actions">OKX DCA Planner</a><br>Données fournies à titre informatif uniquement. Ceci n’est pas un conseil financier.</sub>
